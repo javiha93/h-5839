@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { MessageType } from '../types/MessageType';
 
 const MessageGenerator: React.FC = () => {
@@ -27,13 +27,76 @@ const MessageGenerator: React.FC = () => {
   };
 
   const generateMessage = () => {
-    // Aquí se implementaría la lógica para generar el mensaje basado en el tipo seleccionado y el sampleId
-    // Por ahora, mostraremos un mensaje de ejemplo
-    if (sampleId && selectedType) {
-      setGeneratedMessage(`Mensaje tipo ${selectedType} generado para el sampleId: ${sampleId}\n\nEjemplo de estructura de mensaje según el tipo seleccionado...`);
-    } else {
+    if (!sampleId || !selectedType) {
       setGeneratedMessage('Por favor, completa todos los campos.');
+      return;
     }
+
+    let message = '';
+    const currentDate = new Date().toISOString().replace(/[:-]/g, '').split('.')[0];
+    const messageId = Math.floor(Math.random() * 100000).toString();
+
+    switch (selectedType) {
+      case 'OML21':
+        message = `MSH|^~\\&|CERNER|HOSPITAL|LIS|PATHOLOGY|${currentDate}||OML^O21^OML_O21|${messageId}|P|2.5.1|\n` +
+          `PID|||${sampleId}^^^MRN^MRN||DOE^JOHN^^^||19800101|M|\n` +
+          `ORC|NW|${sampleId}_ORD|${sampleId}_PLACR||SC\n` +
+          `OBR|1|${sampleId}_ORD|${sampleId}_PLACR|PATH^PATHOLOGY^L|||${currentDate}|||||||${currentDate}|TISSUE|DOCTOR^ORDERING^^^^\n` +
+          `SAC|||${sampleId}|A|CONTAINER^^TISSUE`;
+        break;
+      case 'DELETE_CASE':
+        message = `MSH|^~\\&|CERNER|HOSPITAL|LIS|PATHOLOGY|${currentDate}||ORM^O01|${messageId}|P|2.5.1|\n` +
+          `PID|||${sampleId}^^^MRN^MRN||DOE^JOHN^^^||19800101|M|\n` +
+          `ORC|CA|${sampleId}_ORD|${sampleId}_PLACR||SC\n` +
+          `OBR|1|${sampleId}_ORD|${sampleId}_PLACR|PATH^PATHOLOGY^L|||${currentDate}|||||||||DOCTOR^ORDERING^^^^`;
+        break;
+      case 'DELETE_SLIDE':
+        message = `MSH|^~\\&|CERNER|HOSPITAL|LIS|PATHOLOGY|${currentDate}||ORM^O01|${messageId}|P|2.5.1|\n` +
+          `PID|||${sampleId}^^^MRN^MRN||DOE^JOHN^^^||19800101|M|\n` +
+          `ORC|CA|${sampleId}_ORD|${sampleId}_PLACR||SC\n` +
+          `OBR|1|${sampleId}_ORD|${sampleId}_PLACR|SLIDE^SLIDE^L|||${currentDate}|||||||||DOCTOR^ORDERING^^^^`;
+        break;
+      case 'ADTA08':
+        message = `MSH|^~\\&|CERNER|HOSPITAL|LIS|PATHOLOGY|${currentDate}||ADT^A08|${messageId}|P|2.5.1|\n` +
+          `PID|||${sampleId}^^^MRN^MRN||DOE^JOHN^^^||19800101|M|\n` +
+          `PV1||I|ICU^ROOM123^BED1|1|||DOCTOR^REFERRING^^^^\n` +
+          `OBX|1|ST|DIAGNOSIS||CANCER DIAGNOSIS||||||F`;
+        break;
+      case 'ACK':
+        message = `MSH|^~\\&|LIS|PATHOLOGY|CERNER|HOSPITAL|${currentDate}||ACK^O21^ACK|${messageId}|P|2.5.1|\n` +
+          `MSA|AA|${sampleId}_MSG|Message accepted successfully`;
+        break;
+      case 'DELETE_SPECIMEN':
+        message = `MSH|^~\\&|CERNER|HOSPITAL|LIS|PATHOLOGY|${currentDate}||ORM^O01|${messageId}|P|2.5.1|\n` +
+          `PID|||${sampleId}^^^MRN^MRN||DOE^JOHN^^^||19800101|M|\n` +
+          `ORC|CA|${sampleId}_ORD|${sampleId}_PLACR||SC\n` +
+          `OBR|1|${sampleId}_ORD|${sampleId}_PLACR|SPEC^SPECIMEN^L|||${currentDate}|||||||||DOCTOR^ORDERING^^^^`;
+        break;
+      case 'SCAN_SLIDE':
+        message = `MSH|^~\\&|CERNER|HOSPITAL|LIS|PATHOLOGY|${currentDate}||OML^O21|${messageId}|P|2.5.1|\n` +
+          `PID|||${sampleId}^^^MRN^MRN||DOE^JOHN^^^||19800101|M|\n` +
+          `ORC|NW|${sampleId}_ORD|${sampleId}_PLACR||SC\n` +
+          `OBR|1|${sampleId}_ORD|${sampleId}_PLACR|SCAN^SCAN_SLIDE^L|||${currentDate}|||||||${currentDate}|SLIDE|DOCTOR^ORDERING^^^^\n` +
+          `SAC|||${sampleId}_SLIDE|A|SLIDE^^SCAN`;
+        break;
+      case 'RESCAN_SLIDE':
+        message = `MSH|^~\\&|CERNER|HOSPITAL|LIS|PATHOLOGY|${currentDate}||OML^O21|${messageId}|P|2.5.1|\n` +
+          `PID|||${sampleId}^^^MRN^MRN||DOE^JOHN^^^||19800101|M|\n` +
+          `ORC|NW|${sampleId}_ORD|${sampleId}_PLACR||SC\n` +
+          `OBR|1|${sampleId}_ORD|${sampleId}_PLACR|RESCAN^RESCAN_SLIDE^L|||${currentDate}|||||||${currentDate}|SLIDE|DOCTOR^ORDERING^^^^\n` +
+          `SAC|||${sampleId}_SLIDE|A|SLIDE^^RESCAN`;
+        break;
+      case 'STATUS_UPDATE':
+        message = `MSH|^~\\&|CERNER|HOSPITAL|LIS|PATHOLOGY|${currentDate}||ORU^R01|${messageId}|P|2.5.1|\n` +
+          `PID|||${sampleId}^^^MRN^MRN||DOE^JOHN^^^||19800101|M|\n` +
+          `ORC|SC|${sampleId}_ORD|${sampleId}_PLACR||CM\n` +
+          `OBR|1|${sampleId}_ORD|${sampleId}_PLACR|STAT^STATUS_UPDATE^L|||${currentDate}|||||||||DOCTOR^ORDERING^^^^`;
+        break;
+      default:
+        message = 'Tipo de mensaje no soportado.';
+    }
+
+    setGeneratedMessage(message);
   };
 
   return (
@@ -83,7 +146,7 @@ const MessageGenerator: React.FC = () => {
       {generatedMessage && (
         <div className="mt-6">
           <h2 className="text-lg font-semibold mb-2 text-gray-700">Mensaje Generado:</h2>
-          <pre className="bg-gray-100 p-4 rounded-md overflow-auto max-h-96 text-sm">
+          <pre className="bg-gray-100 p-4 rounded-md overflow-auto max-h-96 text-sm whitespace-pre-wrap">
             {generatedMessage}
           </pre>
         </div>
