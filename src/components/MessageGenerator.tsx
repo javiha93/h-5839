@@ -100,10 +100,10 @@ const MessageGenerator: React.FC = () => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto my-8 p-6 bg-white rounded-lg shadow-lg">
-      <h1 className="text-2xl font-bold mb-6 text-gray-800">Generador de Mensajes HL7</h1>
+    <div className="max-w-4xl mx-auto my-8 p-8 bg-white rounded-xl shadow-lg">
+      <h1 className="text-3xl font-bold mb-8 text-gray-800 text-center">Generador de Mensajes HL7</h1>
       
-      <div className="mb-4">
+      <div className="mb-6">
         <label htmlFor="sampleId" className="block text-sm font-medium text-gray-700 mb-2">
           Sample ID
         </label>
@@ -112,12 +112,12 @@ const MessageGenerator: React.FC = () => {
           id="sampleId"
           value={sampleId}
           onChange={handleSampleIdChange}
-          className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+          className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
           placeholder="Ingresa el Sample ID"
         />
       </div>
       
-      <div className="mb-6">
+      <div className="mb-8">
         <label htmlFor="messageType" className="block text-sm font-medium text-gray-700 mb-2">
           Tipo de Mensaje
         </label>
@@ -125,7 +125,7 @@ const MessageGenerator: React.FC = () => {
           id="messageType"
           value={selectedType}
           onChange={handleTypeChange}
-          className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 bg-white"
+          className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white transition-all"
         >
           <option value="">Selecciona un tipo</option>
           {messageTypes.map((type) => (
@@ -138,17 +138,19 @@ const MessageGenerator: React.FC = () => {
       
       <button
         onClick={generateMessage}
-        className="w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors"
+        className="w-full bg-indigo-600 text-white py-3 px-6 rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors text-lg font-medium"
       >
         Generar Mensaje
       </button>
       
       {generatedMessage && (
-        <div className="mt-6">
-          <h2 className="text-lg font-semibold mb-2 text-gray-700">Mensaje Generado:</h2>
-          <pre className="bg-gray-100 p-4 rounded-md overflow-auto max-h-96 text-sm whitespace-pre-wrap">
-            {generatedMessage}
-          </pre>
+        <div className="mt-8">
+          <h2 className="text-xl font-semibold mb-3 text-gray-700">Mensaje Generado:</h2>
+          <div className="relative">
+            <pre className="bg-gray-50 p-6 rounded-lg overflow-auto max-h-[400px] text-sm whitespace-pre-wrap shadow-inner border border-gray-200">
+              {generatedMessage}
+            </pre>
+          </div>
         </div>
       )}
     </div>
