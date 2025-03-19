@@ -6,6 +6,7 @@ const MessageGenerator: React.FC = () => {
   const [sampleId, setSampleId] = useState<string>('');
   const [selectedType, setSelectedType] = useState<string>('');
   const [generatedMessage, setGeneratedMessage] = useState<string>('');
+  const [messageCopied, setMessageCopied] = useState<boolean>(false);
   const [messageTypes, setMessageTypes] = useState<MessageType[]>([
     { id: 'OML21', name: 'OML21' },
     { id: 'STATUS_UPDATE', name: 'STATUS_UPDATE' },
@@ -99,6 +100,19 @@ const MessageGenerator: React.FC = () => {
     setGeneratedMessage(message);
   };
 
+  const copyToClipboard = () => {
+    if (generatedMessage) {
+      navigator.clipboard.writeText(generatedMessage)
+        .then(() => {
+          setMessageCopied(true);
+          setTimeout(() => setMessageCopied(false), 2000);
+        })
+        .catch(err => {
+          console.error('Error al copiar: ', err);
+        });
+    }
+  };
+
   return (
     <div className="max-w-4xl mx-auto my-8 p-8 bg-white rounded-xl shadow-lg">
       <h1 className="text-3xl font-bold mb-8 text-gray-800 text-center">Generador de Mensajes HL7</h1>
@@ -145,7 +159,15 @@ const MessageGenerator: React.FC = () => {
       
       {generatedMessage && (
         <div className="mt-8">
-          <h2 className="text-xl font-semibold mb-3 text-gray-700">Mensaje Generado:</h2>
+          <div className="flex justify-between items-center mb-3">
+            <h2 className="text-xl font-semibold text-gray-700">Mensaje Generado:</h2>
+            <button 
+              onClick={copyToClipboard}
+              className="text-indigo-600 hover:text-indigo-800 flex items-center px-3 py-1 rounded border border-indigo-300 hover:border-indigo-500 transition-colors"
+            >
+              {messageCopied ? 'Copiado!' : 'Copiar'}
+            </button>
+          </div>
           <div className="relative">
             <pre className="bg-gray-50 p-6 rounded-lg overflow-auto max-h-[400px] text-sm whitespace-pre-wrap shadow-inner border border-gray-200">
               {generatedMessage}
