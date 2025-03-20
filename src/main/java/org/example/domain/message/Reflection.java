@@ -1,15 +1,12 @@
 package org.example.domain.message;
 
-import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.reflect.FieldUtils;
-import org.example.domain.Contains;
 import org.example.domain.mapper.MessagePosition;
 import org.example.domain.message.entity.list.SupplementalInfoList;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import org.apache.commons.beanutils.PropertyUtils;
 
