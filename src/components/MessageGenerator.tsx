@@ -60,71 +60,87 @@ const MessageGenerator: React.FC = () => {
     let message = '';
     const currentDate = new Date().toISOString().replace(/[:-]/g, '').split('.')[0];
     const messageId = Math.floor(Math.random() * 100000).toString();
+    const uuid = generateUUID();
 
     // Extracting patient info for the message
     const { firstName, middleName, lastName, sex, dateOfBirth } = patientInfo;
 
     switch (selectedType) {
       case 'OML21':
-        message = `MSH|^~\\&|CERNER|HOSPITAL|LIS|PATHOLOGY|${currentDate}||OML^O21^OML_O21|${messageId}|P|2.5.1|\n` +
-          `PID|||${sampleId}^^^MRN^MRN||${lastName}^${firstName}^${middleName}^||${dateOfBirth}|${sex}|\n` +
-          `ORC|NW|${sampleId}_ORD|${sampleId}_PLACR||SC\n` +
-          `OBR|1|${sampleId}_ORD|${sampleId}_PLACR|PATH^PATHOLOGY^L|||${currentDate}|||||||${currentDate}|TISSUE|DOCTOR^ORDERING^^^^\n` +
-          `SAC|||${sampleId}|A|CONTAINER^^TISSUE`;
+        message = `MSH|^~\\&|LIS|XYZ Laboratory|Ventana|ABC Laboratory|${currentDate}||OML^O21|${uuid}|P|2.4|\n` +
+          `PID|||${sampleId}||${lastName}^${firstName}^${middleName}^Sr.||${dateOfBirth}|${sex}|\n` +
+          `PV1|||||||IndiID^ILastName^IFirstName^ImiddleName^Isufix^Iprefix^Iaddress^^city^Icountry^state^hometel^mobiletel^worktel^zipcode|\n` +
+          `SAC|||||||${currentDate}\n` +
+          `ORC|NW|${sampleId}|||||||||||||||||||FC^FName|\n` +
+          `OBR|1|${sampleId} A1-1||H. Pylori1^^STAIN|||20141014||||||||Breast^Left Breast Upper Node^Breast Biopsy||||${sampleId};A;1;1^1|${sampleId};A;1^1|${sampleId};A^A||||||||||||||||||||||||||SPECIALINSTRUCTION^SpecialInstructionValue^PART^^\n` +
+          `OBX|1|CE|${sampleId};A;1;1|`;
         break;
       case 'DELETE_CASE':
-        message = `MSH|^~\\&|CERNER|HOSPITAL|LIS|PATHOLOGY|${currentDate}||ORM^O01|${messageId}|P|2.5.1|\n` +
-          `PID|||${sampleId}^^^MRN^MRN||${lastName}^${firstName}^${middleName}^||${dateOfBirth}|${sex}|\n` +
-          `ORC|CA|${sampleId}_ORD|${sampleId}_PLACR||SC\n` +
-          `OBR|1|${sampleId}_ORD|${sampleId}_PLACR|PATH^PATHOLOGY^L|||${currentDate}|||||||||DOCTOR^ORDERING^^^^`;
+        message = `MSH|^~\\&|LIS|XYZ Laboratory|Ventana|ABC Laboratory|${currentDate}||ORM^O01|${uuid}|P|2.4|\n` +
+          `PID|||${sampleId}||${lastName}^${firstName}^${middleName}^Sr.||${dateOfBirth}|${sex}|\n` +
+          `PV1|||||||IndiID^ILastName^IFirstName^ImiddleName^Isufix^Iprefix^Iaddress^^city^Icountry^state^hometel^mobiletel^worktel^zipcode|\n` +
+          `ORC|CA|${sampleId}|||||||||||||||||||FC^FName|\n` +
+          `OBR|1|${sampleId}||DELETE CASE^^DELETE|||${currentDate}||||||||Breast^Left Breast Upper Node^Breast Biopsy||||${sampleId}|${sampleId}|${sampleId}`;
         break;
       case 'DELETE_SLIDE':
-        message = `MSH|^~\\&|CERNER|HOSPITAL|LIS|PATHOLOGY|${currentDate}||ORM^O01|${messageId}|P|2.5.1|\n` +
-          `PID|||${sampleId}^^^MRN^MRN||${lastName}^${firstName}^${middleName}^||${dateOfBirth}|${sex}|\n` +
-          `ORC|CA|${sampleId}_ORD|${sampleId}_PLACR||SC\n` +
-          `OBR|1|${sampleId}_ORD|${sampleId}_PLACR|SLIDE^SLIDE^L|||${currentDate}|||||||||DOCTOR^ORDERING^^^^`;
+        message = `MSH|^~\\&|LIS|XYZ Laboratory|Ventana|ABC Laboratory|${currentDate}||ORM^O01|${uuid}|P|2.4|\n` +
+          `PID|||${sampleId}||${lastName}^${firstName}^${middleName}^Sr.||${dateOfBirth}|${sex}|\n` +
+          `PV1|||||||IndiID^ILastName^IFirstName^ImiddleName^Isufix^Iprefix^Iaddress^^city^Icountry^state^hometel^mobiletel^worktel^zipcode|\n` +
+          `ORC|CA|${sampleId}|||||||||||||||||||FC^FName|\n` +
+          `OBR|1|${sampleId} A1-1||DELETE SLIDE^^DELETE|||${currentDate}||||||||Breast^Left Breast Upper Node^Breast Biopsy||||${sampleId};A;1;1|${sampleId};A;1|${sampleId};A`;
         break;
       case 'ADTA08':
-        message = `MSH|^~\\&|CERNER|HOSPITAL|LIS|PATHOLOGY|${currentDate}||ADT^A08|${messageId}|P|2.5.1|\n` +
-          `PID|||${sampleId}^^^MRN^MRN||${lastName}^${firstName}^${middleName}^||${dateOfBirth}|${sex}|\n` +
-          `PV1||I|ICU^ROOM123^BED1|1|||DOCTOR^REFERRING^^^^\n` +
-          `OBX|1|ST|DIAGNOSIS||CANCER DIAGNOSIS||||||F`;
+        message = `MSH|^~\\&|LIS|XYZ Laboratory|Ventana|ABC Laboratory|${currentDate}||ADT^A08|${uuid}|P|2.4|\n` +
+          `PID|||${sampleId}||${lastName}^${firstName}^${middleName}^Sr.||${dateOfBirth}|${sex}|\n` +
+          `PV1|||||||IndiID^ILastName^IFirstName^ImiddleName^Isufix^Iprefix^Iaddress^^city^Icountry^state^hometel^mobiletel^worktel^zipcode|\n` +
+          `OBX|1|CE|DIAGNOSIS|${sampleId}|CANCER DIAGNOSIS||||||F`;
         break;
       case 'ACK':
-        message = `MSH|^~\\&|LIS|PATHOLOGY|CERNER|HOSPITAL|${currentDate}||ACK^O21^ACK|${messageId}|P|2.5.1|\n` +
-          `MSA|AA|${sampleId}_MSG|Message accepted successfully`;
+        message = `MSH|^~\\&|LIS|XYZ Laboratory|Ventana|ABC Laboratory|${currentDate}||ACK^O21^ACK|${uuid}|P|2.4|\n` +
+          `MSA|AA|${sampleId}|Message accepted successfully`;
         break;
       case 'DELETE_SPECIMEN':
-        message = `MSH|^~\\&|CERNER|HOSPITAL|LIS|PATHOLOGY|${currentDate}||ORM^O01|${messageId}|P|2.5.1|\n` +
-          `PID|||${sampleId}^^^MRN^MRN||${lastName}^${firstName}^${middleName}^||${dateOfBirth}|${sex}|\n` +
-          `ORC|CA|${sampleId}_ORD|${sampleId}_PLACR||SC\n` +
-          `OBR|1|${sampleId}_ORD|${sampleId}_PLACR|SPEC^SPECIMEN^L|||${currentDate}|||||||||DOCTOR^ORDERING^^^^`;
+        message = `MSH|^~\\&|LIS|XYZ Laboratory|Ventana|ABC Laboratory|${currentDate}||ORM^O01|${uuid}|P|2.4|\n` +
+          `PID|||${sampleId}||${lastName}^${firstName}^${middleName}^Sr.||${dateOfBirth}|${sex}|\n` +
+          `PV1|||||||IndiID^ILastName^IFirstName^ImiddleName^Isufix^Iprefix^Iaddress^^city^Icountry^state^hometel^mobiletel^worktel^zipcode|\n` +
+          `ORC|CA|${sampleId}|||||||||||||||||||FC^FName|\n` +
+          `OBR|1|${sampleId} A1||DELETE SPECIMEN^^DELETE|||${currentDate}||||||||Breast^Left Breast Upper Node^Breast Biopsy||||${sampleId};A|${sampleId};A|${sampleId}`;
         break;
       case 'SCAN_SLIDE':
-        message = `MSH|^~\\&|CERNER|HOSPITAL|LIS|PATHOLOGY|${currentDate}||OML^O21|${messageId}|P|2.5.1|\n` +
-          `PID|||${sampleId}^^^MRN^MRN||${lastName}^${firstName}^${middleName}^||${dateOfBirth}|${sex}|\n` +
-          `ORC|NW|${sampleId}_ORD|${sampleId}_PLACR||SC\n` +
-          `OBR|1|${sampleId}_ORD|${sampleId}_PLACR|SCAN^SCAN_SLIDE^L|||${currentDate}|||||||${currentDate}|SLIDE|DOCTOR^ORDERING^^^^\n` +
-          `SAC|||${sampleId}_SLIDE|A|SLIDE^^SCAN`;
+        message = `MSH|^~\\&|LIS|XYZ Laboratory|Ventana|ABC Laboratory|${currentDate}||OML^O21|${uuid}|P|2.4|\n` +
+          `PID|||${sampleId}||${lastName}^${firstName}^${middleName}^Sr.||${dateOfBirth}|${sex}|\n` +
+          `PV1|||||||IndiID^ILastName^IFirstName^ImiddleName^Isufix^Iprefix^Iaddress^^city^Icountry^state^hometel^mobiletel^worktel^zipcode|\n` +
+          `ORC|NW|${sampleId}|||||||||||||||||||FC^FName|\n` +
+          `OBR|1|${sampleId} A1-1||SCAN^^SCAN|||${currentDate}||||||||Breast^Left Breast Upper Node^Breast Biopsy||||${sampleId};A;1;1|${sampleId};A;1|${sampleId};A`;
         break;
       case 'RESCAN_SLIDE':
-        message = `MSH|^~\\&|CERNER|HOSPITAL|LIS|PATHOLOGY|${currentDate}||OML^O21|${messageId}|P|2.5.1|\n` +
-          `PID|||${sampleId}^^^MRN^MRN||${lastName}^${firstName}^${middleName}^||${dateOfBirth}|${sex}|\n` +
-          `ORC|NW|${sampleId}_ORD|${sampleId}_PLACR||SC\n` +
-          `OBR|1|${sampleId}_ORD|${sampleId}_PLACR|RESCAN^RESCAN_SLIDE^L|||${currentDate}|||||||${currentDate}|SLIDE|DOCTOR^ORDERING^^^^\n` +
-          `SAC|||${sampleId}_SLIDE|A|SLIDE^^RESCAN`;
+        message = `MSH|^~\\&|LIS|XYZ Laboratory|Ventana|ABC Laboratory|${currentDate}||OML^O21|${uuid}|P|2.4|\n` +
+          `PID|||${sampleId}||${lastName}^${firstName}^${middleName}^Sr.||${dateOfBirth}|${sex}|\n` +
+          `PV1|||||||IndiID^ILastName^IFirstName^ImiddleName^Isufix^Iprefix^Iaddress^^city^Icountry^state^hometel^mobiletel^worktel^zipcode|\n` +
+          `ORC|NW|${sampleId}|||||||||||||||||||FC^FName|\n` +
+          `OBR|1|${sampleId} A1-1||RESCAN^^RESCAN|||${currentDate}||||||||Breast^Left Breast Upper Node^Breast Biopsy||||${sampleId};A;1;1|${sampleId};A;1|${sampleId};A`;
         break;
       case 'STATUS_UPDATE':
-        message = `MSH|^~\\&|CERNER|HOSPITAL|LIS|PATHOLOGY|${currentDate}||ORU^R01|${messageId}|P|2.5.1|\n` +
-          `PID|||${sampleId}^^^MRN^MRN||${lastName}^${firstName}^${middleName}^||${dateOfBirth}|${sex}|\n` +
-          `ORC|SC|${sampleId}_ORD|${sampleId}_PLACR||CM\n` +
-          `OBR|1|${sampleId}_ORD|${sampleId}_PLACR|STAT^STATUS_UPDATE^L|||${currentDate}|||||||||DOCTOR^ORDERING^^^^`;
+        message = `MSH|^~\\&|LIS|XYZ Laboratory|Ventana|ABC Laboratory|${currentDate}||ORU^R01|${uuid}|P|2.4|\n` +
+          `PID|||${sampleId}||${lastName}^${firstName}^${middleName}^Sr.||${dateOfBirth}|${sex}|\n` +
+          `PV1|||||||IndiID^ILastName^IFirstName^ImiddleName^Isufix^Iprefix^Iaddress^^city^Icountry^state^hometel^mobiletel^worktel^zipcode|\n` +
+          `ORC|SC|${sampleId}|||||||||||||||||||FC^FName|\n` +
+          `OBR|1|${sampleId}||STATUS^^STATUS|||${currentDate}||||||||Breast^Left Breast Upper Node^Breast Biopsy||||${sampleId}|${sampleId}|${sampleId}`;
         break;
       default:
         message = 'Tipo de mensaje no soportado.';
     }
 
     setGeneratedMessage(message);
+  };
+
+  // Función para generar un UUID v4
+  const generateUUID = () => {
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+      const r = Math.random() * 16 | 0;
+      const v = c === 'x' ? r : (r & 0x3 | 0x8);
+      return v.toString(16);
+    });
   };
 
   const copyToClipboard = () => {
@@ -138,6 +154,27 @@ const MessageGenerator: React.FC = () => {
           console.error('Error al copiar: ', err);
         });
     }
+  };
+
+  const handleSampleIdChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSampleId(e.target.value);
+    setPatientInfo(prev => ({
+      ...prev,
+      code: e.target.value
+    }));
+  };
+
+  const handleTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setSelectedType(e.target.value);
+  };
+
+  const handlePatientInfoSave = (updatedInfo: PatientInfo) => {
+    setPatientInfo(updatedInfo);
+    setSampleId(updatedInfo.code);
+  };
+
+  const toggleModal = () => {
+    setIsModalOpen(!isModalOpen);
   };
 
   return (
