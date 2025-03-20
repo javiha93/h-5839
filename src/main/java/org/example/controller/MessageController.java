@@ -31,6 +31,12 @@ public class MessageController {
         String oml21Message = messageService.generateOML21Message(request.getSampleId());
         return ResponseEntity.ok(oml21Message);
     }
+    
+    @PostMapping("/oewf")
+    public ResponseEntity<String> generateOEWFMessage(@RequestBody SampleIdRequest request) {
+        String oewfMessage = messageService.generateOEWFMessage(request.getSampleId());
+        return ResponseEntity.ok(oewfMessage);
+    }
 
     public static class SampleIdRequest {
         private String sampleId;

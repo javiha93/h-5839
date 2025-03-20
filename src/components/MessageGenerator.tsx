@@ -1,9 +1,11 @@
-import React, { useState } from 'react';
+
+import React, { useState, useEffect } from 'react';
 import { MessageType, PatientInfo } from '../types/MessageType';
 import PatientEditModal from './PatientEditModal';
 
 const MessageGenerator: React.FC = () => {
   const [sampleId, setSampleId] = useState<string>('');
+  const [selectedHost, setSelectedHost] = useState<string>('');
   const [selectedType, setSelectedType] = useState<string>('');
   const [generatedMessage, setGeneratedMessage] = useState<string>('');
   const [messageCopied, setMessageCopied] = useState<boolean>(false);
@@ -19,17 +21,47 @@ const MessageGenerator: React.FC = () => {
     dateOfBirth: '19800101'
   });
   
-  const [messageTypes, setMessageTypes] = useState<MessageType[]>([
-    { id: 'OML21', name: 'OML21' },
-    { id: 'STATUS_UPDATE', name: 'STATUS_UPDATE' },
-    { id: 'DELETE_SLIDE', name: 'DELETE_SLIDE' },
-    { id: 'ADTA08', name: 'ADTA08' },
-    { id: 'ACK', name: 'ACK' },
-    { id: 'DELETE_CASE', name: 'DELETE_CASE' },
-    { id: 'DELETE_SPECIMEN', name: 'DELETE_SPECIMEN' },
-    { id: 'SCAN_SLIDE', name: 'SCAN_SLIDE' },
-    { id: 'RESCAN_SLIDE', name: 'RESCAN_SLIDE' }
-  ]);
+  // Available hosts
+  const hosts = [
+    { id: 'LIS', name: 'LIS' },
+    { id: 'VTG', name: 'VTG' },
+    { id: 'VANTAGE_WS', name: 'VANTAGE WS' }
+  ];
+  
+  // Message types organized by host
+  const [messageTypes, setMessageTypes] = useState<MessageType[]>([]);
+  
+  // Define message types for each host
+  const hostMessageTypes = {
+    LIS: [
+      { id: 'OML21', name: 'OML21' },
+      { id: 'STATUS_UPDATE', name: 'STATUS_UPDATE' },
+      { id: 'DELETE_SLIDE', name: 'DELETE_SLIDE' },
+      { id: 'ADTA08', name: 'ADTA08' },
+      { id: 'ACK', name: 'ACK' },
+      { id: 'DELETE_CASE', name: 'DELETE_CASE' },
+      { id: 'DELETE_SPECIMEN', name: 'DELETE_SPECIMEN' },
+      { id: 'SCAN_SLIDE', name: 'SCAN_SLIDE' },
+      { id: 'RESCAN_SLIDE', name: 'RESCAN_SLIDE' }
+    ],
+    VTG: [
+      { id: 'OEWF', name: 'OEWF' }
+    ],
+    VANTAGE_WS: [
+      { id: 'CREATE_CASE', name: 'CREATE_CASE' },
+      { id: 'UPDATE_CASE', name: 'UPDATE_CASE' }
+    ]
+  };
+
+  // Update message types when host is selected
+  useEffect(() => {
+    if (selectedHost) {
+      setMessageTypes(hostMessageTypes[selectedHost as keyof typeof hostMessageTypes] || []);
+      setSelectedType(''); // Reset selected type when changing host
+    } else {
+      setMessageTypes([]);
+    }
+  }, [selectedHost]);
 
   const handleSampleIdChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSampleId(e.target.value);
@@ -37,6 +69,10 @@ const MessageGenerator: React.FC = () => {
       ...prev,
       code: e.target.value
     }));
+  };
+
+  const handleHostChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setSelectedHost(e.target.value);
   };
 
   const handleTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -176,6 +212,25 @@ const MessageGenerator: React.FC = () => {
         />
       </div>
       
+      <div className="mb-6">
+        <label htmlFor="hostType" className="block text-sm font-medium text-gray-700 mb-2">
+          Host
+        </label>
+        <select
+          id="hostType"
+          value={selectedHost}
+          onChange={handleHostChange}
+          className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white transition-all"
+        >
+          <option value="">Selecciona un host</option>
+          {hosts.map((host) => (
+            <option key={host.id} value={host.id}>
+              {host.name}
+            </option>
+          ))}
+        </select>
+      </div>
+      
       <div className="mb-8">
         <label htmlFor="messageType" className="block text-sm font-medium text-gray-700 mb-2">
           Tipo de Mensaje
@@ -184,7 +239,8 @@ const MessageGenerator: React.FC = () => {
           id="messageType"
           value={selectedType}
           onChange={handleTypeChange}
-          className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white transition-all"
+          disabled={!selectedHost}
+          className={`w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white transition-all ${!selectedHost ? 'cursor-not-allowed bg-gray-100' : ''}`}
         >
           <option value="">Selecciona un tipo</option>
           {messageTypes.map((type) => (
@@ -193,13 +249,18 @@ const MessageGenerator: React.FC = () => {
             </option>
           ))}
         </select>
+        {!selectedHost && (
+          <p className="mt-2 text-sm text-amber-600">
+            Primero selecciona un host
+          </p>
+        )}
       </div>
       
       <button
         onClick={generateMessage}
-        disabled={isLoading}
+        disabled={isLoading || !selectedHost || !selectedType}
         className={`w-full py-3 px-6 rounded-lg text-lg font-medium transition-colors ${
-          isLoading 
+          isLoading || !selectedHost || !selectedType
             ? 'bg-gray-400 text-white cursor-not-allowed' 
             : 'bg-indigo-600 text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500'
         }`}
