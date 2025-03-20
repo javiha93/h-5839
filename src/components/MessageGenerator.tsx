@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { MessageType, PatientInfo } from '../types/MessageType';
 import PatientEditModal from './PatientEditModal';
@@ -9,6 +8,8 @@ const MessageGenerator: React.FC = () => {
   const [generatedMessage, setGeneratedMessage] = useState<string>('');
   const [messageCopied, setMessageCopied] = useState<boolean>(false);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
   const [patientInfo, setPatientInfo] = useState<PatientInfo>({
     code: '',
     firstName: 'JOHN',
@@ -51,87 +52,77 @@ const MessageGenerator: React.FC = () => {
     setIsModalOpen(!isModalOpen);
   };
 
-  const generateMessage = () => {
+  const generateMessage = async () => {
     if (!sampleId || !selectedType) {
       setGeneratedMessage('Por favor, completa todos los campos.');
       return;
     }
 
-    let message = '';
-    const currentDate = new Date().toISOString().replace(/[:-]/g, '').replace('T', '').split('.')[0];
-    const messageId = generateUUID();
-    
-    // Extracting patient info for the message
-    const { firstName, middleName, lastName, sex, dateOfBirth } = patientInfo;
-    const patientCode = patientInfo.code || sampleId;
+    setIsLoading(true);
+    setError(null);
 
-    switch (selectedType) {
-      case 'OML21':
-        message = `MSH|^~\\&|LIS|XYZ Laboratory|Ventana|ABC Laboratory|${currentDate}||OML^O21|${messageId}|P|2.4|\n` +
-          `PID|||${patientCode}||${lastName}^${firstName}^${middleName}^Sr.||${dateOfBirth}|${sex}|\n` +
-          `PV1|||||||IndiID^ILastName^IFirstName^ImiddleName^Isufix^Iprefix^Iaddress^^city^Icountry^state^hometel^mobiletel^worktel^zipcode|\n` +
-          `SAC|||||||${currentDate}\n` +
-          `ORC|NW|${sampleId}|||||||||||||||||||FC^FName|\n` +
-          `OBR|1|${sampleId} A1-1||H. Pylori1^^STAIN|||20141014||||||||Breast^Left Breast Upper Node^Breast Biopsy||||${sampleId};A;1;1^1|${sampleId};A;1^1|${sampleId};A^A||||||||||||||||||||||||||SPECIALINSTRUCTION^SpecialInstructionValue^PART^^\n` +
-          `OBX|1|CE|${sampleId};A;1;1|`;
-        break;
-      case 'DELETE_CASE':
-        message = `MSH|^~\\&|LIS|XYZ Laboratory|Ventana|ABC Laboratory|${currentDate}||ORM^O01|${messageId}|P|2.4|\n` +
-          `PID|||${patientCode}||${lastName}^${firstName}^${middleName}^Sr.||${dateOfBirth}|${sex}|\n` +
-          `PV1|||||||IndiID^ILastName^IFirstName^ImiddleName^Isufix^Iprefix^Iaddress^^city^Icountry^state^hometel^mobiletel^worktel^zipcode|\n` +
-          `ORC|CA|${sampleId}|||||||||||||||||||FC^FName|\n` +
-          `OBR|1|${sampleId}||DELETE CASE^^DELETE|||${currentDate}||||||||Breast^Left Breast Upper Node^Breast Biopsy||||${sampleId}|${sampleId}|${sampleId}`;
-        break;
-      case 'DELETE_SLIDE':
-        message = `MSH|^~\\&|LIS|XYZ Laboratory|Ventana|ABC Laboratory|${currentDate}||ORM^O01|${messageId}|P|2.4|\n` +
-          `PID|||${patientCode}||${lastName}^${firstName}^${middleName}^Sr.||${dateOfBirth}|${sex}|\n` +
-          `PV1|||||||IndiID^ILastName^IFirstName^ImiddleName^Isufix^Iprefix^Iaddress^^city^Icountry^state^hometel^mobiletel^worktel^zipcode|\n` +
-          `ORC|CA|${sampleId}|||||||||||||||||||FC^FName|\n` +
-          `OBR|1|${sampleId} A1-1||DELETE SLIDE^^DELETE|||${currentDate}||||||||Breast^Left Breast Upper Node^Breast Biopsy||||${sampleId};A;1;1|${sampleId};A;1|${sampleId};A`;
-        break;
-      case 'ADTA08':
-        message = `MSH|^~\\&|LIS|XYZ Laboratory|Ventana|ABC Laboratory|${currentDate}||ADT^A08|${messageId}|P|2.4|\n` +
-          `PID|||${patientCode}||${lastName}^${firstName}^${middleName}^Sr.||${dateOfBirth}|${sex}|\n` +
-          `PV1|||||||IndiID^ILastName^IFirstName^ImiddleName^Isufix^Iprefix^Iaddress^^city^Icountry^state^hometel^mobiletel^worktel^zipcode|\n` +
-          `OBX|1|CE|DIAGNOSIS|${sampleId}|CANCER DIAGNOSIS||||||F`;
-        break;
-      case 'ACK':
-        message = `MSH|^~\\&|LIS|XYZ Laboratory|Ventana|ABC Laboratory|${currentDate}||ACK^O21^ACK|${messageId}|P|2.4|\n` +
-          `MSA|AA|${sampleId}|Message accepted successfully`;
-        break;
-      case 'DELETE_SPECIMEN':
-        message = `MSH|^~\\&|LIS|XYZ Laboratory|Ventana|ABC Laboratory|${currentDate}||ORM^O01|${messageId}|P|2.4|\n` +
-          `PID|||${patientCode}||${lastName}^${firstName}^${middleName}^Sr.||${dateOfBirth}|${sex}|\n` +
-          `PV1|||||||IndiID^ILastName^IFirstName^ImiddleName^Isufix^Iprefix^Iaddress^^city^Icountry^state^hometel^mobiletel^worktel^zipcode|\n` +
-          `ORC|CA|${sampleId}|||||||||||||||||||FC^FName|\n` +
-          `OBR|1|${sampleId} A1||DELETE SPECIMEN^^DELETE|||${currentDate}||||||||Breast^Left Breast Upper Node^Breast Biopsy||||${sampleId};A|${sampleId};A|${sampleId}`;
-        break;
-      case 'SCAN_SLIDE':
-        message = `MSH|^~\\&|LIS|XYZ Laboratory|Ventana|ABC Laboratory|${currentDate}||OML^O21|${messageId}|P|2.4|\n` +
-          `PID|||${patientCode}||${lastName}^${firstName}^${middleName}^Sr.||${dateOfBirth}|${sex}|\n` +
-          `PV1|||||||IndiID^ILastName^IFirstName^ImiddleName^Isufix^Iprefix^Iaddress^^city^Icountry^state^hometel^mobiletel^worktel^zipcode|\n` +
-          `ORC|NW|${sampleId}|||||||||||||||||||FC^FName|\n` +
-          `OBR|1|${sampleId} A1-1||SCAN^^SCAN|||${currentDate}||||||||Breast^Left Breast Upper Node^Breast Biopsy||||${sampleId};A;1;1|${sampleId};A;1|${sampleId};A`;
-        break;
-      case 'RESCAN_SLIDE':
-        message = `MSH|^~\\&|LIS|XYZ Laboratory|Ventana|ABC Laboratory|${currentDate}||OML^O21|${messageId}|P|2.4|\n` +
-          `PID|||${patientCode}||${lastName}^${firstName}^${middleName}^Sr.||${dateOfBirth}|${sex}|\n` +
-          `PV1|||||||IndiID^ILastName^IFirstName^ImiddleName^Isufix^Iprefix^Iaddress^^city^Icountry^state^hometel^mobiletel^worktel^zipcode|\n` +
-          `ORC|NW|${sampleId}|||||||||||||||||||FC^FName|\n` +
-          `OBR|1|${sampleId} A1-1||RESCAN^^RESCAN|||${currentDate}||||||||Breast^Left Breast Upper Node^Breast Biopsy||||${sampleId};A;1;1|${sampleId};A;1|${sampleId};A`;
-        break;
-      case 'STATUS_UPDATE':
-        message = `MSH|^~\\&|LIS|XYZ Laboratory|Ventana|ABC Laboratory|${currentDate}||ORU^R01|${messageId}|P|2.4|\n` +
-          `PID|||${patientCode}||${lastName}^${firstName}^${middleName}^Sr.||${dateOfBirth}|${sex}|\n` +
-          `PV1|||||||IndiID^ILastName^IFirstName^ImiddleName^Isufix^Iprefix^Iaddress^^city^Icountry^state^hometel^mobiletel^worktel^zipcode|\n` +
-          `ORC|SC|${sampleId}|||||||||||||||||||FC^FName|\n` +
-          `OBR|1|${sampleId}||STATUS^^STATUS|||${currentDate}||||||||Breast^Left Breast Upper Node^Breast Biopsy||||${sampleId}|${sampleId}|${sampleId}`;
-        break;
-      default:
-        message = 'Tipo de mensaje no soportado.';
+    try {
+      // Call the backend API to generate the message
+      const response = await fetch('http://localhost:8080/api/messages/generate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ sampleId }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Error: ${response.status}`);
+      }
+
+      const messageData = await response.json();
+      
+      // Format the message based on the selected type and the received data
+      let formattedMessage = '';
+      
+      // Here you would format the message based on the response and selectedType
+      // For example:
+      switch (selectedType) {
+        case 'OML21':
+          // Use the OML21 converter on the server side
+          formattedMessage = await convertToOML21Format(sampleId);
+          break;
+        // Add other cases for different message types
+        default:
+          formattedMessage = 'Tipo de mensaje no soportado.';
+      }
+      
+      setGeneratedMessage(formattedMessage);
+    } catch (err) {
+      console.error('Error generating message:', err);
+      setError('Error al generar mensaje. Por favor intente nuevamente.');
+      setGeneratedMessage('');
+    } finally {
+      setIsLoading(false);
     }
+  };
 
-    setGeneratedMessage(message);
+  // Helper function to convert to OML21 format
+  const convertToOML21Format = async (sampleId: string) => {
+    try {
+      const response = await fetch('http://localhost:8080/api/messages/oml21', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ sampleId }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Error: ${response.status}`);
+      }
+
+      const data = await response.text();
+      return data;
+    } catch (err) {
+      console.error('Error converting to OML21:', err);
+      throw err;
+    }
   };
 
   // Función para generar un UUID v4
@@ -206,10 +197,21 @@ const MessageGenerator: React.FC = () => {
       
       <button
         onClick={generateMessage}
-        className="w-full bg-indigo-600 text-white py-3 px-6 rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors text-lg font-medium"
+        disabled={isLoading}
+        className={`w-full py-3 px-6 rounded-lg text-lg font-medium transition-colors ${
+          isLoading 
+            ? 'bg-gray-400 text-white cursor-not-allowed' 
+            : 'bg-indigo-600 text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500'
+        }`}
       >
-        Generar Mensaje
+        {isLoading ? 'Generando...' : 'Generar Mensaje'}
       </button>
+      
+      {error && (
+        <div className="mt-4 p-3 bg-red-100 text-red-700 rounded-lg">
+          {error}
+        </div>
+      )}
       
       {generatedMessage && (
         <div className="mt-8">
