@@ -1,12 +1,23 @@
 
 import React, { useState } from 'react';
-import { MessageType } from '../types/MessageType';
+import { MessageType, PatientInfo } from '../types/MessageType';
+import PatientEditModal from './PatientEditModal';
 
 const MessageGenerator: React.FC = () => {
   const [sampleId, setSampleId] = useState<string>('');
   const [selectedType, setSelectedType] = useState<string>('');
   const [generatedMessage, setGeneratedMessage] = useState<string>('');
   const [messageCopied, setMessageCopied] = useState<boolean>(false);
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const [patientInfo, setPatientInfo] = useState<PatientInfo>({
+    code: sampleId || '',
+    firstName: 'JOHN',
+    middleName: '',
+    lastName: 'DOE',
+    sex: 'M',
+    dateOfBirth: '19800101'
+  });
+  
   const [messageTypes, setMessageTypes] = useState<MessageType[]>([
     { id: 'OML21', name: 'OML21' },
     { id: 'STATUS_UPDATE', name: 'STATUS_UPDATE' },
@@ -21,10 +32,23 @@ const MessageGenerator: React.FC = () => {
 
   const handleSampleIdChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSampleId(e.target.value);
+    setPatientInfo(prev => ({
+      ...prev,
+      code: e.target.value
+    }));
   };
 
   const handleTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setSelectedType(e.target.value);
+  };
+
+  const handlePatientInfoSave = (updatedInfo: PatientInfo) => {
+    setPatientInfo(updatedInfo);
+    setSampleId(updatedInfo.code);
+  };
+
+  const toggleModal = () => {
+    setIsModalOpen(!isModalOpen);
   };
 
   const generateMessage = () => {
@@ -37,29 +61,32 @@ const MessageGenerator: React.FC = () => {
     const currentDate = new Date().toISOString().replace(/[:-]/g, '').split('.')[0];
     const messageId = Math.floor(Math.random() * 100000).toString();
 
+    // Extracting patient info for the message
+    const { firstName, middleName, lastName, sex, dateOfBirth } = patientInfo;
+
     switch (selectedType) {
       case 'OML21':
         message = `MSH|^~\\&|CERNER|HOSPITAL|LIS|PATHOLOGY|${currentDate}||OML^O21^OML_O21|${messageId}|P|2.5.1|\n` +
-          `PID|||${sampleId}^^^MRN^MRN||DOE^JOHN^^^||19800101|M|\n` +
+          `PID|||${sampleId}^^^MRN^MRN||${lastName}^${firstName}^${middleName}^||${dateOfBirth}|${sex}|\n` +
           `ORC|NW|${sampleId}_ORD|${sampleId}_PLACR||SC\n` +
           `OBR|1|${sampleId}_ORD|${sampleId}_PLACR|PATH^PATHOLOGY^L|||${currentDate}|||||||${currentDate}|TISSUE|DOCTOR^ORDERING^^^^\n` +
           `SAC|||${sampleId}|A|CONTAINER^^TISSUE`;
         break;
       case 'DELETE_CASE':
         message = `MSH|^~\\&|CERNER|HOSPITAL|LIS|PATHOLOGY|${currentDate}||ORM^O01|${messageId}|P|2.5.1|\n` +
-          `PID|||${sampleId}^^^MRN^MRN||DOE^JOHN^^^||19800101|M|\n` +
+          `PID|||${sampleId}^^^MRN^MRN||${lastName}^${firstName}^${middleName}^||${dateOfBirth}|${sex}|\n` +
           `ORC|CA|${sampleId}_ORD|${sampleId}_PLACR||SC\n` +
           `OBR|1|${sampleId}_ORD|${sampleId}_PLACR|PATH^PATHOLOGY^L|||${currentDate}|||||||||DOCTOR^ORDERING^^^^`;
         break;
       case 'DELETE_SLIDE':
         message = `MSH|^~\\&|CERNER|HOSPITAL|LIS|PATHOLOGY|${currentDate}||ORM^O01|${messageId}|P|2.5.1|\n` +
-          `PID|||${sampleId}^^^MRN^MRN||DOE^JOHN^^^||19800101|M|\n` +
+          `PID|||${sampleId}^^^MRN^MRN||${lastName}^${firstName}^${middleName}^||${dateOfBirth}|${sex}|\n` +
           `ORC|CA|${sampleId}_ORD|${sampleId}_PLACR||SC\n` +
           `OBR|1|${sampleId}_ORD|${sampleId}_PLACR|SLIDE^SLIDE^L|||${currentDate}|||||||||DOCTOR^ORDERING^^^^`;
         break;
       case 'ADTA08':
         message = `MSH|^~\\&|CERNER|HOSPITAL|LIS|PATHOLOGY|${currentDate}||ADT^A08|${messageId}|P|2.5.1|\n` +
-          `PID|||${sampleId}^^^MRN^MRN||DOE^JOHN^^^||19800101|M|\n` +
+          `PID|||${sampleId}^^^MRN^MRN||${lastName}^${firstName}^${middleName}^||${dateOfBirth}|${sex}|\n` +
           `PV1||I|ICU^ROOM123^BED1|1|||DOCTOR^REFERRING^^^^\n` +
           `OBX|1|ST|DIAGNOSIS||CANCER DIAGNOSIS||||||F`;
         break;
@@ -69,27 +96,27 @@ const MessageGenerator: React.FC = () => {
         break;
       case 'DELETE_SPECIMEN':
         message = `MSH|^~\\&|CERNER|HOSPITAL|LIS|PATHOLOGY|${currentDate}||ORM^O01|${messageId}|P|2.5.1|\n` +
-          `PID|||${sampleId}^^^MRN^MRN||DOE^JOHN^^^||19800101|M|\n` +
+          `PID|||${sampleId}^^^MRN^MRN||${lastName}^${firstName}^${middleName}^||${dateOfBirth}|${sex}|\n` +
           `ORC|CA|${sampleId}_ORD|${sampleId}_PLACR||SC\n` +
           `OBR|1|${sampleId}_ORD|${sampleId}_PLACR|SPEC^SPECIMEN^L|||${currentDate}|||||||||DOCTOR^ORDERING^^^^`;
         break;
       case 'SCAN_SLIDE':
         message = `MSH|^~\\&|CERNER|HOSPITAL|LIS|PATHOLOGY|${currentDate}||OML^O21|${messageId}|P|2.5.1|\n` +
-          `PID|||${sampleId}^^^MRN^MRN||DOE^JOHN^^^||19800101|M|\n` +
+          `PID|||${sampleId}^^^MRN^MRN||${lastName}^${firstName}^${middleName}^||${dateOfBirth}|${sex}|\n` +
           `ORC|NW|${sampleId}_ORD|${sampleId}_PLACR||SC\n` +
           `OBR|1|${sampleId}_ORD|${sampleId}_PLACR|SCAN^SCAN_SLIDE^L|||${currentDate}|||||||${currentDate}|SLIDE|DOCTOR^ORDERING^^^^\n` +
           `SAC|||${sampleId}_SLIDE|A|SLIDE^^SCAN`;
         break;
       case 'RESCAN_SLIDE':
         message = `MSH|^~\\&|CERNER|HOSPITAL|LIS|PATHOLOGY|${currentDate}||OML^O21|${messageId}|P|2.5.1|\n` +
-          `PID|||${sampleId}^^^MRN^MRN||DOE^JOHN^^^||19800101|M|\n` +
+          `PID|||${sampleId}^^^MRN^MRN||${lastName}^${firstName}^${middleName}^||${dateOfBirth}|${sex}|\n` +
           `ORC|NW|${sampleId}_ORD|${sampleId}_PLACR||SC\n` +
           `OBR|1|${sampleId}_ORD|${sampleId}_PLACR|RESCAN^RESCAN_SLIDE^L|||${currentDate}|||||||${currentDate}|SLIDE|DOCTOR^ORDERING^^^^\n` +
           `SAC|||${sampleId}_SLIDE|A|SLIDE^^RESCAN`;
         break;
       case 'STATUS_UPDATE':
         message = `MSH|^~\\&|CERNER|HOSPITAL|LIS|PATHOLOGY|${currentDate}||ORU^R01|${messageId}|P|2.5.1|\n` +
-          `PID|||${sampleId}^^^MRN^MRN||DOE^JOHN^^^||19800101|M|\n` +
+          `PID|||${sampleId}^^^MRN^MRN||${lastName}^${firstName}^${middleName}^||${dateOfBirth}|${sex}|\n` +
           `ORC|SC|${sampleId}_ORD|${sampleId}_PLACR||CM\n` +
           `OBR|1|${sampleId}_ORD|${sampleId}_PLACR|STAT^STATUS_UPDATE^L|||${currentDate}|||||||||DOCTOR^ORDERING^^^^`;
         break;
@@ -118,9 +145,20 @@ const MessageGenerator: React.FC = () => {
       <h1 className="text-3xl font-bold mb-8 text-gray-800 text-center">Generador de Mensajes HL7</h1>
       
       <div className="mb-6">
-        <label htmlFor="sampleId" className="block text-sm font-medium text-gray-700 mb-2">
-          Sample ID
-        </label>
+        <div className="flex justify-between items-center mb-2">
+          <label htmlFor="sampleId" className="block text-sm font-medium text-gray-700">
+            Sample ID
+          </label>
+          <button 
+            onClick={toggleModal}
+            className="inline-flex items-center px-3 py-1 bg-blue-100 text-blue-700 rounded-md hover:bg-blue-200 transition-colors text-sm"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
+              <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+            </svg>
+            Editar Paciente
+          </button>
+        </div>
         <input
           type="text"
           id="sampleId"
@@ -175,6 +213,13 @@ const MessageGenerator: React.FC = () => {
           </div>
         </div>
       )}
+      
+      <PatientEditModal 
+        isOpen={isModalOpen}
+        onClose={toggleModal}
+        patientInfo={patientInfo}
+        onSave={handlePatientInfoSave}
+      />
     </div>
   );
 };
