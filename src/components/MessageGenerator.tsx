@@ -10,7 +10,7 @@ const MessageGenerator: React.FC = () => {
   const [messageCopied, setMessageCopied] = useState<boolean>(false);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [patientInfo, setPatientInfo] = useState<PatientInfo>({
-    code: sampleId || '',
+    code: '',
     firstName: 'JOHN',
     middleName: '',
     lastName: 'DOE',
@@ -58,17 +58,17 @@ const MessageGenerator: React.FC = () => {
     }
 
     let message = '';
-    const currentDate = new Date().toISOString().replace(/[:-]/g, '').split('.')[0];
-    const messageId = Math.floor(Math.random() * 100000).toString();
-    const uuid = generateUUID();
-
+    const currentDate = new Date().toISOString().replace(/[:-]/g, '').replace('T', '').split('.')[0];
+    const messageId = generateUUID();
+    
     // Extracting patient info for the message
     const { firstName, middleName, lastName, sex, dateOfBirth } = patientInfo;
+    const patientCode = patientInfo.code || sampleId;
 
     switch (selectedType) {
       case 'OML21':
-        message = `MSH|^~\\&|LIS|XYZ Laboratory|Ventana|ABC Laboratory|${currentDate}||OML^O21|${uuid}|P|2.4|\n` +
-          `PID|||${sampleId}||${lastName}^${firstName}^${middleName}^Sr.||${dateOfBirth}|${sex}|\n` +
+        message = `MSH|^~\\&|LIS|XYZ Laboratory|Ventana|ABC Laboratory|${currentDate}||OML^O21|${messageId}|P|2.4|\n` +
+          `PID|||${patientCode}||${lastName}^${firstName}^${middleName}^Sr.||${dateOfBirth}|${sex}|\n` +
           `PV1|||||||IndiID^ILastName^IFirstName^ImiddleName^Isufix^Iprefix^Iaddress^^city^Icountry^state^hometel^mobiletel^worktel^zipcode|\n` +
           `SAC|||||||${currentDate}\n` +
           `ORC|NW|${sampleId}|||||||||||||||||||FC^FName|\n` +
@@ -76,53 +76,53 @@ const MessageGenerator: React.FC = () => {
           `OBX|1|CE|${sampleId};A;1;1|`;
         break;
       case 'DELETE_CASE':
-        message = `MSH|^~\\&|LIS|XYZ Laboratory|Ventana|ABC Laboratory|${currentDate}||ORM^O01|${uuid}|P|2.4|\n` +
-          `PID|||${sampleId}||${lastName}^${firstName}^${middleName}^Sr.||${dateOfBirth}|${sex}|\n` +
+        message = `MSH|^~\\&|LIS|XYZ Laboratory|Ventana|ABC Laboratory|${currentDate}||ORM^O01|${messageId}|P|2.4|\n` +
+          `PID|||${patientCode}||${lastName}^${firstName}^${middleName}^Sr.||${dateOfBirth}|${sex}|\n` +
           `PV1|||||||IndiID^ILastName^IFirstName^ImiddleName^Isufix^Iprefix^Iaddress^^city^Icountry^state^hometel^mobiletel^worktel^zipcode|\n` +
           `ORC|CA|${sampleId}|||||||||||||||||||FC^FName|\n` +
           `OBR|1|${sampleId}||DELETE CASE^^DELETE|||${currentDate}||||||||Breast^Left Breast Upper Node^Breast Biopsy||||${sampleId}|${sampleId}|${sampleId}`;
         break;
       case 'DELETE_SLIDE':
-        message = `MSH|^~\\&|LIS|XYZ Laboratory|Ventana|ABC Laboratory|${currentDate}||ORM^O01|${uuid}|P|2.4|\n` +
-          `PID|||${sampleId}||${lastName}^${firstName}^${middleName}^Sr.||${dateOfBirth}|${sex}|\n` +
+        message = `MSH|^~\\&|LIS|XYZ Laboratory|Ventana|ABC Laboratory|${currentDate}||ORM^O01|${messageId}|P|2.4|\n` +
+          `PID|||${patientCode}||${lastName}^${firstName}^${middleName}^Sr.||${dateOfBirth}|${sex}|\n` +
           `PV1|||||||IndiID^ILastName^IFirstName^ImiddleName^Isufix^Iprefix^Iaddress^^city^Icountry^state^hometel^mobiletel^worktel^zipcode|\n` +
           `ORC|CA|${sampleId}|||||||||||||||||||FC^FName|\n` +
           `OBR|1|${sampleId} A1-1||DELETE SLIDE^^DELETE|||${currentDate}||||||||Breast^Left Breast Upper Node^Breast Biopsy||||${sampleId};A;1;1|${sampleId};A;1|${sampleId};A`;
         break;
       case 'ADTA08':
-        message = `MSH|^~\\&|LIS|XYZ Laboratory|Ventana|ABC Laboratory|${currentDate}||ADT^A08|${uuid}|P|2.4|\n` +
-          `PID|||${sampleId}||${lastName}^${firstName}^${middleName}^Sr.||${dateOfBirth}|${sex}|\n` +
+        message = `MSH|^~\\&|LIS|XYZ Laboratory|Ventana|ABC Laboratory|${currentDate}||ADT^A08|${messageId}|P|2.4|\n` +
+          `PID|||${patientCode}||${lastName}^${firstName}^${middleName}^Sr.||${dateOfBirth}|${sex}|\n` +
           `PV1|||||||IndiID^ILastName^IFirstName^ImiddleName^Isufix^Iprefix^Iaddress^^city^Icountry^state^hometel^mobiletel^worktel^zipcode|\n` +
           `OBX|1|CE|DIAGNOSIS|${sampleId}|CANCER DIAGNOSIS||||||F`;
         break;
       case 'ACK':
-        message = `MSH|^~\\&|LIS|XYZ Laboratory|Ventana|ABC Laboratory|${currentDate}||ACK^O21^ACK|${uuid}|P|2.4|\n` +
+        message = `MSH|^~\\&|LIS|XYZ Laboratory|Ventana|ABC Laboratory|${currentDate}||ACK^O21^ACK|${messageId}|P|2.4|\n` +
           `MSA|AA|${sampleId}|Message accepted successfully`;
         break;
       case 'DELETE_SPECIMEN':
-        message = `MSH|^~\\&|LIS|XYZ Laboratory|Ventana|ABC Laboratory|${currentDate}||ORM^O01|${uuid}|P|2.4|\n` +
-          `PID|||${sampleId}||${lastName}^${firstName}^${middleName}^Sr.||${dateOfBirth}|${sex}|\n` +
+        message = `MSH|^~\\&|LIS|XYZ Laboratory|Ventana|ABC Laboratory|${currentDate}||ORM^O01|${messageId}|P|2.4|\n` +
+          `PID|||${patientCode}||${lastName}^${firstName}^${middleName}^Sr.||${dateOfBirth}|${sex}|\n` +
           `PV1|||||||IndiID^ILastName^IFirstName^ImiddleName^Isufix^Iprefix^Iaddress^^city^Icountry^state^hometel^mobiletel^worktel^zipcode|\n` +
           `ORC|CA|${sampleId}|||||||||||||||||||FC^FName|\n` +
           `OBR|1|${sampleId} A1||DELETE SPECIMEN^^DELETE|||${currentDate}||||||||Breast^Left Breast Upper Node^Breast Biopsy||||${sampleId};A|${sampleId};A|${sampleId}`;
         break;
       case 'SCAN_SLIDE':
-        message = `MSH|^~\\&|LIS|XYZ Laboratory|Ventana|ABC Laboratory|${currentDate}||OML^O21|${uuid}|P|2.4|\n` +
-          `PID|||${sampleId}||${lastName}^${firstName}^${middleName}^Sr.||${dateOfBirth}|${sex}|\n` +
+        message = `MSH|^~\\&|LIS|XYZ Laboratory|Ventana|ABC Laboratory|${currentDate}||OML^O21|${messageId}|P|2.4|\n` +
+          `PID|||${patientCode}||${lastName}^${firstName}^${middleName}^Sr.||${dateOfBirth}|${sex}|\n` +
           `PV1|||||||IndiID^ILastName^IFirstName^ImiddleName^Isufix^Iprefix^Iaddress^^city^Icountry^state^hometel^mobiletel^worktel^zipcode|\n` +
           `ORC|NW|${sampleId}|||||||||||||||||||FC^FName|\n` +
           `OBR|1|${sampleId} A1-1||SCAN^^SCAN|||${currentDate}||||||||Breast^Left Breast Upper Node^Breast Biopsy||||${sampleId};A;1;1|${sampleId};A;1|${sampleId};A`;
         break;
       case 'RESCAN_SLIDE':
-        message = `MSH|^~\\&|LIS|XYZ Laboratory|Ventana|ABC Laboratory|${currentDate}||OML^O21|${uuid}|P|2.4|\n` +
-          `PID|||${sampleId}||${lastName}^${firstName}^${middleName}^Sr.||${dateOfBirth}|${sex}|\n` +
+        message = `MSH|^~\\&|LIS|XYZ Laboratory|Ventana|ABC Laboratory|${currentDate}||OML^O21|${messageId}|P|2.4|\n` +
+          `PID|||${patientCode}||${lastName}^${firstName}^${middleName}^Sr.||${dateOfBirth}|${sex}|\n` +
           `PV1|||||||IndiID^ILastName^IFirstName^ImiddleName^Isufix^Iprefix^Iaddress^^city^Icountry^state^hometel^mobiletel^worktel^zipcode|\n` +
           `ORC|NW|${sampleId}|||||||||||||||||||FC^FName|\n` +
           `OBR|1|${sampleId} A1-1||RESCAN^^RESCAN|||${currentDate}||||||||Breast^Left Breast Upper Node^Breast Biopsy||||${sampleId};A;1;1|${sampleId};A;1|${sampleId};A`;
         break;
       case 'STATUS_UPDATE':
-        message = `MSH|^~\\&|LIS|XYZ Laboratory|Ventana|ABC Laboratory|${currentDate}||ORU^R01|${uuid}|P|2.4|\n` +
-          `PID|||${sampleId}||${lastName}^${firstName}^${middleName}^Sr.||${dateOfBirth}|${sex}|\n` +
+        message = `MSH|^~\\&|LIS|XYZ Laboratory|Ventana|ABC Laboratory|${currentDate}||ORU^R01|${messageId}|P|2.4|\n` +
+          `PID|||${patientCode}||${lastName}^${firstName}^${middleName}^Sr.||${dateOfBirth}|${sex}|\n` +
           `PV1|||||||IndiID^ILastName^IFirstName^ImiddleName^Isufix^Iprefix^Iaddress^^city^Icountry^state^hometel^mobiletel^worktel^zipcode|\n` +
           `ORC|SC|${sampleId}|||||||||||||||||||FC^FName|\n` +
           `OBR|1|${sampleId}||STATUS^^STATUS|||${currentDate}||||||||Breast^Left Breast Upper Node^Breast Biopsy||||${sampleId}|${sampleId}|${sampleId}`;
@@ -154,27 +154,6 @@ const MessageGenerator: React.FC = () => {
           console.error('Error al copiar: ', err);
         });
     }
-  };
-
-  const handleSampleIdChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSampleId(e.target.value);
-    setPatientInfo(prev => ({
-      ...prev,
-      code: e.target.value
-    }));
-  };
-
-  const handleTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setSelectedType(e.target.value);
-  };
-
-  const handlePatientInfoSave = (updatedInfo: PatientInfo) => {
-    setPatientInfo(updatedInfo);
-    setSampleId(updatedInfo.code);
-  };
-
-  const toggleModal = () => {
-    setIsModalOpen(!isModalOpen);
   };
 
   return (
