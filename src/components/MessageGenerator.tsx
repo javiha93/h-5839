@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { MessageType, PatientInfo } from '../types/MessageType';
 import { Message, Patient } from '../types/MessageType';
@@ -53,7 +52,7 @@ const MessageGenerator: React.FC = () => {
       setIsLoading(true);
       setError(null);
       try {
-        const response = await fetch('http://localhost:8080/api/messages/generate', {
+        const response = await fetch('http://localhost:8085/api/messages/generate', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -161,7 +160,7 @@ const MessageGenerator: React.FC = () => {
   // Helper function to convert using specific type
   const convertMessage = async (message: Message, messageType: string) => {
     try {
-      const response = await fetch('http://localhost:8080/api/messages/convert', {
+      const response = await fetch('http://localhost:8085/api/messages/convert', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -187,7 +186,7 @@ const MessageGenerator: React.FC = () => {
   // Helper function for OML21 format
   const generateOML21Message = async (message: Message) => {
     try {
-      const response = await fetch('http://localhost:8080/api/messages/oml21', {
+      const response = await fetch('http://localhost:8085/api/messages/oml21', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -210,7 +209,7 @@ const MessageGenerator: React.FC = () => {
   // Helper function for OEWF format
   const generateOEWFMessage = async (message: Message) => {
     try {
-      const response = await fetch('http://localhost:8080/api/messages/oewf', {
+      const response = await fetch('http://localhost:8085/api/messages/oewf', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
