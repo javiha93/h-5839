@@ -86,6 +86,16 @@ public class MSH extends HL7Segment {
         return msh;
     }
 
+    public static MSH FromMessageHeader(MessageHeader messageHeader, String messageType, MSH msh) {
+        msh = FromMessageHeader(messageHeader, msh);
+
+        String[] messageTypeParts = messageType.split("\\^");
+        msh.setMessageType(messageTypeParts[0]);
+        msh.setMessageEvent(messageTypeParts[1]);
+
+        return msh;
+    }
+
     @Override
     public String toString() {
         String value = "MSH|^~\\&|" +

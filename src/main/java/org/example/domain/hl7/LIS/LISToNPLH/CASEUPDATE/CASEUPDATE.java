@@ -25,7 +25,7 @@ public class CASEUPDATE extends HL7Segment {
     public static CASEUPDATE FromMessage(Message message, String status) {
         CASEUPDATE caseupdate = new CASEUPDATE();
 
-        caseupdate.msh = MSH.Default();
+        caseupdate.msh = MSH.FromMessageHeader(message.getHeader(), "OUL^R21");
         caseupdate.pid = PID.FromPatient(message.getPatient());
         caseupdate.orc = ORC.FromMessage(message.getOrder(), status);
         caseupdate.obr = OBR.FromMessage(message.getOrder());

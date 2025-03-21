@@ -4,6 +4,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.example.domain.hl7.HL7Position;
 import org.example.domain.hl7.HL7Segment;
+import org.example.domain.message.MessageHeader;
 
 import java.util.UUID;
 
@@ -18,5 +19,9 @@ public class MSH extends org.example.domain.hl7.common.MSH {
         msh.setMessageEvent("A28");
 
         return msh;
+    }
+
+    public static MSH FromMessageHeader(MessageHeader messageHeader, String messageType) {
+        return (MSH) org.example.domain.hl7.LIS.LISToNPLH.ADTA08.MSH.FromMessageHeader(messageHeader, messageType, new MSH());
     }
 }

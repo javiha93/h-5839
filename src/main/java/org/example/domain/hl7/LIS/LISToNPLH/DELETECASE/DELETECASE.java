@@ -25,7 +25,7 @@ public class DELETECASE extends HL7Segment {
     public static DELETECASE FromMessage(Message message) {
         DELETECASE deletecase = new DELETECASE();
 
-        deletecase.msh = MSH.Default();
+        deletecase.msh = MSH.FromMessageHeader(message.getHeader(), "OUL^R21");
         deletecase.pid = PID.FromPatient(message.getPatient());
         deletecase.orc = ORC.FromMessage(message.getOrder());
         deletecase.obr = OBR.FromMessage(message.getOrder());

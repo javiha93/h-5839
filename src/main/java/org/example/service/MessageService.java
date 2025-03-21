@@ -20,7 +20,7 @@ public class MessageService {
     
     public String generateOEWFMessage(Message message) {
         // Use the VTG OEWF format
-        OEWF oewf = OEWF.FromMessage(message);
-        return oewf.toString();
+        //OEWF oewf = OEWF.FromMessage(message);
+        return "";
     }
 }

@@ -42,7 +42,7 @@ public class Main {
         DELETESPECIMEN deletespecimen = DELETESPECIMEN.FromMessage(message, specimen);
         
         BlockUpdate blockUpdate = BlockUpdate.FromMessage(message, "STAINING");
-        OEWF oewf = OEWF.FromMessage(message);
+        // oewf = OEWF.FromMessage(message);
 
         // Convert all to strings
         String oml21String = oml21.toString();
@@ -53,6 +53,6 @@ public class Main {
         String deleteSlideString = deleteslide.toString();
         String deleteSpecimenString = deletespecimen.toString();
         String blockUpdateString = blockUpdate.toString();
-        String oewfString = oewf.toString();
+        //String oewfString = oewf.toString();
     }
 }

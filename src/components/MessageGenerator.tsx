@@ -1,9 +1,11 @@
 
 import React, { useState, useEffect } from 'react';
 import { MessageType, PatientInfo } from '../types/MessageType';
+import { Message, Patient } from '../types/MessageType';
 import PatientEditModal from './PatientEditModal';
 
 const MessageGenerator: React.FC = () => {
+  const [message, setMessage] = useState<Message>(null);
   const [sampleId, setSampleId] = useState<string>('');
   const [selectedHost, setSelectedHost] = useState<string>('');
   const [selectedType, setSelectedType] = useState<string>('');
@@ -12,14 +14,7 @@ const MessageGenerator: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
-  const [patientInfo, setPatientInfo] = useState<PatientInfo>({
-    code: '',
-    firstName: 'JOHN',
-    middleName: '',
-    lastName: 'DOE',
-    sex: 'M',
-    dateOfBirth: '19800101'
-  });
+  const [patientInfo, setPatientInfo] = useState<Patient | null>(null);
   
   // Available hosts
   const hosts = [
@@ -53,6 +48,37 @@ const MessageGenerator: React.FC = () => {
     ]
   };
 
+  useEffect(() => {
+    const fetchInitialData = async () => {
+      setIsLoading(true);
+      setError(null);
+      try {
+        const response = await fetch('http://localhost:8085/api/messages/generate', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ sampleId }),
+        });
+
+        if (!response.ok) {
+          throw new Error(`Error: ${response.status}`);
+        }
+
+        const data = await response.json();
+        setMessage(data);
+        setPatientInfo(data.patient)
+      } catch (err) {
+        console.error('Error fetching initial data:', err);
+        setError('Error al obtener los datos iniciales. Por favor intente nuevamente.');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchInitialData();
+  }, []);
+
   // Update message types when host is selected
   useEffect(() => {
     if (selectedHost) {
@@ -79,9 +105,18 @@ const MessageGenerator: React.FC = () => {
     setSelectedType(e.target.value);
   };
 
-  const handlePatientInfoSave = (updatedInfo: PatientInfo) => {
+  const handlePatientInfoSave = (updatedInfo: Patient) => {
+    console.log(patientInfo)
+    console.log(updatedInfo)
     setPatientInfo(updatedInfo);
-    setSampleId(updatedInfo.code);
+
+    if (message) {
+    console.log(patientInfo)
+      setMessage(prevMessage => ({
+        ...prevMessage,
+        patient: updatedInfo
+      }));
+    }
   };
 
   const toggleModal = () => {
@@ -89,6 +124,7 @@ const MessageGenerator: React.FC = () => {
   };
 
   const generateMessage = async () => {
+  console.log(message.patient)
     if (!sampleId || !selectedType) {
       setGeneratedMessage('Por favor, completa todos los campos.');
       return;
@@ -97,34 +133,19 @@ const MessageGenerator: React.FC = () => {
     setIsLoading(true);
     setError(null);
     try {
-      // Call the backend API to generate the message
-      const response = await fetch('http://localhost:8085/api/messages/generate', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ sampleId }),
-      });
-
-      if (!response.ok) {
-        throw new Error(`Error: ${response.status}`);
-      }
-
-      const messageData = await response.json();
-      
+      if (!message) {
+            throw new Error('No hay datos iniciales disponibles.');
+          }
       // Format the message based on the selected type and the received data
       let formattedMessage = '';
-      
-      // Here you would format the message based on the response and selectedType
-      // For example:
+
       switch (selectedType) {
         case 'OML21':
-          // Use the OML21 converter on the server side
-          formattedMessage = await convertToOML21Format(sampleId);
+          formattedMessage = await convertToOML21Format(message);
           break;
         // Add other cases for different message types
         default:
-          formattedMessage = 'Tipo de mensaje no soportado.';
+          formattedMessage = 'Tipo de mensaje no soportado2.';
       }
       
       setGeneratedMessage(formattedMessage);
@@ -138,14 +159,14 @@ const MessageGenerator: React.FC = () => {
   };
 
   // Helper function to convert to OML21 format
-  const convertToOML21Format = async (sampleId: string) => {
+  const convertToOML21Format = async (message: string) => {
     try {
       const response = await fetch('http://localhost:8085/api/messages/oml21', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ sampleId }),
+        body: JSON.stringify({ message }),
       });
 
       if (!response.ok) {
@@ -291,8 +312,8 @@ const MessageGenerator: React.FC = () => {
           </div>
         </div>
       )}
-      
-      <PatientEditModal 
+
+      <PatientEditModal
         isOpen={isModalOpen}
         onClose={toggleModal}
         patientInfo={patientInfo}

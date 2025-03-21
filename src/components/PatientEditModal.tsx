@@ -1,21 +1,19 @@
-
-import React, { useState, useEffect } from 'react';
-import { PatientInfo } from '../types/MessageType';
-
 interface PatientEditModalProps {
   isOpen: boolean;
   onClose: () => void;
-  patientInfo: PatientInfo;
-  onSave: (updatedInfo: PatientInfo) => void;
+  patientInfo: Patient;
+  onSave: (updatedInfo: Patient) => void;
 }
 
+import { Message, Patient } from '../types/MessageType';
+import React, { useState, useEffect } from 'react';
 const PatientEditModal: React.FC<PatientEditModalProps> = ({ 
   isOpen, 
   onClose, 
   patientInfo, 
   onSave 
 }) => {
-  const [editedInfo, setEditedInfo] = useState<PatientInfo>(patientInfo);
+  const [editedInfo, setEditedInfo] = useState<Patient>(patientInfo);
 
   useEffect(() => {
     setEditedInfo(patientInfo);
@@ -130,26 +128,26 @@ const PatientEditModal: React.FC<PatientEditModalProps> = ({
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
             />
           </div>
-          
-          <div className="flex justify-end space-x-3 pt-4">
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-500"
-            >
-              Cancelar
-            </button>
-            <button
-              type="submit"
-              className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            >
-              Guardar
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
-  );
-};
 
-export default PatientEditModal;
+          <div className="flex justify-end space-x-3 pt-4">
+                      <button
+                        type="button"
+                        onClick={onClose}
+                        className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-500"
+                      >
+                        Cancelar
+                      </button>
+                      <button
+                        type="submit"
+                        className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                      >
+                        Guardar
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            );
+          };
+
+          export default PatientEditModal;

@@ -27,24 +27,24 @@ public class OEWF extends HL7Segment {
         return oml21;
     }
     
-    public static OEWF FromMessage(Message message) {
-        OEWF oewf = new OEWF();
-
-        oewf.msh = MSH.FromMessageHeader(message.getHeader());
-        oewf.pid = PID.FromPatient(message.getPatient());
-        oewf.pv1 = PV1.FromPhysician(message.getPhysician());
-
-        int segmentNumber = 0;
-        for (Slide slide : message.getAllSlides()) {
-            segmentNumber++;
-            OBR obr = OBR.FromMessage(slide, message, segmentNumber);
-            ORC orc = ORC.FromMessage(slide, message);
-            OBX obx = OBX.FromMessage(slide, message, segmentNumber);
-            oewf.oSegments.add(new OSegment(orc, obr, obx));
-        }
-
-        return oewf;
-    }
+//    public static OEWF FromMessage(Message message) {
+//        OEWF oewf = new OEWF();
+//
+//        oewf.msh = MSH.FromMessageHeader(message.getHeader());
+//        oewf.pid = PID.FromPatient(message.getPatient());
+//        oewf.pv1 = PV1.FromPhysician(message.getPhysician());
+//
+//        int segmentNumber = 0;
+//        for (Slide slide : message.getAllSlides()) {
+//            segmentNumber++;
+//            OBR obr = OBR.FromMessage(slide, message, segmentNumber);
+//            ORC orc = ORC.FromMessage(slide, message);
+//            OBX obx = OBX.FromMessage(slide, message, segmentNumber);
+//            oewf.oSegments.add(new OSegment(orc, obr, obx));
+//        }
+//
+//        return oewf;
+//    }
 
     @Override
     public String toString() {

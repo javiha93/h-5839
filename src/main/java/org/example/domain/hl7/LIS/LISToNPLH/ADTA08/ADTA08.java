@@ -2,7 +2,6 @@
 package org.example.domain.hl7.LIS.LISToNPLH.ADTA08;
 
 import org.example.domain.hl7.HL7Segment;
-import org.example.domain.hl7.LIS.LISToNPLH.response.ACK.MSH;
 import org.example.domain.message.Message;
 
 public class ADTA08 extends HL7Segment {
@@ -26,10 +25,10 @@ public class ADTA08 extends HL7Segment {
     public static ADTA08 FromMessage(Message message) {
         ADTA08 adta08 = new ADTA08();
 
-        adta08.msh = MSH.Default();
+        adta08.msh = MSH.FromMessageHeader(message.getHeader(), "ADT^A08");
         adta08.pid = PID.FromPatient(message.getPatient());
         adta08.pv1 = PV1.FromPhysician(message.getPhysician());
-        adta08.obx = OBX.FromMessage(message);
+        adta08.obx = OBX.FromOrder(message.getOrder());
 
         return adta08;
     }

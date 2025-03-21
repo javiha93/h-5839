@@ -1,9 +1,9 @@
 package org.example.domain.hl7.LIS.LISToNPLH.DELETECASE;
 
 import org.example.domain.hl7.HL7Position;
-import org.example.domain.hl7.HL7Segment;
+import org.example.domain.message.entity.Order;
 
-public class OBR extends HL7Segment {
+public class OBR extends org.example.domain.hl7.common.OBR {
 
     @HL7Position(position = 2)
     private String sampleId;
@@ -14,6 +14,10 @@ public class OBR extends HL7Segment {
         obr.sampleId = sampleID;
 
         return obr;
+    }
+
+    public static OBR FromMessage(Order order) {
+        return (OBR) FromMessage(order, new OBR());
     }
 
     @Override

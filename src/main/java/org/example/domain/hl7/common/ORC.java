@@ -105,6 +105,24 @@ public class ORC extends HL7Segment {
         return orc;
     }
 
+    public static ORC FromMessage(Specimen specimen, String sampleID, ORC orc) {
+        orc.sampleID = sampleID;
+        orc.facilityCode = specimen.getFacilityCode();
+        orc.facilityName = specimen.getFacilityName();
+
+        return orc;
+    }
+
+    public static ORC FromMessage(Order order, ORC orc) {
+        Specimen specimen = order.getSpecimen();
+
+        orc.sampleID = order.getSampleId();
+        orc.facilityCode = specimen.getFacilityCode();
+        orc.facilityName = specimen.getFacilityName();
+
+        return orc;
+    }
+
     @Override
     public String toString() {
         String value = "ORC|" +

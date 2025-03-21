@@ -2,6 +2,9 @@ package org.example.domain.hl7.LIS.LISToNPLH.DELETESPECIMEN;
 
 import org.example.domain.hl7.HL7Position;
 import org.example.domain.hl7.HL7Segment;
+import org.example.domain.message.Message;
+import org.example.domain.message.entity.Slide;
+import org.example.domain.message.entity.Specimen;
 
 public class ORC extends org.example.domain.hl7.common.ORC {
 
@@ -23,6 +26,16 @@ public class ORC extends org.example.domain.hl7.common.ORC {
         orc.setMessageCode("CA");
         orc.setActionCode("CA");
         orc.setSpecimenId(specimenId);
+        orc.setOrderStatus("DELETE");
+
+        return orc;
+    }
+
+    public static ORC FromMessage(Specimen specimen, String sampleId) {
+        ORC orc = (ORC) FromMessage(specimen, sampleId, new ORC());
+
+        orc.setMessageCode("CA");
+        orc.setActionCode("CA");
         orc.setOrderStatus("DELETE");
 
         return orc;

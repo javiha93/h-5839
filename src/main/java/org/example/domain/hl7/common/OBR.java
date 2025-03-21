@@ -373,6 +373,15 @@ public class OBR extends HL7Segment {
 
         Order order = specimen.getOrderParent(message);
 
+        obr = FromMessage(order, obr);
+
+        obr.specimenID = specimen.getId();
+        obr.sequenceSpecimen = specimen.getSequence();
+
+        return obr;
+    }
+
+    public static OBR FromMessage(Order order, OBR obr) {
         obr.pathologist = order.getPathologist().getCode();
         obr.pathologistLN = order.getPathologist().getLastName();
         obr.pathologistFN = order.getPathologist().getFirstName();
@@ -393,9 +402,6 @@ public class OBR extends HL7Segment {
         obr.technicianLN = order.getTechnician().getLastName();
         obr.technicianFN = order.getTechnician().getFirstName();
         obr.technicianMN = order.getTechnician().getMiddleName();
-
-        obr.specimenID = specimen.getId();
-        obr.sequenceSpecimen = specimen.getSequence();
 
         return obr;
     }

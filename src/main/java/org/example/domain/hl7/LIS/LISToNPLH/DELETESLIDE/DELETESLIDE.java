@@ -25,10 +25,10 @@ public class DELETESLIDE extends HL7Segment {
     public static DELETESLIDE FromMessage(Message message, Slide slide) {
         DELETESLIDE deleteSlide = new DELETESLIDE();
 
-        deleteSlide.msh = MSH.Default();
+        deleteSlide.msh = MSH.FromMessageHeader(message.getHeader(), "OUL^R21");
         deleteSlide.pid = PID.FromPatient(message.getPatient());
-        deleteSlide.orc = ORC.FromMessage(message.getOrder(), slide);
-        deleteSlide.obr = OBR.FromMessage(slide);
+        deleteSlide.orc = ORC.FromMessage(slide, message);
+        deleteSlide.obr = OBR.FromMessage(slide, message);
 
         return deleteSlide;
     }
