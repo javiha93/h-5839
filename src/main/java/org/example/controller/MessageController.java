@@ -32,9 +32,9 @@ public class MessageController {
     }
 
     @PostMapping("/convert")
-    public ResponseEntity<String> convertMessage(@RequestBody Message message, String messageType) {
-        String oml21Message = messageService.convertMessage(message, messageType);
-        return ResponseEntity.ok(oml21Message);
+    public ResponseEntity<String> convertMessage(@RequestBody ConvertRequest request) {
+        String convertedMessage = messageService.convertMessage(request.getMessage(), request.getMessageType());
+        return ResponseEntity.ok(convertedMessage);
     }
     
     @PostMapping("/oewf")
@@ -52,6 +52,27 @@ public class MessageController {
 
         public void setSampleId(String sampleId) {
             this.sampleId = sampleId;
+        }
+    }
+    
+    public static class ConvertRequest {
+        private Message message;
+        private String messageType;
+
+        public Message getMessage() {
+            return message;
+        }
+
+        public void setMessage(Message message) {
+            this.message = message;
+        }
+
+        public String getMessageType() {
+            return messageType;
+        }
+
+        public void setMessageType(String messageType) {
+            this.messageType = messageType;
         }
     }
 }

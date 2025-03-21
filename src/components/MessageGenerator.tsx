@@ -53,7 +53,7 @@ const MessageGenerator: React.FC = () => {
       setIsLoading(true);
       setError(null);
       try {
-        const response = await fetch('http://localhost:8085/api/messages/generate', {
+        const response = await fetch('http://localhost:8080/api/messages/generate', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -111,7 +111,7 @@ const MessageGenerator: React.FC = () => {
     setPatientInfo(updatedInfo);
 
     if (message) {
-    console.log(patientInfo)
+      console.log(patientInfo)
       setMessage(prevMessage => ({
         ...prevMessage,
         patient: updatedInfo
@@ -124,7 +124,7 @@ const MessageGenerator: React.FC = () => {
   };
 
   const generateMessage = async () => {
-  console.log(message.patient)
+    console.log(message.patient)
     if (!sampleId || !selectedType) {
       setGeneratedMessage('Por favor, completa todos los campos.');
       return;
@@ -134,12 +134,19 @@ const MessageGenerator: React.FC = () => {
     setError(null);
     try {
       if (!message) {
-            throw new Error('No hay datos iniciales disponibles.');
-          }
+        throw new Error('No hay datos iniciales disponibles.');
+      }
+      
       // Format the message based on the selected type and the received data
       let formattedMessage = '';
 
-      formattedMessage = await convertMessage(message, selectedType)
+      if (selectedHost === 'VTG' && selectedType === 'OEWF') {
+        formattedMessage = await generateOEWFMessage(message);
+      } else if (selectedHost === 'LIS' && selectedType === 'OML21') {
+        formattedMessage = await generateOML21Message(message);
+      } else {
+        formattedMessage = await convertMessage(message, selectedType);
+      }
       
       setGeneratedMessage(formattedMessage);
     } catch (err) {
@@ -151,15 +158,18 @@ const MessageGenerator: React.FC = () => {
     }
   };
 
-  // Helper function to convert to OML21 format
-  const convertMessage = async (message: string) => {
+  // Helper function to convert using specific type
+  const convertMessage = async (message: Message, messageType: string) => {
     try {
-      const response = await fetch('http://localhost:8085/api/messages/convert', {
+      const response = await fetch('http://localhost:8080/api/messages/convert', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ message }),
+        body: JSON.stringify({ 
+          message: message,
+          messageType: messageType 
+        }),
       });
 
       if (!response.ok) {
@@ -170,6 +180,52 @@ const MessageGenerator: React.FC = () => {
       return data;
     } catch (err) {
       console.error('Error converting message:', err);
+      throw err;
+    }
+  };
+
+  // Helper function for OML21 format
+  const generateOML21Message = async (message: Message) => {
+    try {
+      const response = await fetch('http://localhost:8080/api/messages/oml21', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(message),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Error: ${response.status}`);
+      }
+
+      const data = await response.text();
+      return data;
+    } catch (err) {
+      console.error('Error generating OML21 message:', err);
+      throw err;
+    }
+  };
+
+  // Helper function for OEWF format
+  const generateOEWFMessage = async (message: Message) => {
+    try {
+      const response = await fetch('http://localhost:8080/api/messages/oewf', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(message),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Error: ${response.status}`);
+      }
+
+      const data = await response.text();
+      return data;
+    } catch (err) {
+      console.error('Error generating OEWF message:', err);
       throw err;
     }
   };
