@@ -1,6 +1,8 @@
+
 package org.example.domain.hl7.LIS.LISToNPLH.CASEUPDATE;
 
 import org.example.domain.hl7.HL7Segment;
+import org.example.domain.message.Message;
 
 public class CASEUPDATE extends HL7Segment {
 
@@ -16,6 +18,17 @@ public class CASEUPDATE extends HL7Segment {
         caseupdate.pid = PID.Default();
         caseupdate.orc = ORC.Default(sampleId, status);
         caseupdate.obr = OBR.Default(sampleId);
+
+        return caseupdate;
+    }
+    
+    public static CASEUPDATE FromMessage(Message message, String status) {
+        CASEUPDATE caseupdate = new CASEUPDATE();
+
+        caseupdate.msh = MSH.Default();
+        caseupdate.pid = PID.FromPatient(message.getPatient());
+        caseupdate.orc = ORC.FromMessage(message.getOrder(), status);
+        caseupdate.obr = OBR.FromMessage(message.getOrder());
 
         return caseupdate;
     }

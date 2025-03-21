@@ -1,7 +1,6 @@
 
 package org.example.controller;
 
-import org.example.domain.hl7.LIS.LISToNPLH.OML21.dto.OML21;
 import org.example.domain.message.Message;
 import org.example.service.MessageService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,14 +26,14 @@ public class MessageController {
     }
 
     @PostMapping("/oml21")
-    public ResponseEntity<String> generateOML21Message(@RequestBody SampleIdRequest request) {
-        String oml21Message = messageService.generateOML21Message(request.getSampleId());
+    public ResponseEntity<String> generateOML21Message(@RequestBody Message message) {
+        String oml21Message = messageService.generateOML21Message(message);
         return ResponseEntity.ok(oml21Message);
     }
     
     @PostMapping("/oewf")
-    public ResponseEntity<String> generateOEWFMessage(@RequestBody SampleIdRequest request) {
-        String oewfMessage = messageService.generateOEWFMessage(request.getSampleId());
+    public ResponseEntity<String> generateOEWFMessage(@RequestBody Message message) {
+        String oewfMessage = messageService.generateOEWFMessage(message);
         return ResponseEntity.ok(oewfMessage);
     }
 

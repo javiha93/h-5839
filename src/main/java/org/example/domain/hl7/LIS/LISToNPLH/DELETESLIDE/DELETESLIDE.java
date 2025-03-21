@@ -1,6 +1,9 @@
+
 package org.example.domain.hl7.LIS.LISToNPLH.DELETESLIDE;
 
 import org.example.domain.hl7.HL7Segment;
+import org.example.domain.message.Message;
+import org.example.domain.message.entity.Slide;
 
 public class DELETESLIDE extends HL7Segment {
     MSH msh;
@@ -15,6 +18,17 @@ public class DELETESLIDE extends HL7Segment {
         deleteSlide.pid = PID.Default();
         deleteSlide.orc = ORC.Default(sampleId, slideId);
         deleteSlide.obr = OBR.Default(slideId);
+
+        return deleteSlide;
+    }
+    
+    public static DELETESLIDE FromMessage(Message message, Slide slide) {
+        DELETESLIDE deleteSlide = new DELETESLIDE();
+
+        deleteSlide.msh = MSH.Default();
+        deleteSlide.pid = PID.FromPatient(message.getPatient());
+        deleteSlide.orc = ORC.FromMessage(message.getOrder(), slide);
+        deleteSlide.obr = OBR.FromMessage(slide);
 
         return deleteSlide;
     }

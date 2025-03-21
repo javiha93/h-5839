@@ -13,15 +13,14 @@ public class MessageService {
         return Message.Default(sampleId);
     }
     
-    public String generateOML21Message(String sampleId) {
-        Message message = Message.Default(sampleId);
+    public String generateOML21Message(Message message) {
         OML21 oml21 = OML21.FromMessage(message);
         return oml21.toString();
     }
     
-    public String generateOEWFMessage(String sampleId) {
+    public String generateOEWFMessage(Message message) {
         // Use the VTG OEWF format
-        OEWF oewf = OEWF.OneSlide(sampleId);
+        OEWF oewf = OEWF.FromMessage(message);
         return oewf.toString();
     }
 }

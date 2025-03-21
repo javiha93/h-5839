@@ -1,6 +1,9 @@
+
 package org.example.domain.hl7.VTG.VTGToNPLH.OEWF;
 
 import org.example.domain.hl7.HL7Segment;
+import org.example.domain.message.Message;
+import org.example.domain.message.entity.Slide;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,6 +25,25 @@ public class OEWF extends HL7Segment {
                 OBR.Default(sampleId, "A", "1", "1", "1"),
                 OBX.Default(sampleId, "A", "1", "1", "1")));
         return oml21;
+    }
+    
+    public static OEWF FromMessage(Message message) {
+        OEWF oewf = new OEWF();
+
+        oewf.msh = MSH.FromMessageHeader(message.getHeader());
+        oewf.pid = PID.FromPatient(message.getPatient());
+        oewf.pv1 = PV1.FromPhysician(message.getPhysician());
+
+        int segmentNumber = 0;
+        for (Slide slide : message.getAllSlides()) {
+            segmentNumber++;
+            OBR obr = OBR.FromMessage(slide, message, segmentNumber);
+            ORC orc = ORC.FromMessage(slide, message);
+            OBX obx = OBX.FromMessage(slide, message, segmentNumber);
+            oewf.oSegments.add(new OSegment(orc, obr, obx));
+        }
+
+        return oewf;
     }
 
     @Override
