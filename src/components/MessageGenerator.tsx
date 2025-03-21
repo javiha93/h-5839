@@ -1,7 +1,10 @@
+
 import React, { useState, useEffect } from 'react';
-import { MessageType, PatientInfo } from '../types/MessageType';
-import { Message, Patient } from '../types/Message';
+import { MessageType, Patient, Physician, Pathologist } from '../types/MessageType';
+import { Message } from '../types/Message';
 import PatientEditModal from './PatientEditModal';
+import PhysicianEditModal from './PhysicianEditModal';
+import PathologistEditModal from './PathologistEditModal';
 
 const MessageGenerator: React.FC = () => {
   const [message, setMessage] = useState<Message>(null);
@@ -10,10 +13,14 @@ const MessageGenerator: React.FC = () => {
   const [selectedType, setSelectedType] = useState<string>('');
   const [generatedMessage, setGeneratedMessage] = useState<string>('');
   const [messageCopied, setMessageCopied] = useState<boolean>(false);
-  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const [isPatientModalOpen, setIsPatientModalOpen] = useState<boolean>(false);
+  const [isPhysicianModalOpen, setIsPhysicianModalOpen] = useState<boolean>(false);
+  const [isPathologistModalOpen, setIsPathologistModalOpen] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [patientInfo, setPatientInfo] = useState<Patient | null>(null);
+  const [physicianInfo, setPhysicianInfo] = useState<Physician | null>(null);
+  const [pathologistInfo, setPathologistInfo] = useState<Pathologist | null>(null);
   
   // Available hosts
   const hosts = [
@@ -67,7 +74,9 @@ const MessageGenerator: React.FC = () => {
 
         const data = await response.json();
         setMessage(data);
-        setPatientInfo(data.patient)
+        setPatientInfo(data.patient);
+        setPhysicianInfo(data.physician);
+        setPathologistInfo(data.pathologist);
       } catch (err) {
         console.error('Error fetching initial data:', err);
         setError('Error al obtener los datos iniciales. Por favor intente nuevamente.');
@@ -114,12 +123,9 @@ const MessageGenerator: React.FC = () => {
   };
 
   const handlePatientInfoSave = (updatedInfo: Patient) => {
-    console.log(patientInfo)
-    console.log(updatedInfo)
     setPatientInfo(updatedInfo);
 
     if (message) {
-      console.log(patientInfo)
       setMessage(prevMessage => ({
         ...prevMessage,
         patient: updatedInfo
@@ -127,12 +133,42 @@ const MessageGenerator: React.FC = () => {
     }
   };
 
-  const toggleModal = () => {
-    setIsModalOpen(!isModalOpen);
+  const handlePhysicianInfoSave = (updatedInfo: Physician) => {
+    setPhysicianInfo(updatedInfo);
+
+    if (message) {
+      setMessage(prevMessage => ({
+        ...prevMessage,
+        physician: updatedInfo
+      }));
+    }
+  };
+
+  const handlePathologistInfoSave = (updatedInfo: Pathologist) => {
+    setPathologistInfo(updatedInfo);
+
+    if (message) {
+      setMessage(prevMessage => ({
+        ...prevMessage,
+        pathologist: updatedInfo
+      }));
+    }
+  };
+
+  const togglePatientModal = () => {
+    setIsPatientModalOpen(!isPatientModalOpen);
+  };
+
+  const togglePhysicianModal = () => {
+    setIsPhysicianModalOpen(!isPhysicianModalOpen);
+  };
+
+  const togglePathologistModal = () => {
+    setIsPathologistModalOpen(!isPathologistModalOpen);
   };
 
   const generateMessage = async () => {
-    console.log(message)
+    console.log(message);
     if (!sampleId || !selectedType) {
       setGeneratedMessage('Por favor, completa todos los campos.');
       return;
@@ -208,15 +244,37 @@ const MessageGenerator: React.FC = () => {
           <label htmlFor="sampleId" className="block text-sm font-medium text-gray-700">
             Sample ID
           </label>
-          <button 
-            onClick={toggleModal}
-            className="inline-flex items-center px-3 py-1 bg-blue-100 text-blue-700 rounded-md hover:bg-blue-200 transition-colors text-sm"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
-              <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
-            </svg>
-            Editar Paciente
-          </button>
+          <div className="flex space-x-2">
+            <button 
+              onClick={togglePatientModal}
+              className="inline-flex items-center px-3 py-1 bg-blue-100 text-blue-700 rounded-md hover:bg-blue-200 transition-colors text-sm"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+              </svg>
+              Editar Paciente
+            </button>
+            
+            <button 
+              onClick={togglePhysicianModal}
+              className="inline-flex items-center px-3 py-1 bg-green-100 text-green-700 rounded-md hover:bg-green-200 transition-colors text-sm"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+              </svg>
+              Editar Médico
+            </button>
+            
+            <button 
+              onClick={togglePathologistModal}
+              className="inline-flex items-center px-3 py-1 bg-purple-100 text-purple-700 rounded-md hover:bg-purple-200 transition-colors text-sm"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+              </svg>
+              Editar Patólogo
+            </button>
+          </div>
         </div>
         <input
           type="text"
@@ -310,10 +368,24 @@ const MessageGenerator: React.FC = () => {
       )}
 
       <PatientEditModal
-        isOpen={isModalOpen}
-        onClose={toggleModal}
+        isOpen={isPatientModalOpen}
+        onClose={togglePatientModal}
         patientInfo={patientInfo}
         onSave={handlePatientInfoSave}
+      />
+
+      <PhysicianEditModal
+        isOpen={isPhysicianModalOpen}
+        onClose={togglePhysicianModal}
+        physicianInfo={physicianInfo}
+        onSave={handlePhysicianInfoSave}
+      />
+
+      <PathologistEditModal
+        isOpen={isPathologistModalOpen}
+        onClose={togglePathologistModal}
+        pathologistInfo={pathologistInfo}
+        onSave={handlePathologistInfoSave}
       />
     </div>
   );

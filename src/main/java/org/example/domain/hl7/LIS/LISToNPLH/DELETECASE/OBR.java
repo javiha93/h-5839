@@ -1,3 +1,4 @@
+
 package org.example.domain.hl7.LIS.LISToNPLH.DELETECASE;
 
 import org.example.domain.hl7.HL7Position;
