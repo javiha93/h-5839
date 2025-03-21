@@ -26,8 +26,14 @@ public class MessageController {
     }
 
     @PostMapping("/oml21")
-    public ResponseEntity<String> generateOML21Message(@RequestBody String message) {
-        String oml21Message = messageService.generateOML21Message(new Message());
+    public ResponseEntity<String> generateOML21Message(@RequestBody Message message) {
+        String oml21Message = messageService.generateOML21Message(message);
+        return ResponseEntity.ok(oml21Message);
+    }
+
+    @PostMapping("/convert")
+    public ResponseEntity<String> convertMessage(@RequestBody Message message, String messageType) {
+        String oml21Message = messageService.convertMessage(message, messageType);
         return ResponseEntity.ok(oml21Message);
     }
     

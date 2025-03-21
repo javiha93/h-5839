@@ -139,14 +139,7 @@ const MessageGenerator: React.FC = () => {
       // Format the message based on the selected type and the received data
       let formattedMessage = '';
 
-      switch (selectedType) {
-        case 'OML21':
-          formattedMessage = await convertToOML21Format(message);
-          break;
-        // Add other cases for different message types
-        default:
-          formattedMessage = 'Tipo de mensaje no soportado2.';
-      }
+      formattedMessage = await convertMessage(message, selectedType)
       
       setGeneratedMessage(formattedMessage);
     } catch (err) {
@@ -159,9 +152,9 @@ const MessageGenerator: React.FC = () => {
   };
 
   // Helper function to convert to OML21 format
-  const convertToOML21Format = async (message: string) => {
+  const convertMessage = async (message: string) => {
     try {
-      const response = await fetch('http://localhost:8085/api/messages/oml21', {
+      const response = await fetch('http://localhost:8085/api/messages/convert', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -176,7 +169,7 @@ const MessageGenerator: React.FC = () => {
       const data = await response.text();
       return data;
     } catch (err) {
-      console.error('Error converting to OML21:', err);
+      console.error('Error converting message:', err);
       throw err;
     }
   };
