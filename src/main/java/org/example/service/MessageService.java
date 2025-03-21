@@ -16,8 +16,8 @@ import org.springframework.stereotype.Service;
 @Service
 public class MessageService {
 
-    public Message generateMessage(String sampleId) {
-        return Message.Default(sampleId);
+    public Message generateMessage() {
+        return Message.Default("");
     }
 
 

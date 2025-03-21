@@ -20,27 +20,15 @@ public class MessageController {
     }
 
     @PostMapping("/generate")
-    public ResponseEntity<Message> generateMessage(@RequestBody SampleIdRequest request) {
-        Message message = messageService.generateMessage(request.getSampleId());
+    public ResponseEntity<Message> generateMessage() {
+        Message message = messageService.generateMessage();
         return ResponseEntity.ok(message);
-    }
-
-    @PostMapping("/oml21")
-    public ResponseEntity<String> generateOML21Message(@RequestBody Message message) {
-        String oml21Message = messageService.generateOML21Message(message);
-        return ResponseEntity.ok(oml21Message);
     }
 
     @PostMapping("/convert")
     public ResponseEntity<String> convertMessage(@RequestBody ConvertRequest request) {
         String convertedMessage = messageService.convertMessage(request.getMessage(), request.getMessageType());
         return ResponseEntity.ok(convertedMessage);
-    }
-    
-    @PostMapping("/oewf")
-    public ResponseEntity<String> generateOEWFMessage(@RequestBody Message message) {
-        String oewfMessage = messageService.generateOEWFMessage(message);
-        return ResponseEntity.ok(oewfMessage);
     }
 
     public static class SampleIdRequest {

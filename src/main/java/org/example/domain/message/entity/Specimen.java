@@ -1,5 +1,6 @@
 package org.example.domain.message.entity;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import lombok.Data;
 import lombok.Value;
 import org.example.domain.message.Message;
@@ -21,6 +22,7 @@ import java.util.List;
 
 
 @Data
+@JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY, getterVisibility = JsonAutoDetect.Visibility.NONE)
 public class Specimen extends EntityInfo implements Cloneable {
     private LocalDateTime collectDateTime;
     private LocalDateTime receivedDateTime;

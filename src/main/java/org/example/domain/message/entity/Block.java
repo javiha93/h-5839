@@ -1,5 +1,6 @@
 package org.example.domain.message.entity;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import lombok.Data;
 import org.example.domain.message.Message;
 import org.example.domain.message.entity.list.SlidesList;
@@ -10,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Data
+@JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY, getterVisibility = JsonAutoDetect.Visibility.NONE)
 public class Block extends EntityInfo implements Cloneable {
     private String parentId;
     private SlidesList slides;

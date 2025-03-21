@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { MessageType, PatientInfo } from '../types/MessageType';
-import { Message, Patient } from '../types/MessageType';
+import { Message, Patient } from '../types/Message';
 import PatientEditModal from './PatientEditModal';
 
 const MessageGenerator: React.FC = () => {
@@ -29,17 +29,18 @@ const MessageGenerator: React.FC = () => {
   const hostMessageTypes = {
     LIS: [
       { id: 'OML21', name: 'OML21' },
-      { id: 'STATUS_UPDATE', name: 'STATUS_UPDATE' },
-      { id: 'DELETE_SLIDE', name: 'DELETE_SLIDE' },
+      { id: 'ADTA28', name: 'ADTA28' },
       { id: 'ADTA08', name: 'ADTA08' },
-      { id: 'ACK', name: 'ACK' },
       { id: 'DELETE_CASE', name: 'DELETE_CASE' },
       { id: 'DELETE_SPECIMEN', name: 'DELETE_SPECIMEN' },
-      { id: 'SCAN_SLIDE', name: 'SCAN_SLIDE' },
-      { id: 'RESCAN_SLIDE', name: 'RESCAN_SLIDE' }
+      { id: 'DELETE_SLIDE', name: 'DELETE_SLIDE' }
     ],
     VTG: [
-      { id: 'OEWF', name: 'OEWF' }
+      { id: 'OEWF', name: 'OEWF' },
+      { id: 'ADDITION', name: 'ADDITION' },
+      { id: 'SPECIMEN_UPDATE', name: 'SPECIMEN_UPDATE' },
+      { id: 'BLOCK_UPDATE', name: 'BLOCK_UPDATE' },
+      { id: 'SLIDE_UPDATE', name: 'SLIDE_UPDATE' }
     ],
     VANTAGE_WS: [
       { id: 'CREATE_CASE', name: 'CREATE_CASE' },
@@ -57,7 +58,7 @@ const MessageGenerator: React.FC = () => {
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ sampleId }),
+          body: JSON.stringify(),
         });
 
         if (!response.ok) {
@@ -78,7 +79,6 @@ const MessageGenerator: React.FC = () => {
     fetchInitialData();
   }, []);
 
-  // Update message types when host is selected
   useEffect(() => {
     if (selectedHost) {
       setMessageTypes(hostMessageTypes[selectedHost as keyof typeof hostMessageTypes] || []);
@@ -89,11 +89,20 @@ const MessageGenerator: React.FC = () => {
   }, [selectedHost]);
 
   const handleSampleIdChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSampleId(e.target.value);
-    setPatientInfo(prev => ({
-      ...prev,
-      code: e.target.value
-    }));
+    const newSampleId = e.target.value;
+    console.log(newSampleId);
+    setSampleId(newSampleId);
+
+    const updatedMessage = { ...message };
+
+    if (updatedMessage.patient.orders.orderList) {
+      updatedMessage.patient.orders.orderList = updatedMessage.patient.orders.orderList.map(order => ({
+        ...order,
+        sampleId: newSampleId,
+      }));
+    }
+
+    setMessage(updatedMessage);
   };
 
   const handleHostChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -123,7 +132,7 @@ const MessageGenerator: React.FC = () => {
   };
 
   const generateMessage = async () => {
-    console.log(message.patient)
+    console.log(message)
     if (!sampleId || !selectedType) {
       setGeneratedMessage('Por favor, completa todos los campos.');
       return;
@@ -135,17 +144,11 @@ const MessageGenerator: React.FC = () => {
       if (!message) {
         throw new Error('No hay datos iniciales disponibles.');
       }
-      
-      // Format the message based on the selected type and the received data
+
       let formattedMessage = '';
 
-      if (selectedHost === 'VTG' && selectedType === 'OEWF') {
-        formattedMessage = await generateOEWFMessage(message);
-      } else if (selectedHost === 'LIS' && selectedType === 'OML21') {
-        formattedMessage = await generateOML21Message(message);
-      } else {
-        formattedMessage = await convertMessage(message, selectedType);
-      }
+      formattedMessage = await convertMessage(message, selectedType);
+
       
       setGeneratedMessage(formattedMessage);
     } catch (err) {
@@ -157,7 +160,6 @@ const MessageGenerator: React.FC = () => {
     }
   };
 
-  // Helper function to convert using specific type
   const convertMessage = async (message: Message, messageType: string) => {
     try {
       const response = await fetch('http://localhost:8085/api/messages/convert', {
@@ -183,60 +185,6 @@ const MessageGenerator: React.FC = () => {
     }
   };
 
-  // Helper function for OML21 format
-  const generateOML21Message = async (message: Message) => {
-    try {
-      const response = await fetch('http://localhost:8085/api/messages/oml21', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(message),
-      });
-
-      if (!response.ok) {
-        throw new Error(`Error: ${response.status}`);
-      }
-
-      const data = await response.text();
-      return data;
-    } catch (err) {
-      console.error('Error generating OML21 message:', err);
-      throw err;
-    }
-  };
-
-  // Helper function for OEWF format
-  const generateOEWFMessage = async (message: Message) => {
-    try {
-      const response = await fetch('http://localhost:8085/api/messages/oewf', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(message),
-      });
-
-      if (!response.ok) {
-        throw new Error(`Error: ${response.status}`);
-      }
-
-      const data = await response.text();
-      return data;
-    } catch (err) {
-      console.error('Error generating OEWF message:', err);
-      throw err;
-    }
-  };
-
-  // Función para generar un UUID v4
-  const generateUUID = () => {
-    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-      const r = Math.random() * 16 | 0;
-      const v = c === 'x' ? r : (r & 0x3 | 0x8);
-      return v.toString(16);
-    });
-  };
 
   const copyToClipboard = () => {
     if (generatedMessage) {

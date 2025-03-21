@@ -1,7 +1,7 @@
 package org.example.domain.message;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 import org.example.aplication.hapier.Hapier;
 import org.example.domain.mapper.EMap;
 import org.example.domain.message.conditions.EStatus;
@@ -18,6 +18,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Data
+@JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY, getterVisibility = JsonAutoDetect.Visibility.NONE)
 public class Message extends Reflection implements Cloneable {
 
     String channelType;
@@ -104,8 +105,8 @@ public class Message extends Reflection implements Cloneable {
 
     public Specimen getSpecimen(String id) {return patient.getSpecimen(id);}
 
-    public Order getOrder() { return patient.getOrder(); }
-    public Order getOrder(String caseId) { return patient.getOrder(caseId); }
+    public Order getOrder() { return patient.getSingleOrder(); }
+    public Order getOrder(String caseId) { return patient.getSingleOrder(caseId); }
 
 
     public String to(EMap map) {

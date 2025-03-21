@@ -1,18 +1,19 @@
 package org.example.domain.message;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import lombok.Data;
 import org.example.domain.message.entity.Block;
 import org.example.domain.message.entity.Order;
 import org.example.domain.message.entity.Slide;
 import org.example.domain.message.entity.Specimen;
 import org.example.domain.message.entity.list.OrderList;
-import org.example.domain.message.entity.list.SpecimensList;
 import org.example.domain.message.professional.record.PersonInfo;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Data
+@JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY, getterVisibility = JsonAutoDetect.Visibility.NONE)
 public class Patient extends PersonInfo implements Cloneable {
     private String suffix;
     private String secondSurname;
@@ -81,14 +82,14 @@ public class Patient extends PersonInfo implements Cloneable {
         return this.orders.getOrderList();
     }
 
-    public Order getOrder() {
+    public Order getSingleOrder() {
         if (orders.getOrderList().size() == 1) {
             return orders.getOrderList().get(0);
         } else {
             throw new RuntimeException("Not possible to return only a order. Patient contains " + orders.getOrderList().size() + " orders" );
         }
     }
-    public Order getOrder(String sampleId) {
+    public Order getSingleOrder(String sampleId) {
         for (Order order : getAllOrders()) {
             if (order.getSampleId().equals(sampleId)) {
                 return order;
@@ -122,7 +123,7 @@ public class Patient extends PersonInfo implements Cloneable {
     }
 
     public void setSpecimen(Specimen specimen) {
-        getOrder().setSpecimen(specimen);
+        getSingleOrder().setSpecimen(specimen);
     }
 
     public Block getBlock() {
@@ -151,7 +152,7 @@ public class Patient extends PersonInfo implements Cloneable {
     }
 
     public void setSlide(Slide slide) {
-        getOrder().setSlide(slide);
+        getSingleOrder().setSlide(slide);
     }
 
 

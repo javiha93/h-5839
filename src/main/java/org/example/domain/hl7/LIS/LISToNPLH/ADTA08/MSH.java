@@ -24,4 +24,9 @@ public class MSH extends org.example.domain.hl7.common.MSH {
     public static MSH FromMessageHeader(MessageHeader messageHeader, String messageType) {
         return (MSH) MSH.FromMessageHeader(messageHeader, messageType, new MSH());
     }
+
+    @Override
+    public String toString() {
+        return super.toString();
+    }
 }

@@ -1,5 +1,8 @@
 package org.example.domain.message.entity;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonSetter;
 import lombok.Data;
 import org.example.domain.message.Reflection;
 import org.example.domain.message.entity.list.SpecimensList;
@@ -12,8 +15,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Data
+@JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY, getterVisibility = JsonAutoDetect.Visibility.NONE)
 public class Order extends Reflection implements Cloneable {
     private String entityName;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime registerDate;
     private String actionCode;
     private String status;
@@ -60,7 +65,10 @@ public class Order extends Reflection implements Cloneable {
             formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
         } else if (registerDate.getBytes().length == 8) {
             formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
-        } else {
+        } else if (registerDate.getBytes().length == 19) {
+            formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
+        }
+        else {
             return;
         }
         this.registerDate = LocalDateTime.parse(registerDate, formatter);
@@ -81,15 +89,15 @@ public class Order extends Reflection implements Cloneable {
     }
 
     public Slide getSlide() {
-        return getSpecimen().getSlide();
+        return getSingleSpecimen().getSlide();
     }
 
     public void addSlide(Slide slide) {
-        getSpecimen().addSlide(slide);
+        getSingleSpecimen().addSlide(slide);
     }
 
     public void setSlide(Slide slide) {
-        getSpecimen().setSlide(slide);
+        getSingleSpecimen().setSlide(slide);
     }
 
     public List<Block> getAllBlocks() {
@@ -103,22 +111,22 @@ public class Order extends Reflection implements Cloneable {
     }
 
     public Block getBlock() {
-        return getSpecimen().getBlock();
+        return getSingleSpecimen().getBlock();
     }
 
     public void addBlock(Block block) {
-        getSpecimen().addBlock(block);
+        getSingleSpecimen().addBlock(block);
     }
 
     public void setBlock(Block block) {
-        getSpecimen().setBlock(block);
+        getSingleSpecimen().setBlock(block);
     }
 
     public List<Specimen> getAllSpecimen() {
         return specimens.getSpecimenList();
     }
 
-    public Specimen getSpecimen() {
+    public Specimen getSingleSpecimen() {
         if (specimens.getSpecimenList().size() == 1) {
             return specimens.getSpecimenList().get(0);
         } else {

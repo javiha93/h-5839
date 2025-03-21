@@ -114,7 +114,7 @@ public class ORC extends HL7Segment {
     }
 
     public static ORC FromMessage(Order order, ORC orc) {
-        Specimen specimen = order.getSpecimen();
+        Specimen specimen = order.getSingleSpecimen();
 
         orc.sampleID = order.getSampleId();
         orc.facilityCode = specimen.getFacilityCode();

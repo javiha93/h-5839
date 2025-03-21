@@ -1,5 +1,6 @@
 package org.example.domain.message.entity;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.Value;
@@ -14,6 +15,7 @@ import java.awt.*;
 import java.util.List;
 
 @Data
+@JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY, getterVisibility = JsonAutoDetect.Visibility.NONE)
 public class Slide extends EntityInfo implements Cloneable {
     private String actionCode;
     private StainProtocol stainProtocol;

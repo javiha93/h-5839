@@ -17,7 +17,11 @@ public class OBR extends org.example.domain.hl7.common.OBR {
     }
 
     public static OBR FromMessage(Order order) {
-        return (OBR) FromMessage(order, new OBR());
+        OBR obr = (OBR) FromMessage(order, new OBR());
+
+        obr.sampleId = order.getSampleId();
+
+        return obr;
     }
 
     @Override
