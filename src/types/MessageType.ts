@@ -1,4 +1,5 @@
 
+
 export interface PatientInfo {
   code: string;
   firstName: string;
@@ -70,3 +71,4 @@ export interface Message {
   pathologist?: Pathologist;
   // Add other properties as needed
 }
+
