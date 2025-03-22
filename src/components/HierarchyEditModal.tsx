@@ -61,7 +61,7 @@ const HierarchyEditModal: React.FC<HierarchyEditModalProps> = ({ isOpen, onClose
     
     const lastSpecimen = order.specimens.specimenList[order.specimens.specimenList.length - 1];
     const newSequence = getNextSequence(lastSpecimen.sequence);
-    const newId = lastSpecimen.id.replace(lastSpecimen.sequence, newSequence);
+    const newId = lastSpecimen.id.replace(/([^;]+)$/, newSequence);
     
     const newSpecimen = {
       ...JSON.parse(JSON.stringify(lastSpecimen)),
@@ -72,7 +72,28 @@ const HierarchyEditModal: React.FC<HierarchyEditModalProps> = ({ isOpen, onClose
         blockList: []
       }
     };
-    
+
+    const lastBlock = lastSpecimen.blocks.blockList[lastSpecimen.blocks.blockList.length - 1];
+    console.log(lastBlock)
+    const newBlock = {
+        ...JSON.parse(JSON.stringify(lastBlock)),
+        id: newId + ";1;1",
+        sequence: 1,
+        externalId: newId + ";1;1",
+        slides: {
+            slideList: []
+        }
+    };
+
+    const lastSlide = lastBlock.slides.slideList[lastBlock.slides.slideList.length - 1];
+    const newSlide = {
+        ...JSON.parse(JSON.stringify(lastSlide)),
+        id: newId + ";1",
+        sequence: 1,
+        externalId: newId + ";1"
+    };
+    newBlock.slides.slideList.push(newSlide);
+    newSpecimen.blocks.blockList.push(newBlock);
     order.specimens.specimenList.push(newSpecimen);
     // Force a re-render
     setExpandedSpecimens({ ...expandedSpecimens });
@@ -84,8 +105,8 @@ const HierarchyEditModal: React.FC<HierarchyEditModalProps> = ({ isOpen, onClose
     
     const lastBlock = specimen.blocks.blockList[specimen.blocks.blockList.length - 1];
     const newSequence = getNextSequence(lastBlock.sequence);
-    const newId = lastBlock.id.replace(lastBlock.sequence, newSequence);
-    
+    const newId = lastBlock.id.replace(/(.*);(\d+)$/, `$1;${newSequence}`);
+
     const newBlock = {
       ...JSON.parse(JSON.stringify(lastBlock)),
       id: newId,
@@ -95,7 +116,15 @@ const HierarchyEditModal: React.FC<HierarchyEditModalProps> = ({ isOpen, onClose
         slideList: []
       }
     };
-    
+
+    const lastSlide = lastBlock.slides.slideList[lastBlock.slides.slideList.length - 1];
+    const newSlide = {
+    ...JSON.parse(JSON.stringify(lastSlide)),
+    id: newId + ";1",
+    sequence: 1,
+    externalId: newId + ";1"
+    };
+    newBlock.slides.slideList.push(newSlide);
     specimen.blocks.blockList.push(newBlock);
     // Force a re-render
     setExpandedBlocks({ ...expandedBlocks });
@@ -108,7 +137,7 @@ const HierarchyEditModal: React.FC<HierarchyEditModalProps> = ({ isOpen, onClose
     
     const lastSlide = block.slides.slideList[block.slides.slideList.length - 1];
     const newSequence = getNextSequence(lastSlide.sequence);
-    const newId = lastSlide.id.replace(lastSlide.sequence, newSequence);
+    const newId = lastSlide.id.replace(/(.*);(\d+)$/, `$1;${newSequence}`);
     
     const newSlide = {
       ...JSON.parse(JSON.stringify(lastSlide)),
