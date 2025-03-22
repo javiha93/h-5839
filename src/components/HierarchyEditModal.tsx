@@ -37,19 +37,19 @@ const HierarchyEditModal: React.FC<HierarchyEditModalProps> = ({ isOpen, onClose
           {order.specimens?.specimenList?.map((specimen, specimenIndex) => (
             <div key={`specimen-${specimenIndex}`} className="ml-6 mt-3 border-l-2 pl-4 border-gray-300">
               <div className="font-medium">
-                Specimen: {order.sampleId || 'No ID'}{specimen.id || 'No ID'} - {specimen.entityName || 'No Name'}
+                Specimen: {specimen.id || 'No ID'}
               </div>
               
               {specimen.blocks?.blockList?.map((block, blockIndex) => (
                 <div key={`block-${blockIndex}`} className="ml-6 mt-2 border-l-2 pl-4 border-gray-200">
                   <div className="font-medium text-gray-700">
-                    Block: {order.sampleId || 'No ID'}{block.id || 'No ID'} - {block.entityName || 'No Name'}
+                    Block:{block.id || 'No ID'}
                   </div>
                   
                   {block.slides?.slideList?.map((slide, slideIndex) => (
                     <div key={`slide-${slideIndex}`} className="ml-6 mt-1 border-l-2 pl-4 border-gray-100">
                       <div className="text-gray-600">
-                        Slide: {order.sampleId || 'No ID'}{slide.id || 'No ID'} - {slide.entityName || 'No Name'}
+                        Slide: {slide.id || 'No ID'}
                       </div>
                     </div>
                   ))}

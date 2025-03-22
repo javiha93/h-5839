@@ -69,7 +69,6 @@ const MessageGenerator: React.FC = () => {
 
   const fetchMessageData = async (sampleIdValue: string) => {
     if (!sampleIdValue) return;
-    
     setIsLoading(true);
     setError(null);
     try {
@@ -102,24 +101,7 @@ const MessageGenerator: React.FC = () => {
     const newSampleId = e.target.value;
     setSampleId(newSampleId);
 
-    if (message) {
-      const updatedMessage = { ...message };
-
-      if (updatedMessage.patient.orders.orderList) {
-        updatedMessage.patient.orders.orderList = updatedMessage.patient.orders.orderList.map(order => ({
-          ...order,
-          sampleId: newSampleId,
-        }));
-      }
-
-      setMessage(updatedMessage);
-    }
-  };
-
-  const handleSampleIdBlur = () => {
-    if (sampleId) {
-      fetchMessageData(sampleId);
-    }
+    fetchMessageData(newSampleId);
   };
 
   const handleHostChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -304,7 +286,6 @@ const MessageGenerator: React.FC = () => {
           id="sampleId"
           value={sampleId}
           onChange={handleSampleIdChange}
-          onBlur={handleSampleIdBlur}
           className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
           placeholder="Ingresa el Sample ID"
         />
