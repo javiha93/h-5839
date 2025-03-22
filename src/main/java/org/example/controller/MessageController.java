@@ -20,8 +20,9 @@ public class MessageController {
     }
 
     @PostMapping("/generate")
-    public ResponseEntity<Message> generateMessage() {
-        Message message = messageService.generateMessage();
+    public ResponseEntity<Message> generateMessage(@RequestBody SampleIdRequest request) {
+        String sampleId = (request != null && request.getSampleId() != null) ? request.getSampleId() : "";
+        Message message = messageService.generateMessage(sampleId);
         return ResponseEntity.ok(message);
     }
 

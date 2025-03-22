@@ -16,10 +16,13 @@ import org.springframework.stereotype.Service;
 @Service
 public class MessageService {
 
+    public Message generateMessage(String sampleId) {
+        return Message.Default(sampleId);
+    }
+
     public Message generateMessage() {
         return Message.Default("");
     }
-
 
     public String convertMessage(Message message, String messageType) {
         switch (messageType) {
@@ -48,6 +51,7 @@ public class MessageService {
                 throw new IllegalArgumentException("Tipo de mensaje no soportado: " + messageType);
         }
     }
+    
     public String generateOML21Message(Message message) {
         OML21 oml21 = OML21.FromMessage(message);
         return oml21.toString();

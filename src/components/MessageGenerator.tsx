@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+
+import React, { useState } from 'react';
 import { MessageType, Patient, Physician, Pathologist } from '../types/MessageType';
 import { Message } from '../types/Message';
 import PatientEditModal from './PatientEditModal';
@@ -58,39 +59,6 @@ const MessageGenerator: React.FC = () => {
   };
 
   useEffect(() => {
-    const fetchInitialData = async () => {
-      setIsLoading(true);
-      setError(null);
-      try {
-        const response = await fetch('http://localhost:8085/api/messages/generate', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(),
-        });
-
-        if (!response.ok) {
-          throw new Error(`Error: ${response.status}`);
-        }
-
-        const data = await response.json();
-        setMessage(data);
-        setPatientInfo(data.patient);
-        setPhysicianInfo(data.physician);
-        setPathologistInfo(data.patient.orders.orderList[0].pathologist);
-      } catch (err) {
-        console.error('Error fetching initial data:', err);
-        setError('Error al obtener los datos iniciales. Por favor intente nuevamente.');
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchInitialData();
-  }, []);
-
-  useEffect(() => {
     if (selectedHost) {
       setMessageTypes(hostMessageTypes[selectedHost as keyof typeof hostMessageTypes] || []);
       setSelectedType('');
@@ -99,20 +67,59 @@ const MessageGenerator: React.FC = () => {
     }
   }, [selectedHost]);
 
+  const fetchMessageData = async (sampleIdValue: string) => {
+    if (!sampleIdValue) return;
+    
+    setIsLoading(true);
+    setError(null);
+    try {
+      const response = await fetch('http://localhost:8085/api/messages/generate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ sampleId: sampleIdValue }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Error: ${response.status}`);
+      }
+
+      const data = await response.json();
+      setMessage(data);
+      setPatientInfo(data.patient);
+      setPhysicianInfo(data.physician);
+      setPathologistInfo(data.patient.orders.orderList[0].pathologist);
+    } catch (err) {
+      console.error('Error fetching data:', err);
+      setError('Error al obtener los datos. Por favor intente nuevamente.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const handleSampleIdChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newSampleId = e.target.value;
     setSampleId(newSampleId);
 
-    const updatedMessage = { ...message };
+    if (message) {
+      const updatedMessage = { ...message };
 
-    if (updatedMessage.patient.orders.orderList) {
-      updatedMessage.patient.orders.orderList = updatedMessage.patient.orders.orderList.map(order => ({
-        ...order,
-        sampleId: newSampleId,
-      }));
+      if (updatedMessage.patient.orders.orderList) {
+        updatedMessage.patient.orders.orderList = updatedMessage.patient.orders.orderList.map(order => ({
+          ...order,
+          sampleId: newSampleId,
+        }));
+      }
+
+      setMessage(updatedMessage);
     }
+  };
 
-    setMessage(updatedMessage);
+  const handleSampleIdBlur = () => {
+    if (sampleId) {
+      fetchMessageData(sampleId);
+    }
   };
 
   const handleHostChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -297,6 +304,7 @@ const MessageGenerator: React.FC = () => {
           id="sampleId"
           value={sampleId}
           onChange={handleSampleIdChange}
+          onBlur={handleSampleIdBlur}
           className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
           placeholder="Ingresa el Sample ID"
         />
@@ -414,4 +422,3 @@ const MessageGenerator: React.FC = () => {
 };
 
 export default MessageGenerator;
-
