@@ -1,6 +1,10 @@
+
 import React, { useState } from 'react';
 import { Message } from '../types/Message';
-import { ListTree, ChevronDown, ChevronRight, Plus } from 'lucide-react';
+import { ListTree, ChevronDown, ChevronRight, Plus, Edit, Trash2 } from 'lucide-react';
+import SpecimenEditModal from './hierarchy/SpecimenEditModal';
+import BlockEditModal from './hierarchy/BlockEditModal';
+import SlideEditModal from './hierarchy/SlideEditModal';
 
 interface HierarchyEditModalProps {
   isOpen: boolean;
@@ -12,6 +16,9 @@ const HierarchyEditModal: React.FC<HierarchyEditModalProps> = ({ isOpen, onClose
   const [expandedSpecimens, setExpandedSpecimens] = useState<Record<string, boolean>>({});
   const [expandedBlocks, setExpandedBlocks] = useState<Record<string, boolean>>({});
   const [expandedSlides, setExpandedSlides] = useState<Record<string, boolean>>({});
+  const [editingSpecimen, setEditingSpecimen] = useState<any>(null);
+  const [editingBlock, setEditingBlock] = useState<any>(null);
+  const [editingSlide, setEditingSlide] = useState<any>(null);
 
   if (!isOpen || !message) return null;
 
@@ -74,7 +81,6 @@ const HierarchyEditModal: React.FC<HierarchyEditModalProps> = ({ isOpen, onClose
     };
 
     const lastBlock = lastSpecimen.blocks.blockList[lastSpecimen.blocks.blockList.length - 1];
-    console.log(lastBlock)
     const newBlock = {
         ...JSON.parse(JSON.stringify(lastBlock)),
         id: newId + ";1;1",
@@ -151,6 +157,33 @@ const HierarchyEditModal: React.FC<HierarchyEditModalProps> = ({ isOpen, onClose
     setExpandedSlides({ ...expandedSlides });
   };
 
+  const deleteSpecimen = (specimenIndex: number) => {
+    if (!order.specimens?.specimenList) return;
+    
+    order.specimens.specimenList.splice(specimenIndex, 1);
+    // Force a re-render
+    setExpandedSpecimens({ ...expandedSpecimens });
+  };
+
+  const deleteBlock = (specimenIndex: number, blockIndex: number) => {
+    const specimen = order.specimens?.specimenList?.[specimenIndex];
+    if (!specimen || !specimen.blocks?.blockList) return;
+    
+    specimen.blocks.blockList.splice(blockIndex, 1);
+    // Force a re-render
+    setExpandedBlocks({ ...expandedBlocks });
+  };
+
+  const deleteSlide = (specimenIndex: number, blockIndex: number, slideIndex: number) => {
+    const specimen = order.specimens?.specimenList?.[specimenIndex];
+    const block = specimen?.blocks?.blockList?.[blockIndex];
+    if (!block || !block.slides?.slideList) return;
+    
+    block.slides.slideList.splice(slideIndex, 1);
+    // Force a re-render
+    setExpandedSlides({ ...expandedSlides });
+  };
+
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white rounded-lg p-6 w-11/12 max-w-3xl max-h-[90vh] overflow-auto">
@@ -171,38 +204,92 @@ const HierarchyEditModal: React.FC<HierarchyEditModalProps> = ({ isOpen, onClose
           
           {order.specimens?.specimenList?.map((specimen, specimenIndex) => (
             <div key={`specimen-${specimenIndex}`} className="ml-6 mt-3 border-l-2 pl-4 border-gray-300">
-              <div 
-                className="font-medium flex items-center cursor-pointer"
-                onClick={() => toggleSpecimen(specimenIndex)}
-              >
-                {expandedSpecimens[specimenIndex] ? 
-                  <ChevronDown className="mr-1 text-gray-600" size={16} /> : 
-                  <ChevronRight className="mr-1 text-gray-600" size={16} />
-                }
-                Specimen: {specimen.id || 'No ID'}
+              <div className="flex items-center">
+                <div 
+                  className="font-medium flex items-center cursor-pointer flex-grow"
+                  onClick={() => toggleSpecimen(specimenIndex)}
+                >
+                  {expandedSpecimens[specimenIndex] ? 
+                    <ChevronDown className="mr-1 text-gray-600" size={16} /> : 
+                    <ChevronRight className="mr-1 text-gray-600" size={16} />
+                  }
+                  Specimen: {specimen.id || 'No ID'}
+                </div>
+                <div className="flex space-x-2">
+                  <button 
+                    onClick={() => setEditingSpecimen({ specimen, index: specimenIndex })}
+                    className="p-1 text-blue-600 hover:text-blue-800 transition-colors"
+                    title="Edit specimen"
+                  >
+                    <Edit size={16} />
+                  </button>
+                  <button 
+                    onClick={() => deleteSpecimen(specimenIndex)}
+                    className="p-1 text-red-600 hover:text-red-800 transition-colors"
+                    title="Delete specimen"
+                  >
+                    <Trash2 size={16} />
+                  </button>
+                </div>
               </div>
               
               {expandedSpecimens[specimenIndex] && (
                 <>
                   {specimen.blocks?.blockList?.map((block, blockIndex) => (
                     <div key={`block-${blockIndex}`} className="ml-6 mt-2 border-l-2 pl-4 border-gray-200">
-                      <div 
-                        className="font-medium text-gray-700 flex items-center cursor-pointer"
-                        onClick={() => toggleBlock(specimenIndex, blockIndex)}
-                      >
-                        {expandedBlocks[`${specimenIndex}-${blockIndex}`] ? 
-                          <ChevronDown className="mr-1 text-gray-500" size={16} /> : 
-                          <ChevronRight className="mr-1 text-gray-500" size={16} />
-                        }
-                        Block: {block.id || 'No ID'}
+                      <div className="flex items-center">
+                        <div 
+                          className="font-medium text-gray-700 flex items-center cursor-pointer flex-grow"
+                          onClick={() => toggleBlock(specimenIndex, blockIndex)}
+                        >
+                          {expandedBlocks[`${specimenIndex}-${blockIndex}`] ? 
+                            <ChevronDown className="mr-1 text-gray-500" size={16} /> : 
+                            <ChevronRight className="mr-1 text-gray-500" size={16} />
+                          }
+                          Block: {block.id || 'No ID'}
+                        </div>
+                        <div className="flex space-x-2">
+                          <button 
+                            onClick={() => setEditingBlock({ block, specimenIndex, blockIndex })}
+                            className="p-1 text-blue-600 hover:text-blue-800 transition-colors"
+                            title="Edit block"
+                          >
+                            <Edit size={16} />
+                          </button>
+                          <button 
+                            onClick={() => deleteBlock(specimenIndex, blockIndex)}
+                            className="p-1 text-red-600 hover:text-red-800 transition-colors"
+                            title="Delete block"
+                          >
+                            <Trash2 size={16} />
+                          </button>
+                        </div>
                       </div>
                       
                       {expandedBlocks[`${specimenIndex}-${blockIndex}`] && (
                         <>
                           {block.slides?.slideList?.map((slide, slideIndex) => (
                             <div key={`slide-${slideIndex}`} className="ml-6 mt-1 border-l-2 pl-4 border-gray-100">
-                              <div className="text-gray-600">
-                                Slide: {slide.id || 'No ID'}
+                              <div className="flex items-center">
+                                <div className="text-gray-600 flex-grow">
+                                  Slide: {slide.id || 'No ID'}
+                                </div>
+                                <div className="flex space-x-2">
+                                  <button 
+                                    onClick={() => setEditingSlide({ slide, specimenIndex, blockIndex, slideIndex })}
+                                    className="p-1 text-blue-600 hover:text-blue-800 transition-colors"
+                                    title="Edit slide"
+                                  >
+                                    <Edit size={16} />
+                                  </button>
+                                  <button 
+                                    onClick={() => deleteSlide(specimenIndex, blockIndex, slideIndex)}
+                                    className="p-1 text-red-600 hover:text-red-800 transition-colors"
+                                    title="Delete slide"
+                                  >
+                                    <Trash2 size={16} />
+                                  </button>
+                                </div>
                               </div>
                             </div>
                           ))}
@@ -263,6 +350,55 @@ const HierarchyEditModal: React.FC<HierarchyEditModalProps> = ({ isOpen, onClose
             Close
           </button>
         </div>
+
+        {/* Edit Modals */}
+        {editingSpecimen && (
+          <SpecimenEditModal 
+            specimen={editingSpecimen.specimen}
+            onClose={() => setEditingSpecimen(null)}
+            onSave={(updatedSpecimen) => {
+              if (order.specimens?.specimenList) {
+                order.specimens.specimenList[editingSpecimen.index] = updatedSpecimen;
+                setEditingSpecimen(null);
+                // Force a re-render
+                setExpandedSpecimens({ ...expandedSpecimens });
+              }
+            }}
+          />
+        )}
+
+        {editingBlock && (
+          <BlockEditModal 
+            block={editingBlock.block}
+            onClose={() => setEditingBlock(null)}
+            onSave={(updatedBlock) => {
+              const specimen = order.specimens?.specimenList?.[editingBlock.specimenIndex];
+              if (specimen && specimen.blocks?.blockList) {
+                specimen.blocks.blockList[editingBlock.blockIndex] = updatedBlock;
+                setEditingBlock(null);
+                // Force a re-render
+                setExpandedBlocks({ ...expandedBlocks });
+              }
+            }}
+          />
+        )}
+
+        {editingSlide && (
+          <SlideEditModal 
+            slide={editingSlide.slide}
+            onClose={() => setEditingSlide(null)}
+            onSave={(updatedSlide) => {
+              const specimen = order.specimens?.specimenList?.[editingSlide.specimenIndex];
+              const block = specimen?.blocks?.blockList?.[editingSlide.blockIndex];
+              if (block && block.slides?.slideList) {
+                block.slides.slideList[editingSlide.slideIndex] = updatedSlide;
+                setEditingSlide(null);
+                // Force a re-render
+                setExpandedSlides({ ...expandedSlides });
+              }
+            }}
+          />
+        )}
       </div>
     </div>
   );
