@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { MessageType, Patient, Physician, Pathologist } from '../types/MessageType';
 import { Message } from '../types/Message';
 import PatientEditModal from './PatientEditModal';
