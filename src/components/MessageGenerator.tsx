@@ -76,7 +76,7 @@ const MessageGenerator: React.FC = () => {
         setMessage(data);
         setPatientInfo(data.patient);
         setPhysicianInfo(data.physician);
-        setPathologistInfo(data.pathologist);
+        setPathologistInfo(data.patient.orders.orderList[0].pathologist);
       } catch (err) {
         console.error('Error fetching initial data:', err);
         setError('Error al obtener los datos iniciales. Por favor intente nuevamente.');
@@ -99,7 +99,6 @@ const MessageGenerator: React.FC = () => {
 
   const handleSampleIdChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newSampleId = e.target.value;
-    console.log(newSampleId);
     setSampleId(newSampleId);
 
     const updatedMessage = { ...message };
@@ -147,12 +146,15 @@ const MessageGenerator: React.FC = () => {
   const handlePathologistInfoSave = (updatedInfo: Pathologist) => {
     setPathologistInfo(updatedInfo);
 
-    if (message) {
-      setMessage(prevMessage => ({
-        ...prevMessage,
-        pathologist: updatedInfo
-      }));
-    }
+    const updatedMessage = { ...message };
+     if (updatedMessage.patient.orders.orderList) {
+          updatedMessage.patient.orders.orderList = updatedMessage.patient.orders.orderList.map(order => ({
+            ...order,
+            pathologist: updatedInfo,
+          }));
+     }
+
+     setMessage(updatedMessage);
   };
 
   const togglePatientModal = () => {

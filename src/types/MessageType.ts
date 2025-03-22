@@ -45,14 +45,49 @@ export interface Pathologist extends PersonInfo {
   prefix: string;
 }
 
+export interface Technician {
+   code?: string;
+   firstName?: string;
+   lastName?: string;
+   middleName?: string;
+ }
+
 export interface OrderList {
   orderList: Order[];
 }
 
 export interface Order {
-  sampleId: string;
-  // Add other properties as needed
+  entityName: string;
+     registerDate?: string;
+     actionCode?: string;
+     status?: string;
+     sampleId: string;
+     extSampleId?: string;
+     prefix?: string;
+     originCode?: string;
+     originDescription?: string;
+     workFlow?: string;
+     stat?: string;
+     tags?: string;
+     pathologist?: Pathologist;
+     technician?: Technician;
+     specimens?: SpecimensList;
 }
+
+export interface SpecimensList {
+   specimenList: Specimen[];
+ }
+
+ export interface Specimen {
+    id: string;
+    sequence: string;
+    externalId?: string;
+    entityName: string;
+    collectDateTime?: string;
+    receivedDateTime?: string;
+    procedure?: Procedure;
+    blocks?: BlocksList;
+  }
 
 export interface MessageType {
   id: string;
@@ -60,7 +95,16 @@ export interface MessageType {
 }
 
 export interface MessageHeader {
-  // Add properties as needed
+  sendingApplication?: string;
+  sendingFacility?: string;
+  receivingApplication?: string;
+  receivingFacility?: string;
+  messageDateTime?: string;
+  messageType?: string;
+  messageEvent?: string;
+  messageControlId?: string;
+  processingId?: string;
+  versionId?: string;
 }
 
 export interface Message {
