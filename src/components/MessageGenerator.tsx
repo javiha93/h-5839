@@ -93,7 +93,7 @@ const MessageGenerator: React.FC = () => {
   useEffect(() => {
     if (selectedHost) {
       setMessageTypes(hostMessageTypes[selectedHost as keyof typeof hostMessageTypes] || []);
-      setSelectedType(''); // Reset selected type when changing host
+      setSelectedType('');
     } else {
       setMessageTypes([]);
     }
