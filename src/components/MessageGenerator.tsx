@@ -4,6 +4,8 @@ import { Message } from '../types/Message';
 import PatientEditModal from './PatientEditModal';
 import PhysicianEditModal from './PhysicianEditModal';
 import PathologistEditModal from './PathologistEditModal';
+import HierarchyEditModal from './HierarchyEditModal';
+import { ListTree } from 'lucide-react';
 
 const MessageGenerator: React.FC = () => {
   const [message, setMessage] = useState<Message>(null);
@@ -15,6 +17,7 @@ const MessageGenerator: React.FC = () => {
   const [isPatientModalOpen, setIsPatientModalOpen] = useState<boolean>(false);
   const [isPhysicianModalOpen, setIsPhysicianModalOpen] = useState<boolean>(false);
   const [isPathologistModalOpen, setIsPathologistModalOpen] = useState<boolean>(false);
+  const [isHierarchyModalOpen, setIsHierarchyModalOpen] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [patientInfo, setPatientInfo] = useState<Patient | null>(null);
@@ -168,6 +171,10 @@ const MessageGenerator: React.FC = () => {
     setIsPathologistModalOpen(!isPathologistModalOpen);
   };
 
+  const toggleHierarchyModal = () => {
+    setIsHierarchyModalOpen(!isHierarchyModalOpen);
+  };
+
   const generateMessage = async () => {
     console.log(message);
     if (!sampleId || !selectedType) {
@@ -274,6 +281,14 @@ const MessageGenerator: React.FC = () => {
                 <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
               </svg>
               Edit Pathologist
+            </button>
+            
+            <button 
+              onClick={toggleHierarchyModal}
+              className="inline-flex items-center px-3 py-1 bg-amber-100 text-amber-700 rounded-md hover:bg-amber-200 transition-colors text-sm"
+            >
+              <ListTree className="h-4 w-4 mr-1" />
+              Edit Hierarchy
             </button>
           </div>
         </div>
@@ -388,8 +403,15 @@ const MessageGenerator: React.FC = () => {
         pathologistInfo={pathologistInfo}
         onSave={handlePathologistInfoSave}
       />
+      
+      <HierarchyEditModal
+        isOpen={isHierarchyModalOpen}
+        onClose={toggleHierarchyModal}
+        message={message}
+      />
     </div>
   );
 };
 
 export default MessageGenerator;
+
