@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { MessageType, Patient, Physician, Pathologist } from '../types/MessageType';
 import { Message } from '../types/Message';
@@ -25,17 +24,14 @@ const MessageGenerator: React.FC = () => {
   const [physicianInfo, setPhysicianInfo] = useState<Physician | null>(null);
   const [pathologistInfo, setPathologistInfo] = useState<Pathologist | null>(null);
   
-  // Available hosts
   const hosts = [
     { id: 'LIS', name: 'LIS' },
     { id: 'VTG', name: 'VTG' },
     { id: 'VANTAGE_WS', name: 'VANTAGE WS' }
   ];
   
-  // Message types organized by host
   const [messageTypes, setMessageTypes] = useState<MessageType[]>([]);
   
-  // Define message types for each host
   const hostMessageTypes = {
     LIS: [
       { id: 'OML21', name: 'OML21' },
@@ -218,7 +214,6 @@ const MessageGenerator: React.FC = () => {
     }
   };
 
-
   const copyToClipboard = () => {
     if (generatedMessage) {
       navigator.clipboard.writeText(generatedMessage)
@@ -244,7 +239,8 @@ const MessageGenerator: React.FC = () => {
           <div className="flex space-x-2">
             <button 
               onClick={togglePatientModal}
-              className="inline-flex items-center px-3 py-1 bg-blue-100 text-blue-700 rounded-md hover:bg-blue-200 transition-colors text-sm"
+              disabled={!sampleId}
+              className={`inline-flex items-center px-3 py-1 ${!sampleId ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-blue-100 text-blue-700 hover:bg-blue-200'} rounded-md transition-colors text-sm`}
             >
               <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
                 <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
@@ -254,7 +250,8 @@ const MessageGenerator: React.FC = () => {
             
             <button 
               onClick={togglePhysicianModal}
-              className="inline-flex items-center px-3 py-1 bg-green-100 text-green-700 rounded-md hover:bg-green-200 transition-colors text-sm"
+              disabled={!sampleId}
+              className={`inline-flex items-center px-3 py-1 ${!sampleId ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-green-100 text-green-700 hover:bg-green-200'} rounded-md transition-colors text-sm`}
             >
               <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
                 <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
@@ -264,7 +261,8 @@ const MessageGenerator: React.FC = () => {
             
             <button 
               onClick={togglePathologistModal}
-              className="inline-flex items-center px-3 py-1 bg-purple-100 text-purple-700 rounded-md hover:bg-purple-200 transition-colors text-sm"
+              disabled={!sampleId}
+              className={`inline-flex items-center px-3 py-1 ${!sampleId ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-purple-100 text-purple-700 hover:bg-purple-200'} rounded-md transition-colors text-sm`}
             >
               <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
                 <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
@@ -274,7 +272,8 @@ const MessageGenerator: React.FC = () => {
             
             <button 
               onClick={toggleHierarchyModal}
-              className="inline-flex items-center px-3 py-1 bg-amber-100 text-amber-700 rounded-md hover:bg-amber-200 transition-colors text-sm"
+              disabled={!sampleId}
+              className={`inline-flex items-center px-3 py-1 ${!sampleId ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-amber-100 text-amber-700 hover:bg-amber-200'} rounded-md transition-colors text-sm`}
             >
               <ListTree className="h-4 w-4 mr-1" />
               Edit Hierarchy

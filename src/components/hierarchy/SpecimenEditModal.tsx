@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
-import { Specimen } from '../../types/Message';
-import { X } from 'lucide-react';
+import { Specimen, SupplementalInfo } from '../../types/Message';
+import { X, Plus, Trash2 } from 'lucide-react';
 
 interface SpecimenEditModalProps {
   specimen: Specimen;
@@ -11,8 +11,12 @@ interface SpecimenEditModalProps {
 
 const SpecimenEditModal: React.FC<SpecimenEditModalProps> = ({ specimen, onClose, onSave }) => {
   const [editedSpecimen, setEditedSpecimen] = useState<Specimen>({...specimen});
+  const [newSupplementalInfo, setNewSupplementalInfo] = useState<{type: string, value: string}>({
+    type: 'GROSSDESCRIPTION',
+    value: ''
+  });
   
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     
     if (name === 'id') {
@@ -50,6 +54,53 @@ const SpecimenEditModal: React.FC<SpecimenEditModalProps> = ({ specimen, onClose
         [name]: value
       });
     }
+  };
+
+  const handleSupplementalInfoChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setNewSupplementalInfo({
+      ...newSupplementalInfo,
+      [name]: value
+    });
+  };
+
+  const addSupplementalInfo = () => {
+    if (!newSupplementalInfo.value.trim()) return;
+    
+    if (!editedSpecimen.supplementalInfos) {
+      editedSpecimen.supplementalInfos = { supplementalInfoList: [] };
+    }
+    
+    const newInfo: SupplementalInfo = {
+      type: newSupplementalInfo.type,
+      value: newSupplementalInfo.value,
+      artifact: 'SPECIMEN' // Set artifact to SPECIMEN since this is a specimen
+    };
+    
+    editedSpecimen.supplementalInfos.supplementalInfoList.push(newInfo);
+    
+    // Reset the form
+    setNewSupplementalInfo({
+      type: 'GROSSDESCRIPTION',
+      value: ''
+    });
+    
+    // Force a re-render
+    setEditedSpecimen({...editedSpecimen});
+  };
+
+  const removeSupplementalInfo = (index: number) => {
+    if (!editedSpecimen.supplementalInfos?.supplementalInfoList) return;
+    
+    editedSpecimen.supplementalInfos.supplementalInfoList.splice(index, 1);
+    
+    // If no more items, remove the supplementalInfos object
+    if (editedSpecimen.supplementalInfos.supplementalInfoList.length === 0) {
+      delete editedSpecimen.supplementalInfos;
+    }
+    
+    // Force a re-render
+    setEditedSpecimen({...editedSpecimen});
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -181,6 +232,72 @@ const SpecimenEditModal: React.FC<SpecimenEditModalProps> = ({ specimen, onClose
                   onChange={handleChange}
                   className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
                 />
+              </div>
+            </div>
+
+            <h3 className="text-lg font-medium mt-6 mb-2">Supplemental Information</h3>
+            
+            {/* List of existing supplemental info */}
+            {editedSpecimen.supplementalInfos?.supplementalInfoList && editedSpecimen.supplementalInfos.supplementalInfoList.length > 0 && (
+              <div className="mb-4 border rounded-md p-3">
+                <h4 className="font-medium mb-2">Existing Information</h4>
+                {editedSpecimen.supplementalInfos.supplementalInfoList.map((info, index) => (
+                  <div key={`suppl-${index}`} className="flex items-center mb-2 p-2 bg-gray-50 rounded">
+                    <div className="flex-grow">
+                      <span className="font-medium mr-2">{info.type}:</span>
+                      <span>{info.value}</span>
+                    </div>
+                    <button 
+                      type="button"
+                      onClick={() => removeSupplementalInfo(index)}
+                      className="text-red-500 hover:text-red-700"
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+            
+            {/* Add new supplemental info */}
+            <div className="border rounded-md p-3">
+              <h4 className="font-medium mb-2">Add New Information</h4>
+              <div className="grid grid-cols-5 gap-3">
+                <div className="col-span-2">
+                  <label className="block text-sm font-medium text-gray-700">Type</label>
+                  <select
+                    name="type"
+                    value={newSupplementalInfo.type}
+                    onChange={handleSupplementalInfoChange}
+                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                  >
+                    <option value="GROSSDESCRIPTION">GROSSDESCRIPTION</option>
+                    <option value="QUALITYISSUE">QUALITYISSUE</option>
+                    <option value="RECUT">RECUT</option>
+                    <option value="SPECIALINSTRUCTION">SPECIALINSTRUCTION</option>
+                    <option value="TISSUEPIECES">TISSUEPIECES</option>
+                  </select>
+                </div>
+                <div className="col-span-2">
+                  <label className="block text-sm font-medium text-gray-700">Value</label>
+                  <input
+                    type="text"
+                    name="value"
+                    value={newSupplementalInfo.value}
+                    onChange={handleSupplementalInfoChange}
+                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                  />
+                </div>
+                <div className="flex items-end">
+                  <button
+                    type="button"
+                    onClick={addSupplementalInfo}
+                    className="w-full px-3 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition-colors flex items-center justify-center"
+                  >
+                    <Plus size={16} className="mr-1" />
+                    Add
+                  </button>
+                </div>
               </div>
             </div>
           </div>
