@@ -1,3 +1,4 @@
+
 package org.example.domain.message.entity;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
@@ -20,7 +21,7 @@ public class Block extends EntityInfo implements Cloneable {
     public Block() {
         setEntityName("BLOCK");
         this.slides = new SlidesList();
-        this.supplementalInfos = new SupplementalInfoList();
+        // Do not initialize supplementalInfos by default
     }
 
     public static Block OneSlide(String id, String sequence) {
@@ -94,6 +95,9 @@ public class Block extends EntityInfo implements Cloneable {
     }
 
     public void addSupplementalInfo(SupplementalInfo supplementalInfo) {
+        if (this.supplementalInfos == null) {
+            this.supplementalInfos = new SupplementalInfoList();
+        }
         supplementalInfo.setArtifact("BLOCK");
         supplementalInfos.getSupplementalInfoList().add(supplementalInfo);
     }
@@ -107,10 +111,14 @@ public class Block extends EntityInfo implements Cloneable {
             } else {
                 cloned.setSlides(null);
             }
+            if (this.supplementalInfos != null) {
+                cloned.setSupplementalInfos(this.supplementalInfos.clone());
+            } else {
+                cloned.setSupplementalInfos(null);
+            }
             return cloned;
         } catch (CloneNotSupportedException e) {
             throw new RuntimeException("Cloning not supported for Specimen", e);
         }
     }
 }
-
