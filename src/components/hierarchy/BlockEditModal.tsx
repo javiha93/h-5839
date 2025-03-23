@@ -11,7 +11,11 @@ interface BlockEditModalProps {
 
 const BlockEditModal: React.FC<BlockEditModalProps> = ({ block, onClose, onSave }) => {
   const [editedBlock, setEditedBlock] = useState<Block>({...block});
-  const [newSupplementalInfo, setNewSupplementalInfo] = useState<{type: string, value: string}>({
+  const [newSupplementalInfo, setNewSupplementalInfo] = useState<{
+    type: string, 
+    value: string,
+    optionalValue?: string
+  }>({
     type: 'GROSSDESCRIPTION',
     value: ''
   });
@@ -55,6 +59,12 @@ const BlockEditModal: React.FC<BlockEditModalProps> = ({ block, onClose, onSave 
       value: newSupplementalInfo.value,
       artifact: 'BLOCK' // Set artifact to BLOCK since this is a block
     };
+    
+    // Add qualityIssueType and qualityIssueValue for QUALITYISSUE type
+    if (newSupplementalInfo.type === 'QUALITYISSUE' && newSupplementalInfo.optionalValue) {
+      newInfo.optionalType = 'RESOLUTION';
+      newInfo.optionalValue = newSupplementalInfo.optionalValue;
+    }
     
     editedBlock.supplementalInfos.supplementalInfoList.push(newInfo);
     
@@ -173,6 +183,22 @@ const BlockEditModal: React.FC<BlockEditModalProps> = ({ block, onClose, onSave 
                     className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
                   />
                 </div>
+                
+                {/* Show Optional Value field only if type is QUALITYISSUE */}
+                {newSupplementalInfo.type === 'QUALITYISSUE' && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Resolution (Optional)</label>
+                    <input
+                      type="text"
+                      name="optionalValue"
+                      value={newSupplementalInfo.optionalValue || ''}
+                      onChange={handleSupplementalInfoChange}
+                      placeholder="Continue processing, etc."
+                      className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                    />
+                  </div>
+                )}
+                
                 <button
                   type="button"
                   onClick={addSupplementalInfo}

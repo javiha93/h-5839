@@ -1,3 +1,4 @@
+
 package org.example.domain.message.entity.supplementalInfo;
 
 import lombok.Data;
@@ -19,6 +20,9 @@ public class QualityIssue extends SupplementalInfo {
         this.setArtifact(artifact);
         this.setOptionalType("RESOLUTION");
         this.setOptionalValue(optionalValue);
+        // Also set the qualityIssueType and qualityIssueValue for consistency
+        this.setQualityIssueType("RESOLUTION");
+        this.setQualityIssueValue(optionalValue);
     }
 
     public QualityIssue(String value, String optionalValue) {
@@ -26,6 +30,9 @@ public class QualityIssue extends SupplementalInfo {
         this.setValue(value);
         this.setOptionalType("RESOLUTION");
         this.setOptionalValue(optionalValue);
+        // Also set the qualityIssueType and qualityIssueValue for consistency
+        this.setQualityIssueType("RESOLUTION");
+        this.setQualityIssueValue(optionalValue);
     }
 
     public static QualityIssue Default() {

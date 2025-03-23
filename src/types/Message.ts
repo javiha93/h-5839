@@ -1,10 +1,11 @@
-
 export interface SupplementalInfo {
   type: string;
   value: string;
   artifact?: string;
   qualityIssueType?: string;
   qualityIssueValue?: string;
+  optionalType?: string;
+  optionalValue?: string;
 }
 
 export interface SupplementalInfoList {

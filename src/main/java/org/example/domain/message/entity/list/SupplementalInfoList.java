@@ -42,21 +42,39 @@ public class SupplementalInfoList extends Reflection implements Cloneable {
         String field = messagePosition.getChildMessagePosition().getValue();
         boolean isSetted = false;
         for(SupplementalInfo supplementalInfo : supplementalInfoList) {
-            //String actualValue = (String) supplementalInfo.getFieldValue(messagePosition.getChildMessagePosition());
             String actualValue = (String) supplementalInfo.get(messagePosition.getFullMessagePosition());
             boolean isSetteable = true;
-            if ((field.equals("qualityIssueType") || field.equals("qualityIssueValue")) && !supplementalInfo.getType().equals("QUALITYISSUE")) {
+            
+            // Check if the field is related to quality issues and if the current supplemental info is of the right type
+            if ((field.equals("qualityIssueType") || field.equals("qualityIssueValue") || 
+                 field.equals("optionalType") || field.equals("optionalValue")) && 
+                !supplementalInfo.getType().equals("QUALITYISSUE")) {
                 isSetteable = false;
             }
+            
             if ((actualValue == null) && (!isSetted) && (isSetteable)) {
                 isSetted = true;
                 supplementalInfo.setFieldValue(messagePosition.getChildMessagePosition(), value);
+                
+                // For QUALITYISSUE, when setting optionalValue, automatically set optionalType to RESOLUTION
+                if (field.equals("optionalValue") && supplementalInfo.getType().equals("QUALITYISSUE")) {
+                    supplementalInfo.setQualityIssueType("RESOLUTION");
+                    supplementalInfo.setQualityIssueValue(value);
+                }
             }
         }
 
         if (!isSetted) {
             SupplementalInfo newSupplementalInfo = new SupplementalInfo();
             newSupplementalInfo.setFieldValue(messagePosition.getChildMessagePosition(), value);
+            
+            // For QUALITYISSUE with optionalValue, set qualityIssueType to RESOLUTION
+            if (field.equals("optionalValue")) {
+                newSupplementalInfo.setType("QUALITYISSUE");
+                newSupplementalInfo.setQualityIssueType("RESOLUTION");
+                newSupplementalInfo.setQualityIssueValue(value);
+            }
+            
             supplementalInfoList.add(newSupplementalInfo);
         }
     }

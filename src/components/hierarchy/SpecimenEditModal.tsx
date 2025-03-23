@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Specimen, SupplementalInfo } from '../../types/Message';
 import { X, Plus, Trash2 } from 'lucide-react';
@@ -11,7 +10,11 @@ interface SpecimenEditModalProps {
 
 const SpecimenEditModal: React.FC<SpecimenEditModalProps> = ({ specimen, onClose, onSave }) => {
   const [editedSpecimen, setEditedSpecimen] = useState<Specimen>({...specimen});
-  const [newSupplementalInfo, setNewSupplementalInfo] = useState<{type: string, value: string}>({
+  const [newSupplementalInfo, setNewSupplementalInfo] = useState<{
+    type: string, 
+    value: string,
+    optionalValue?: string
+  }>({
     type: 'GROSSDESCRIPTION',
     value: ''
   });
@@ -20,14 +23,12 @@ const SpecimenEditModal: React.FC<SpecimenEditModalProps> = ({ specimen, onClose
     const { name, value } = e.target;
     
     if (name === 'id') {
-      // Update both id and externalId together
       setEditedSpecimen({
         ...editedSpecimen,
         id: value,
         externalId: value
       });
     } else if (name.startsWith('procedure.')) {
-      // Handle nested procedure fields
       const field = name.split('.')[1];
       const subfield = name.split('.')[2];
       
@@ -36,19 +37,16 @@ const SpecimenEditModal: React.FC<SpecimenEditModalProps> = ({ specimen, onClose
       }
       
       if (subfield) {
-        // For nested properties like tissue.type
         if (!editedSpecimen.procedure[field]) {
           editedSpecimen.procedure[field] = {};
         }
         editedSpecimen.procedure[field][subfield] = value;
       } else {
-        // For direct properties
         editedSpecimen.procedure[field] = value;
       }
       
       setEditedSpecimen({...editedSpecimen});
     } else {
-      // Handle regular fields
       setEditedSpecimen({
         ...editedSpecimen,
         [name]: value
@@ -74,18 +72,21 @@ const SpecimenEditModal: React.FC<SpecimenEditModalProps> = ({ specimen, onClose
     const newInfo: SupplementalInfo = {
       type: newSupplementalInfo.type,
       value: newSupplementalInfo.value,
-      artifact: 'SPECIMEN' // Set artifact to SPECIMEN since this is a specimen
+      artifact: 'SPECIMEN'
     };
+    
+    if (newSupplementalInfo.type === 'QUALITYISSUE' && newSupplementalInfo.optionalValue) {
+      newInfo.optionalType = 'RESOLUTION';
+      newInfo.optionalValue = newSupplementalInfo.optionalValue;
+    }
     
     editedSpecimen.supplementalInfos.supplementalInfoList.push(newInfo);
     
-    // Reset the form
     setNewSupplementalInfo({
       type: 'GROSSDESCRIPTION',
       value: ''
     });
     
-    // Force a re-render
     setEditedSpecimen({...editedSpecimen});
   };
 
@@ -94,12 +95,10 @@ const SpecimenEditModal: React.FC<SpecimenEditModalProps> = ({ specimen, onClose
     
     editedSpecimen.supplementalInfos.supplementalInfoList.splice(index, 1);
     
-    // If no more items, remove the supplementalInfos object
     if (editedSpecimen.supplementalInfos.supplementalInfoList.length === 0) {
       delete editedSpecimen.supplementalInfos;
     }
     
-    // Force a re-render
     setEditedSpecimen({...editedSpecimen});
   };
 
@@ -237,7 +236,6 @@ const SpecimenEditModal: React.FC<SpecimenEditModalProps> = ({ specimen, onClose
 
             <h3 className="text-lg font-medium mt-6 mb-2">Supplemental Information</h3>
             
-            {/* List of existing supplemental info */}
             {editedSpecimen.supplementalInfos?.supplementalInfoList && editedSpecimen.supplementalInfos.supplementalInfoList.length > 0 && (
               <div className="mb-4 border rounded-md p-3">
                 <h4 className="font-medium mb-2">Existing Information</h4>
@@ -259,7 +257,6 @@ const SpecimenEditModal: React.FC<SpecimenEditModalProps> = ({ specimen, onClose
               </div>
             )}
             
-            {/* Add new supplemental info */}
             <div className="border rounded-md p-3">
               <h4 className="font-medium mb-2">Add New Information</h4>
               <div className="grid grid-cols-5 gap-3">
@@ -299,6 +296,22 @@ const SpecimenEditModal: React.FC<SpecimenEditModalProps> = ({ specimen, onClose
                   </button>
                 </div>
               </div>
+              
+              {newSupplementalInfo.type === 'QUALITYISSUE' && (
+                <div className="mt-3 grid grid-cols-5 gap-3">
+                  <div className="col-span-4">
+                    <label className="block text-sm font-medium text-gray-700">Resolution (Optional)</label>
+                    <input
+                      type="text"
+                      name="optionalValue"
+                      value={newSupplementalInfo.optionalValue || ''}
+                      onChange={handleSupplementalInfoChange}
+                      placeholder="Continue processing, etc."
+                      className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                    />
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 

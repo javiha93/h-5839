@@ -1,3 +1,4 @@
+
 package org.example.domain.message.entity;
 
 import lombok.Data;
@@ -14,6 +15,8 @@ public class SupplementalInfo extends Reflection implements Cloneable {
     private String artifact;
     private String qualityIssueType;
     private String qualityIssueValue;
+    private String optionalType;
+    private String optionalValue;
 
     @Override
     public SupplementalInfo clone() {
@@ -30,6 +33,8 @@ public class SupplementalInfo extends Reflection implements Cloneable {
         Field artifact = Field.of(3, getArtifact());
         Field qualityIssueType = Field.of(4, getQualityIssueType());
         Field qualityIssueValue = Field.of(5, getQualityIssueValue());
+        // We're not adding optionalType and optionalValue to the fields list directly
+        // as they're handled through the qualityIssueType and qualityIssueValue fields
 
         List<Field> fields = List.of(type, value, artifact, qualityIssueType, qualityIssueValue);
         return FieldsList.of(fields);

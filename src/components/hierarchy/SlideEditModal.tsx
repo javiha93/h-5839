@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Slide, SupplementalInfo } from '../../types/Message';
 import { X, Plus, Trash2 } from 'lucide-react';
@@ -11,7 +10,11 @@ interface SlideEditModalProps {
 
 const SlideEditModal: React.FC<SlideEditModalProps> = ({ slide, onClose, onSave }) => {
   const [editedSlide, setEditedSlide] = useState<Slide>({...slide});
-  const [newSupplementalInfo, setNewSupplementalInfo] = useState<{type: string, value: string}>({
+  const [newSupplementalInfo, setNewSupplementalInfo] = useState<{
+    type: string, 
+    value: string,
+    optionalValue?: string
+  }>({
     type: 'GROSSDESCRIPTION',
     value: ''
   });
@@ -20,14 +23,12 @@ const SlideEditModal: React.FC<SlideEditModalProps> = ({ slide, onClose, onSave 
     const { name, value } = e.target;
     
     if (name === 'id') {
-      // Update both id and externalId together
       setEditedSlide({
         ...editedSlide,
         id: value,
         externalId: value
       });
     } else if (name.startsWith('stainProtocol.')) {
-      // Handle stain protocol fields
       const field = name.split('.')[1];
       
       if (!editedSlide.stainProtocol) {
@@ -37,7 +38,6 @@ const SlideEditModal: React.FC<SlideEditModalProps> = ({ slide, onClose, onSave 
       editedSlide.stainProtocol[field] = value;
       setEditedSlide({...editedSlide});
     } else if (name.startsWith('control.')) {
-      // Handle control fields
       const field = name.split('.')[1];
       
       if (!editedSlide.control) {
@@ -47,13 +47,11 @@ const SlideEditModal: React.FC<SlideEditModalProps> = ({ slide, onClose, onSave 
       editedSlide.control[field] = value;
       setEditedSlide({...editedSlide});
     } else if (name === 'isRescanned') {
-      // Handle boolean value
       setEditedSlide({
         ...editedSlide,
         isRescanned: value === 'true'
       });
     } else {
-      // Handle regular fields
       setEditedSlide({
         ...editedSlide,
         [name]: value
@@ -79,18 +77,21 @@ const SlideEditModal: React.FC<SlideEditModalProps> = ({ slide, onClose, onSave 
     const newInfo: SupplementalInfo = {
       type: newSupplementalInfo.type,
       value: newSupplementalInfo.value,
-      artifact: 'SLIDE' // Set artifact to SLIDE since this is a slide
+      artifact: 'SLIDE'
     };
+    
+    if (newSupplementalInfo.type === 'QUALITYISSUE' && newSupplementalInfo.optionalValue) {
+      newInfo.optionalType = 'RESOLUTION';
+      newInfo.optionalValue = newSupplementalInfo.optionalValue;
+    }
     
     editedSlide.supplementalInfos.supplementalInfoList.push(newInfo);
     
-    // Reset the form
     setNewSupplementalInfo({
       type: 'GROSSDESCRIPTION',
       value: ''
     });
     
-    // Force a re-render
     setEditedSlide({...editedSlide});
   };
 
@@ -99,12 +100,10 @@ const SlideEditModal: React.FC<SlideEditModalProps> = ({ slide, onClose, onSave 
     
     editedSlide.supplementalInfos.supplementalInfoList.splice(index, 1);
     
-    // If no more items, remove the supplementalInfos object
     if (editedSlide.supplementalInfos.supplementalInfoList.length === 0) {
       delete editedSlide.supplementalInfos;
     }
     
-    // Force a re-render
     setEditedSlide({...editedSlide});
   };
 
@@ -284,7 +283,6 @@ const SlideEditModal: React.FC<SlideEditModalProps> = ({ slide, onClose, onSave 
 
             <h3 className="text-lg font-medium mt-6 mb-2">Supplemental Information</h3>
             
-            {/* List of existing supplemental info */}
             {editedSlide.supplementalInfos?.supplementalInfoList && editedSlide.supplementalInfos.supplementalInfoList.length > 0 && (
               <div className="mb-4 border rounded-md p-3">
                 <h4 className="font-medium mb-2">Existing Information</h4>
@@ -306,7 +304,6 @@ const SlideEditModal: React.FC<SlideEditModalProps> = ({ slide, onClose, onSave 
               </div>
             )}
             
-            {/* Add new supplemental info */}
             <div className="border rounded-md p-3">
               <h4 className="font-medium mb-2">Add New Information</h4>
               <div className="grid grid-cols-3 gap-3">
@@ -346,6 +343,20 @@ const SlideEditModal: React.FC<SlideEditModalProps> = ({ slide, onClose, onSave 
                   </button>
                 </div>
               </div>
+              
+              {newSupplementalInfo.type === 'QUALITYISSUE' && (
+                <div className="mt-3">
+                  <label className="block text-sm font-medium text-gray-700">Resolution (Optional)</label>
+                  <input
+                    type="text"
+                    name="optionalValue"
+                    value={newSupplementalInfo.optionalValue || ''}
+                    onChange={handleSupplementalInfoChange}
+                    placeholder="Continue processing, etc."
+                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                  />
+                </div>
+              )}
             </div>
           </div>
 
