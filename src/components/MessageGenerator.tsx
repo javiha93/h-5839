@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { MessageType, Patient, Physician, Pathologist, Technician } from '../types/MessageType';
 import { Message } from '../types/Message';
@@ -19,11 +20,14 @@ const MessageGenerator: React.FC = () => {
   const [isPhysicianModalOpen, setIsPhysicianModalOpen] = useState<boolean>(false);
   const [isPathologistModalOpen, setIsPathologistModalOpen] = useState<boolean>(false);
   const [isHierarchyModalOpen, setIsHierarchyModalOpen] = useState<boolean>(false);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isFetchingData, setIsFetchingData] = useState<boolean>(false); // New state for fetch operations
+  const [isGeneratingMessage, setIsGeneratingMessage] = useState<boolean>(false); // New state for generate message operation
   const [error, setError] = useState<string | null>(null);
   const [patientInfo, setPatientInfo] = useState<Patient | null>(null);
   const [physicianInfo, setPhysicianInfo] = useState<Physician | null>(null);
   const [pathologistInfo, setPathologistInfo] = useState<Pathologist | null>(null);
+  const [isTechnicianModalOpen, setIsTechnicianModalOpen] = useState<boolean>(false);
+  const [technicianInfo, setTechnicianInfo] = useState<Technician | null>(null);
   
   const hosts = [
     { id: 'LIS', name: 'LIS' },
@@ -66,7 +70,7 @@ const MessageGenerator: React.FC = () => {
 
   const fetchMessageData = async (sampleIdValue: string) => {
     if (!sampleIdValue) return;
-    setIsLoading(true);
+    setIsFetchingData(true);
     setError(null);
     try {
       const response = await fetch('http://localhost:8085/api/messages/generate', {
@@ -88,11 +92,14 @@ const MessageGenerator: React.FC = () => {
       
       const pathologist = data.patient?.orders?.orderList?.[0]?.pathologist || null;
       setPathologistInfo(pathologist);
+      
+      const technician = data.patient?.orders?.orderList?.[0]?.technician || null;
+      setTechnicianInfo(technician);
     } catch (err) {
       console.error('Error fetching data:', err);
       setError('Error al obtener los datos. Por favor intente nuevamente.');
     } finally {
-      setIsLoading(false);
+      setIsFetchingData(false);
     }
   };
 
@@ -145,6 +152,19 @@ const MessageGenerator: React.FC = () => {
       setMessage(updatedMessage);
     }
   };
+  
+  const handleTechnicianInfoSave = (updatedInfo: Technician) => {
+    setTechnicianInfo(updatedInfo);
+
+    if (message && message.patient && message.patient.orders && message.patient.orders.orderList) {
+      const updatedMessage = { ...message };
+      updatedMessage.patient.orders.orderList = updatedMessage.patient.orders.orderList.map(order => ({
+        ...order,
+        technician: updatedInfo,
+      }));
+      setMessage(updatedMessage);
+    }
+  };
 
   const togglePatientModal = () => {
     setIsPatientModalOpen(!isPatientModalOpen);
@@ -161,6 +181,10 @@ const MessageGenerator: React.FC = () => {
   const toggleHierarchyModal = () => {
     setIsHierarchyModalOpen(!isHierarchyModalOpen);
   };
+  
+  const toggleTechnicianModal = () => {
+    setIsTechnicianModalOpen(!isTechnicianModalOpen);
+  };
 
   const generateMessage = async () => {
     console.log(message);
@@ -169,7 +193,7 @@ const MessageGenerator: React.FC = () => {
       return;
     }
 
-    setIsLoading(true);
+    setIsGeneratingMessage(true);
     setError(null);
     try {
       if (!message) {
@@ -184,7 +208,7 @@ const MessageGenerator: React.FC = () => {
       setError('Error al generar mensaje. Por favor intente nuevamente.');
       setGeneratedMessage('');
     } finally {
-      setIsLoading(false);
+      setIsGeneratingMessage(false);
     }
   };
 
@@ -277,6 +301,17 @@ const MessageGenerator: React.FC = () => {
               <ListTree className="h-4 w-4 mr-1" />
               Edit Hierarchy
             </button>
+            
+            <button 
+              onClick={toggleTechnicianModal}
+              disabled={!sampleId}
+              className={`inline-flex items-center px-3 py-1 ${!sampleId ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-pink-100 text-pink-700 hover:bg-pink-200'} rounded-md transition-colors text-sm`}
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+              </svg>
+              Edit Technician
+            </button>
           </div>
         </div>
         <input
@@ -287,6 +322,9 @@ const MessageGenerator: React.FC = () => {
           className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
           placeholder="Ingresa el Sample ID"
         />
+        {isFetchingData && (
+          <p className="mt-1 text-sm text-blue-600">Cargando datos...</p>
+        )}
       </div>
       
       <div className="mb-6">
@@ -335,14 +373,14 @@ const MessageGenerator: React.FC = () => {
       
       <button
         onClick={generateMessage}
-        disabled={isLoading || !selectedHost || !selectedType}
+        disabled={isGeneratingMessage || !selectedHost || !selectedType}
         className={`w-full py-3 px-6 rounded-lg text-lg font-medium transition-colors ${
-          isLoading || !selectedHost || !selectedType
+          isGeneratingMessage || !selectedHost || !selectedType
             ? 'bg-gray-400 text-white cursor-not-allowed' 
             : 'bg-indigo-600 text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500'
         }`}
       >
-        {isLoading ? 'Generando...' : 'Generar Mensaje'}
+        {isGeneratingMessage ? 'Generando...' : 'Generar Mensaje'}
       </button>
       
       {error && (
@@ -395,6 +433,13 @@ const MessageGenerator: React.FC = () => {
         isOpen={isHierarchyModalOpen}
         onClose={toggleHierarchyModal}
         message={message}
+      />
+      
+      <TechnicianEditModal
+        isOpen={isTechnicianModalOpen}
+        onClose={toggleTechnicianModal}
+        technicianInfo={technicianInfo}
+        onSave={handleTechnicianInfoSave}
       />
     </div>
   );
