@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { MessageType, Patient, Physician, Pathologist, Technician } from '../types/MessageType';
+import { MessageType, Patient, Physician, Pathologist } from '../types/MessageType';
 import { Message } from '../types/Message';
 import PatientEditModal from './PatientEditModal';
 import PhysicianEditModal from './PhysicianEditModal';
 import PathologistEditModal from './PathologistEditModal';
 import HierarchyEditModal from './HierarchyEditModal';
-import TechnicianEditModal from './TechnicianEditModal';
 import { ListTree } from 'lucide-react';
 
 const MessageGenerator: React.FC = () => {
@@ -19,23 +18,20 @@ const MessageGenerator: React.FC = () => {
   const [isPhysicianModalOpen, setIsPhysicianModalOpen] = useState<boolean>(false);
   const [isPathologistModalOpen, setIsPathologistModalOpen] = useState<boolean>(false);
   const [isHierarchyModalOpen, setIsHierarchyModalOpen] = useState<boolean>(false);
-  const [isFetchingData, setIsFetchingData] = useState<boolean>(false);
-  const [isGeneratingMessage, setIsGeneratingMessage] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [patientInfo, setPatientInfo] = useState<Patient | null>(null);
   const [physicianInfo, setPhysicianInfo] = useState<Physician | null>(null);
   const [pathologistInfo, setPathologistInfo] = useState<Pathologist | null>(null);
-  const [isTechnicianModalOpen, setIsTechnicianModalOpen] = useState<boolean>(false);
-  const [technicianInfo, setTechnicianInfo] = useState<Technician | null>(null);
-
+  
   const hosts = [
     { id: 'LIS', name: 'LIS' },
     { id: 'VTG', name: 'VTG' },
     { id: 'VANTAGE_WS', name: 'VANTAGE WS' }
   ];
-
+  
   const [messageTypes, setMessageTypes] = useState<MessageType[]>([]);
-
+  
   const hostMessageTypes = {
     LIS: [
       { id: 'OML21', name: 'OML21' },
@@ -68,14 +64,9 @@ const MessageGenerator: React.FC = () => {
   }, [selectedHost]);
 
   const fetchMessageData = async (sampleIdValue: string) => {
-    if (!sampleIdValue) {
-      setIsFetchingData(false);
-      return;
-    }
-    
-    setIsFetchingData(true);
+    if (!sampleIdValue) return;
+    setIsLoading(true);
     setError(null);
-    
     try {
       const response = await fetch('http://localhost:8085/api/messages/generate', {
         method: 'POST',
@@ -91,19 +82,14 @@ const MessageGenerator: React.FC = () => {
 
       const data = await response.json();
       setMessage(data);
-      setPatientInfo(data.patient || null);
-      setPhysicianInfo(data.physician || null);
-      
-      const pathologist = data.patient?.orders?.orderList?.[0]?.pathologist || null;
-      setPathologistInfo(pathologist);
-      
-      const technician = data.patient?.orders?.orderList?.[0]?.technician || null;
-      setTechnicianInfo(technician);
+      setPatientInfo(data.patient);
+      setPhysicianInfo(data.physician);
+      setPathologistInfo(data.patient.orders.orderList[0].pathologist);
     } catch (err) {
       console.error('Error fetching data:', err);
       setError('Error al obtener los datos. Por favor intente nuevamente.');
     } finally {
-      setIsFetchingData(false);
+      setIsLoading(false);
     }
   };
 
@@ -111,20 +97,7 @@ const MessageGenerator: React.FC = () => {
     const newSampleId = e.target.value;
     setSampleId(newSampleId);
 
-    const timeoutId = setTimeout(() => {
-      if (newSampleId.trim()) {
-        fetchMessageData(newSampleId);
-      } else {
-        setMessage(null);
-        setPatientInfo(null);
-        setPhysicianInfo(null);
-        setPathologistInfo(null);
-        setTechnicianInfo(null);
-        setIsFetchingData(false);
-      }
-    }, 500);
-
-    return () => clearTimeout(timeoutId);
+    fetchMessageData(newSampleId);
   };
 
   const handleHostChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -160,27 +133,15 @@ const MessageGenerator: React.FC = () => {
   const handlePathologistInfoSave = (updatedInfo: Pathologist) => {
     setPathologistInfo(updatedInfo);
 
-    if (message && message.patient && message.patient.orders && message.patient.orders.orderList) {
-      const updatedMessage = { ...message };
-      updatedMessage.patient.orders.orderList = updatedMessage.patient.orders.orderList.map(order => ({
-        ...order,
-        pathologist: updatedInfo,
-      }));
-      setMessage(updatedMessage);
-    }
-  };
+    const updatedMessage = { ...message };
+     if (updatedMessage.patient.orders.orderList) {
+          updatedMessage.patient.orders.orderList = updatedMessage.patient.orders.orderList.map(order => ({
+            ...order,
+            pathologist: updatedInfo,
+          }));
+     }
 
-  const handleTechnicianInfoSave = (updatedInfo: Technician) => {
-    setTechnicianInfo(updatedInfo);
-
-    if (message && message.patient && message.patient.orders && message.patient.orders.orderList) {
-      const updatedMessage = { ...message };
-      updatedMessage.patient.orders.orderList = updatedMessage.patient.orders.orderList.map(order => ({
-        ...order,
-        technician: updatedInfo,
-      }));
-      setMessage(updatedMessage);
-    }
+     setMessage(updatedMessage);
   };
 
   const togglePatientModal = () => {
@@ -199,17 +160,14 @@ const MessageGenerator: React.FC = () => {
     setIsHierarchyModalOpen(!isHierarchyModalOpen);
   };
 
-  const toggleTechnicianModal = () => {
-    setIsTechnicianModalOpen(!isTechnicianModalOpen);
-  };
-
   const generateMessage = async () => {
+    console.log(message);
     if (!sampleId || !selectedType) {
       setGeneratedMessage('Por favor, completa todos los campos.');
       return;
     }
 
-    setIsGeneratingMessage(true);
+    setIsLoading(true);
     setError(null);
     try {
       if (!message) {
@@ -217,14 +175,17 @@ const MessageGenerator: React.FC = () => {
       }
 
       let formattedMessage = '';
+
       formattedMessage = await convertMessage(message, selectedType);
+
+      
       setGeneratedMessage(formattedMessage);
     } catch (err) {
       console.error('Error generating message:', err);
       setError('Error al generar mensaje. Por favor intente nuevamente.');
       setGeneratedMessage('');
     } finally {
-      setIsGeneratingMessage(false);
+      setIsLoading(false);
     }
   };
 
@@ -278,8 +239,8 @@ const MessageGenerator: React.FC = () => {
           <div className="flex space-x-2">
             <button 
               onClick={togglePatientModal}
-              disabled={!sampleId || isFetchingData}
-              className={`inline-flex items-center px-3 py-1 ${!sampleId || isFetchingData ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-blue-100 text-blue-700 hover:bg-blue-200'} rounded-md transition-colors text-sm`}
+              disabled={!sampleId}
+              className={`inline-flex items-center px-3 py-1 ${!sampleId ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-blue-100 text-blue-700 hover:bg-blue-200'} rounded-md transition-colors text-sm`}
             >
               <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
                 <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
@@ -289,8 +250,8 @@ const MessageGenerator: React.FC = () => {
             
             <button 
               onClick={togglePhysicianModal}
-              disabled={!sampleId || isFetchingData}
-              className={`inline-flex items-center px-3 py-1 ${!sampleId || isFetchingData ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-green-100 text-green-700 hover:bg-green-200'} rounded-md transition-colors text-sm`}
+              disabled={!sampleId}
+              className={`inline-flex items-center px-3 py-1 ${!sampleId ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-green-100 text-green-700 hover:bg-green-200'} rounded-md transition-colors text-sm`}
             >
               <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
                 <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
@@ -300,8 +261,8 @@ const MessageGenerator: React.FC = () => {
             
             <button 
               onClick={togglePathologistModal}
-              disabled={!sampleId || isFetchingData}
-              className={`inline-flex items-center px-3 py-1 ${!sampleId || isFetchingData ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-purple-100 text-purple-700 hover:bg-purple-200'} rounded-md transition-colors text-sm`}
+              disabled={!sampleId}
+              className={`inline-flex items-center px-3 py-1 ${!sampleId ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-purple-100 text-purple-700 hover:bg-purple-200'} rounded-md transition-colors text-sm`}
             >
               <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
                 <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
@@ -311,22 +272,11 @@ const MessageGenerator: React.FC = () => {
             
             <button 
               onClick={toggleHierarchyModal}
-              disabled={!sampleId || isFetchingData}
-              className={`inline-flex items-center px-3 py-1 ${!sampleId || isFetchingData ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-amber-100 text-amber-700 hover:bg-amber-200'} rounded-md transition-colors text-sm`}
+              disabled={!sampleId}
+              className={`inline-flex items-center px-3 py-1 ${!sampleId ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-amber-100 text-amber-700 hover:bg-amber-200'} rounded-md transition-colors text-sm`}
             >
               <ListTree className="h-4 w-4 mr-1" />
               Edit Hierarchy
-            </button>
-            
-            <button 
-              onClick={toggleTechnicianModal}
-              disabled={!sampleId || isFetchingData}
-              className={`inline-flex items-center px-3 py-1 ${!sampleId || isFetchingData ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-pink-100 text-pink-700 hover:bg-pink-200'} rounded-md transition-colors text-sm`}
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
-                <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
-              </svg>
-              Edit Technician
             </button>
           </div>
         </div>
@@ -338,15 +288,6 @@ const MessageGenerator: React.FC = () => {
           className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
           placeholder="Ingresa el Sample ID"
         />
-        {isFetchingData && (
-          <div className="mt-2 flex items-center text-sm text-blue-600">
-            <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-            </svg>
-            Cargando datos...
-          </div>
-        )}
       </div>
       
       <div className="mb-6">
@@ -395,14 +336,14 @@ const MessageGenerator: React.FC = () => {
       
       <button
         onClick={generateMessage}
-        disabled={isGeneratingMessage || !selectedHost || !selectedType || isFetchingData}
+        disabled={isLoading || !selectedHost || !selectedType}
         className={`w-full py-3 px-6 rounded-lg text-lg font-medium transition-colors ${
-          isGeneratingMessage || !selectedHost || !selectedType || isFetchingData
+          isLoading || !selectedHost || !selectedType
             ? 'bg-gray-400 text-white cursor-not-allowed' 
             : 'bg-indigo-600 text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500'
         }`}
       >
-        {isGeneratingMessage ? 'Generando...' : 'Generar Mensaje'}
+        {isLoading ? 'Generando...' : 'Generar Mensaje'}
       </button>
       
       {error && (
@@ -455,13 +396,6 @@ const MessageGenerator: React.FC = () => {
         isOpen={isHierarchyModalOpen}
         onClose={toggleHierarchyModal}
         message={message}
-      />
-      
-      <TechnicianEditModal
-        isOpen={isTechnicianModalOpen}
-        onClose={toggleTechnicianModal}
-        technicianInfo={technicianInfo}
-        onSave={handleTechnicianInfoSave}
       />
     </div>
   );

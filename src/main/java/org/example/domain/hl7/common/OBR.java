@@ -1,4 +1,3 @@
-
 package org.example.domain.hl7.common;
 
 import lombok.Data;
@@ -325,35 +324,16 @@ public class OBR extends HL7Segment {
 
     private static void addSupplementalInfos(List<SupplementalInfo> infos, List<SupplementalInfo> targetList) {
         for (SupplementalInfo info : infos) {
-            // Use the type field to determine the actual supplemental info type
-            String type = info.getType();
-            if (type == null) continue;
-            
-            switch (type) {
-                case "SPECIALINSTRUCTION":
-                    targetList.add(new SpecialInstruction(info.getValue(), info.getArtifact()));
-                    break;
-                case "QUALITYISSUE":
-                    targetList.add(new QualityIssue(info.getValue(), info.getArtifact(), 
-                            info.getQualityIssueValue() != null ? info.getQualityIssueValue() : ""));
-                    break;
-                case "TISSUEPIECES":
-                    targetList.add(new TissuePieces(info.getValue(), info.getArtifact()));
-                    break;
-                case "RECUT":
-                    targetList.add(new Recut(info.getValue(), info.getArtifact()));
-                    break;
-                case "GROSSDESCRIPTION":
-                    targetList.add(new GrossDescription(info.getValue(), info.getArtifact()));
-                    break;
-                default:
-                    // For unexpected types, create a generic SupplementalInfo
-                    SupplementalInfo newInfo = new SupplementalInfo();
-                    newInfo.setType(info.getType());
-                    newInfo.setValue(info.getValue());
-                    newInfo.setArtifact(info.getArtifact());
-                    targetList.add(newInfo);
-                    break;
+            if (info instanceof SpecialInstruction) {
+                targetList.add(new SpecialInstruction(info.getValue(), info.getArtifact()));
+            } else if (info instanceof QualityIssue) {
+                targetList.add(new QualityIssue(info.getValue(), info.getArtifact(), ((QualityIssue) info).getOptionalValue()));
+            } else if (info instanceof TissuePieces) {
+                targetList.add(new TissuePieces(info.getValue(), info.getArtifact()));
+            } else if (info instanceof Recut) {
+                targetList.add(new Recut(info.getValue(), info.getArtifact()));
+            } else if (info instanceof GrossDescription) {
+                targetList.add(new GrossDescription(info.getValue(), info.getArtifact()));
             }
         }
     }
