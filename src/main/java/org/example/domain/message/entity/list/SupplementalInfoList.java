@@ -1,3 +1,4 @@
+
 package org.example.domain.message.entity.list;
 
 import lombok.Data;
@@ -15,12 +16,10 @@ public class SupplementalInfoList extends Reflection implements Cloneable {
     private List<SupplementalInfo> supplementalInfoList;
 
     public SupplementalInfoList() {
-        SupplementalInfo supplementalInfo = new SupplementalInfo();
-        List<SupplementalInfo> supplementalInfos = new ArrayList<>();
-        supplementalInfos.add(supplementalInfo);
-
-        this.supplementalInfoList = supplementalInfos;
+        // Initialize with an empty ArrayList but no default items
+        this.supplementalInfoList = new ArrayList<>();
     }
+    
     @Override
     public SupplementalInfoList clone() {
         try {

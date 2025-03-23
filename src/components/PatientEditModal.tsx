@@ -1,22 +1,64 @@
+
+import React, { useState, useEffect } from 'react';
+import { Patient } from '../types/MessageType';
+
 interface PatientEditModalProps {
   isOpen: boolean;
   onClose: () => void;
-  patientInfo: Patient;
+  patientInfo: Patient | null;
   onSave: (updatedInfo: Patient) => void;
 }
 
-import { Message, Patient } from '../types/MessageType';
-import React, { useState, useEffect } from 'react';
 const PatientEditModal: React.FC<PatientEditModalProps> = ({ 
   isOpen, 
   onClose, 
   patientInfo, 
   onSave 
 }) => {
-  const [editedInfo, setEditedInfo] = useState<Patient>(patientInfo);
+  const [editedInfo, setEditedInfo] = useState<Patient>({
+    code: '',
+    firstName: '',
+    lastName: '',
+    middleName: '',
+    suffix: '',
+    secondSurname: '',
+    dateOfBirth: '',
+    sex: 'M',
+    address: '',
+    city: '',
+    country: '',
+    state: '',
+    zip: '',
+    homePhone: '',
+    workPhone: '',
+    mobile: '',
+    email: '',
+    orders: { orderList: [] }
+  });
 
   useEffect(() => {
-    setEditedInfo(patientInfo);
+    if (patientInfo) {
+      setEditedInfo({
+        code: patientInfo.code || '',
+        firstName: patientInfo.firstName || '',
+        lastName: patientInfo.lastName || '',
+        middleName: patientInfo.middleName || '',
+        suffix: patientInfo.suffix || '',
+        secondSurname: patientInfo.secondSurname || '',
+        dateOfBirth: patientInfo.dateOfBirth || '',
+        sex: patientInfo.sex || 'M',
+        address: patientInfo.address || '',
+        city: patientInfo.city || '',
+        country: patientInfo.country || '',
+        state: patientInfo.state || '',
+        zip: patientInfo.zip || '',
+        homePhone: patientInfo.homePhone || '',
+        workPhone: patientInfo.workPhone || '',
+        mobile: patientInfo.mobile || '',
+        email: patientInfo.email || '',
+        orders: patientInfo.orders || { orderList: [] }
+      });
+    }
   }, [patientInfo]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -130,24 +172,24 @@ const PatientEditModal: React.FC<PatientEditModalProps> = ({
           </div>
 
           <div className="flex justify-end space-x-3 pt-4">
-                      <button
-                        type="button"
-                        onClick={onClose}
-                        className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-500"
-                      >
-                        Cancelar
-                      </button>
-                      <button
-                        type="submit"
-                        className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                      >
-                        Guardar
-                      </button>
-                    </div>
-                  </form>
-                </div>
-              </div>
-            );
-          };
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-500"
+            >
+              Cancelar
+            </button>
+            <button
+              type="submit"
+              className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            >
+              Guardar
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+};
 
-          export default PatientEditModal;
+export default PatientEditModal;

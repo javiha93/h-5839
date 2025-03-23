@@ -15,31 +15,61 @@ const PathologistEditModal: React.FC<PathologistEditModalProps> = ({
   pathologistInfo, 
   onSave 
 }) => {
-  const [editedInfo, setEditedInfo] = useState<Pathologist | null>(pathologistInfo);
+  const [editedInfo, setEditedInfo] = useState<Pathologist>({
+    code: '',
+    firstName: '',
+    lastName: '',
+    middleName: '',
+    prefix: '',
+    suffix: '',
+    address: '',
+    city: '',
+    country: '',
+    state: '',
+    zip: '',
+    homePhone: '',
+    workPhone: '',
+    mobile: '',
+    email: ''
+  });
 
   useEffect(() => {
-    setEditedInfo(pathologistInfo);
+    if (pathologistInfo) {
+      setEditedInfo({
+        code: pathologistInfo.code || '',
+        firstName: pathologistInfo.firstName || '',
+        lastName: pathologistInfo.lastName || '',
+        middleName: pathologistInfo.middleName || '',
+        prefix: pathologistInfo.prefix || '',
+        suffix: pathologistInfo.suffix || '',
+        address: pathologistInfo.address || '',
+        city: pathologistInfo.city || '',
+        country: pathologistInfo.country || '',
+        state: pathologistInfo.state || '',
+        zip: pathologistInfo.zip || '',
+        homePhone: pathologistInfo.homePhone || '',
+        workPhone: pathologistInfo.workPhone || '',
+        mobile: pathologistInfo.mobile || '',
+        email: pathologistInfo.email || ''
+      });
+    }
   }, [pathologistInfo]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    if (editedInfo) {
-      setEditedInfo(prev => ({
-        ...prev!,
-        [name]: value
-      }));
-    }
+    setEditedInfo(prev => ({
+      ...prev,
+      [name]: value
+    }));
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (editedInfo) {
-      onSave(editedInfo);
-    }
+    onSave(editedInfo);
     onClose();
   };
 
-  if (!isOpen || !editedInfo) return null;
+  if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
@@ -55,7 +85,7 @@ const PathologistEditModal: React.FC<PathologistEditModalProps> = ({
               type="text"
               id="code"
               name="code"
-              value={editedInfo.code || ''}
+              value={editedInfo.code}
               onChange={handleChange}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
             />
@@ -69,7 +99,7 @@ const PathologistEditModal: React.FC<PathologistEditModalProps> = ({
               type="text"
               id="firstName"
               name="firstName"
-              value={editedInfo.firstName || ''}
+              value={editedInfo.firstName}
               onChange={handleChange}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
             />
@@ -83,7 +113,7 @@ const PathologistEditModal: React.FC<PathologistEditModalProps> = ({
               type="text"
               id="middleName"
               name="middleName"
-              value={editedInfo.middleName || ''}
+              value={editedInfo.middleName}
               onChange={handleChange}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
             />
@@ -97,7 +127,7 @@ const PathologistEditModal: React.FC<PathologistEditModalProps> = ({
               type="text"
               id="lastName"
               name="lastName"
-              value={editedInfo.lastName || ''}
+              value={editedInfo.lastName}
               onChange={handleChange}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
             />
@@ -111,7 +141,7 @@ const PathologistEditModal: React.FC<PathologistEditModalProps> = ({
               type="text"
               id="prefix"
               name="prefix"
-              value={editedInfo.prefix || ''}
+              value={editedInfo.prefix}
               onChange={handleChange}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
             />
@@ -125,7 +155,7 @@ const PathologistEditModal: React.FC<PathologistEditModalProps> = ({
               type="text"
               id="suffix"
               name="suffix"
-              value={editedInfo.suffix || ''}
+              value={editedInfo.suffix}
               onChange={handleChange}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
             />
