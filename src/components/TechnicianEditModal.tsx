@@ -1,59 +1,37 @@
 
 import React, { useState, useEffect } from 'react';
-import { Physician } from '../types/MessageType';
+import { Technician } from '../types/MessageType';
 
-interface PhysicianEditModalProps {
+interface TechnicianEditModalProps {
   isOpen: boolean;
   onClose: () => void;
-  physicianInfo: Physician | null;
-  onSave: (updatedInfo: Physician) => void;
+  technicianInfo: Technician | null;
+  onSave: (updatedInfo: Technician) => void;
 }
 
-const PhysicianEditModal: React.FC<PhysicianEditModalProps> = ({ 
+const TechnicianEditModal: React.FC<TechnicianEditModalProps> = ({ 
   isOpen, 
   onClose, 
-  physicianInfo, 
+  technicianInfo, 
   onSave 
 }) => {
-  const [editedInfo, setEditedInfo] = useState<Physician>({
+  const [editedInfo, setEditedInfo] = useState<Technician>({
     code: '',
     firstName: '',
     lastName: '',
-    middleName: '',
-    prefix: '',
-    suffix: '',
-    address: '',
-    city: '',
-    country: '',
-    state: '',
-    zip: '',
-    homePhone: '',
-    workPhone: '',
-    mobile: '',
-    email: ''
+    middleName: ''
   });
 
   useEffect(() => {
-    if (physicianInfo) {
+    if (technicianInfo) {
       setEditedInfo({
-        code: physicianInfo.code || '',
-        firstName: physicianInfo.firstName || '',
-        lastName: physicianInfo.lastName || '',
-        middleName: physicianInfo.middleName || '',
-        prefix: physicianInfo.prefix || '',
-        suffix: physicianInfo.suffix || '',
-        address: physicianInfo.address || '',
-        city: physicianInfo.city || '',
-        country: physicianInfo.country || '',
-        state: physicianInfo.state || '',
-        zip: physicianInfo.zip || '',
-        homePhone: physicianInfo.homePhone || '',
-        workPhone: physicianInfo.workPhone || '',
-        mobile: physicianInfo.mobile || '',
-        email: physicianInfo.email || ''
+        code: technicianInfo.code || '',
+        firstName: technicianInfo.firstName || '',
+        lastName: technicianInfo.lastName || '',
+        middleName: technicianInfo.middleName || ''
       });
     }
-  }, [physicianInfo]);
+  }, [technicianInfo]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -74,7 +52,7 @@ const PhysicianEditModal: React.FC<PhysicianEditModalProps> = ({
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white rounded-lg p-6 w-full max-w-md">
-        <h2 className="text-xl font-bold mb-4 text-gray-800">Editar Información del Médico</h2>
+        <h2 className="text-xl font-bold mb-4 text-gray-800">Editar Información del Técnico</h2>
         
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
@@ -132,34 +110,6 @@ const PhysicianEditModal: React.FC<PhysicianEditModalProps> = ({
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
             />
           </div>
-          
-          <div>
-            <label htmlFor="prefix" className="block text-sm font-medium text-gray-700 mb-1">
-              Prefijo
-            </label>
-            <input
-              type="text"
-              id="prefix"
-              name="prefix"
-              value={editedInfo.prefix}
-              onChange={handleChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            />
-          </div>
-          
-          <div>
-            <label htmlFor="suffix" className="block text-sm font-medium text-gray-700 mb-1">
-              Sufijo
-            </label>
-            <input
-              type="text"
-              id="suffix"
-              name="suffix"
-              value={editedInfo.suffix}
-              onChange={handleChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            />
-          </div>
 
           <div className="flex justify-end space-x-3 pt-4">
             <button
@@ -182,4 +132,4 @@ const PhysicianEditModal: React.FC<PhysicianEditModalProps> = ({
   );
 };
 
-export default PhysicianEditModal;
+export default TechnicianEditModal;

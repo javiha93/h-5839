@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { MessageType, Patient, Physician, Pathologist } from '../types/MessageType';
+import { MessageType, Patient, Physician, Pathologist, Technician } from '../types/MessageType';
 import { Message } from '../types/Message';
 import PatientEditModal from './PatientEditModal';
 import PhysicianEditModal from './PhysicianEditModal';
 import PathologistEditModal from './PathologistEditModal';
 import HierarchyEditModal from './HierarchyEditModal';
+import TechnicianEditModal from './TechnicianEditModal';
 import { ListTree } from 'lucide-react';
 
 const MessageGenerator: React.FC = () => {
@@ -82,9 +83,11 @@ const MessageGenerator: React.FC = () => {
 
       const data = await response.json();
       setMessage(data);
-      setPatientInfo(data.patient);
-      setPhysicianInfo(data.physician);
-      setPathologistInfo(data.patient.orders.orderList[0].pathologist);
+      setPatientInfo(data.patient || null);
+      setPhysicianInfo(data.physician || null);
+      
+      const pathologist = data.patient?.orders?.orderList?.[0]?.pathologist || null;
+      setPathologistInfo(pathologist);
     } catch (err) {
       console.error('Error fetching data:', err);
       setError('Error al obtener los datos. Por favor intente nuevamente.');
@@ -133,15 +136,14 @@ const MessageGenerator: React.FC = () => {
   const handlePathologistInfoSave = (updatedInfo: Pathologist) => {
     setPathologistInfo(updatedInfo);
 
-    const updatedMessage = { ...message };
-     if (updatedMessage.patient.orders.orderList) {
-          updatedMessage.patient.orders.orderList = updatedMessage.patient.orders.orderList.map(order => ({
-            ...order,
-            pathologist: updatedInfo,
-          }));
-     }
-
-     setMessage(updatedMessage);
+    if (message && message.patient && message.patient.orders && message.patient.orders.orderList) {
+      const updatedMessage = { ...message };
+      updatedMessage.patient.orders.orderList = updatedMessage.patient.orders.orderList.map(order => ({
+        ...order,
+        pathologist: updatedInfo,
+      }));
+      setMessage(updatedMessage);
+    }
   };
 
   const togglePatientModal = () => {
@@ -175,10 +177,7 @@ const MessageGenerator: React.FC = () => {
       }
 
       let formattedMessage = '';
-
       formattedMessage = await convertMessage(message, selectedType);
-
-      
       setGeneratedMessage(formattedMessage);
     } catch (err) {
       console.error('Error generating message:', err);
