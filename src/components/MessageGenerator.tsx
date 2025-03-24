@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { MessageType, Patient, Physician, Pathologist, Technician } from '../types/MessageType';
-import { Message, Specimen } from '../types/Message';
+import { Message, Specimen, Slide } from '../types/Message';
 import PatientEditModal from './PatientEditModal';
 import PhysicianEditModal from './PhysicianEditModal';
 import PathologistEditModal from './PathologistEditModal';
 import HierarchyEditModal from './HierarchyEditModal';
 import TechnicianEditModal from './TechnicianEditModal';
 import SpecimenSelectorModal from './messageGenerator/SpecimenSelectorModal';
+import SlideSelectorModal from './messageGenerator/SlideSelectorModal';
 import { ListTree } from 'lucide-react';
 
 const MessageGenerator: React.FC = () => {
@@ -30,6 +31,8 @@ const MessageGenerator: React.FC = () => {
   const [technicianInfo, setTechnicianInfo] = useState<Technician | null>(null);
   const [isSpecimenSelectorModalOpen, setIsSpecimenSelectorModalOpen] = useState<boolean>(false);
   const [selectedSpecimen, setSelectedSpecimen] = useState<Specimen | null>(null);
+  const [isSlideSelectorModalOpen, setIsSlideSelectorModalOpen] = useState<boolean>(false);
+  const [selectedSlide, setSelectedSlide] = useState<Slide | null>(null);
 
   const hosts = [
     { id: 'LIS', name: 'LIS' },
@@ -66,14 +69,17 @@ const MessageGenerator: React.FC = () => {
       setMessageTypes(hostMessageTypes[selectedHost as keyof typeof hostMessageTypes] || []);
       setSelectedType('');
       setSelectedSpecimen(null);
+      setSelectedSlide(null);
     } else {
       setMessageTypes([]);
       setSelectedSpecimen(null);
+      setSelectedSlide(null);
     }
   }, [selectedHost]);
 
   useEffect(() => {
     setSelectedSpecimen(null);
+    setSelectedSlide(null);
   }, [selectedType]);
 
   const fetchMessageData = async (sampleIdValue: string) => {
@@ -196,6 +202,10 @@ const MessageGenerator: React.FC = () => {
     setSelectedSpecimen(specimen);
   };
 
+  const handleSlideSelect = (slide: Slide) => {
+    setSelectedSlide(slide);
+  };
+
   const togglePatientModal = () => {
     setIsPatientModalOpen(!isPatientModalOpen);
   };
@@ -217,7 +227,13 @@ const MessageGenerator: React.FC = () => {
   };
 
   const toggleSpecimenSelectorModal = () => {
+    console.log("Toggling specimen selector modal", { current: isSpecimenSelectorModalOpen });
     setIsSpecimenSelectorModalOpen(!isSpecimenSelectorModalOpen);
+  };
+
+  const toggleSlideSelectorModal = () => {
+    console.log("Toggling slide selector modal", { current: isSlideSelectorModalOpen });
+    setIsSlideSelectorModalOpen(!isSlideSelectorModalOpen);
   };
 
   const generateMessage = async () => {
@@ -228,6 +244,11 @@ const MessageGenerator: React.FC = () => {
 
     if (selectedHost === 'LIS' && selectedType === 'DELETE_SPECIMEN' && !selectedSpecimen) {
       setGeneratedMessage('Por favor, selecciona un specimen para eliminar.');
+      return;
+    }
+
+    if (selectedHost === 'LIS' && selectedType === 'DELETE_SLIDE' && !selectedSlide) {
+      setGeneratedMessage('Por favor, selecciona un slide para eliminar.');
       return;
     }
 
@@ -242,6 +263,8 @@ const MessageGenerator: React.FC = () => {
 
       if (selectedHost === 'LIS' && selectedType === 'DELETE_SPECIMEN' && selectedSpecimen) {
         formattedMessage = await convertSpecimenMessage(message, selectedType, selectedSpecimen);
+      } else if (selectedHost === 'LIS' && selectedType === 'DELETE_SLIDE' && selectedSlide) {
+        formattedMessage = await convertSlideMessage(message, selectedType, selectedSlide);
       } else {
         formattedMessage = await convertMessage(message, selectedType);
       }
@@ -307,6 +330,32 @@ const MessageGenerator: React.FC = () => {
     }
   };
 
+  const convertSlideMessage = async (message: Message, messageType: string, slide: Slide) => {
+    try {
+      const response = await fetch('http://localhost:8085/api/messages/convert-slide', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          message: message,
+          messageType: messageType,
+          slide: slide
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Error: ${response.status}`);
+      }
+
+      const data = await response.text();
+      return data;
+    } catch (err) {
+      console.error('Error converting slide message:', err);
+      throw err;
+    }
+  };
+
   const copyToClipboard = () => {
     if (generatedMessage) {
       navigator.clipboard.writeText(generatedMessage)
@@ -321,6 +370,7 @@ const MessageGenerator: React.FC = () => {
   };
 
   const showSpecimenSelector = selectedHost === 'LIS' && selectedType === 'DELETE_SPECIMEN';
+  const showSlideSelector = selectedHost === 'LIS' && selectedType === 'DELETE_SLIDE';
 
   return (
     <div className="max-w-4xl mx-auto my-8 p-8 bg-white rounded-xl shadow-lg">
@@ -456,6 +506,19 @@ const MessageGenerator: React.FC = () => {
               {selectedSpecimen && <span className="ml-1 font-bold">✓</span>}
             </button>
           )}
+
+          {showSlideSelector && (
+            <button
+              onClick={toggleSlideSelectorModal}
+              disabled={!message}
+              className={`px-4 py-2 rounded-lg flex items-center space-x-1 ${
+                !message ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : 'bg-blue-500 text-white hover:bg-blue-600'
+              }`}
+            >
+              <span>Select Slide</span>
+              {selectedSlide && <span className="ml-1 font-bold">✓</span>}
+            </button>
+          )}
         </div>
         {!selectedHost && (
           <p className="mt-2 text-sm text-amber-600">
@@ -469,13 +532,32 @@ const MessageGenerator: React.FC = () => {
             </p>
           </div>
         )}
+        {showSlideSelector && selectedSlide && (
+          <div className="mt-2 p-2 bg-blue-50 border border-blue-200 rounded-lg">
+            <p className="text-sm text-blue-800">
+              Slide selected: <span className="font-semibold">{selectedSlide.id}</span>
+            </p>
+          </div>
+        )}
       </div>
 
       <button
         onClick={generateMessage}
-        disabled={isGeneratingMessage || !selectedHost || !selectedType || isFetchingData || (showSpecimenSelector && !selectedSpecimen)}
+        disabled={
+          isGeneratingMessage || 
+          !selectedHost || 
+          !selectedType || 
+          isFetchingData || 
+          (showSpecimenSelector && !selectedSpecimen) ||
+          (showSlideSelector && !selectedSlide)
+        }
         className={`w-full py-3 px-6 rounded-lg text-lg font-medium transition-colors ${
-          isGeneratingMessage || !selectedHost || !selectedType || isFetchingData || (showSpecimenSelector && !selectedSpecimen)
+          isGeneratingMessage || 
+          !selectedHost || 
+          !selectedType || 
+          isFetchingData || 
+          (showSpecimenSelector && !selectedSpecimen) ||
+          (showSlideSelector && !selectedSlide)
             ? 'bg-gray-400 text-white cursor-not-allowed'
             : 'bg-indigo-600 text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500'
         }`}
@@ -547,6 +629,13 @@ const MessageGenerator: React.FC = () => {
         onClose={toggleSpecimenSelectorModal}
         message={message}
         onSelectSpecimen={handleSpecimenSelect}
+      />
+
+      <SlideSelectorModal
+        isOpen={isSlideSelectorModalOpen}
+        onClose={toggleSlideSelectorModal}
+        message={message}
+        onSelectSlide={handleSlideSelect}
       />
     </div>
   );

@@ -1,3 +1,4 @@
+
 package org.example.domain.hl7.LIS.LISToNPLH.DELETESPECIMEN;
 
 import lombok.Data;
