@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { MessageType, Patient, Physician, Pathologist, Technician } from '../types/MessageType';
-import { Message, Specimen } from '../types/Message';
+import { Message } from '../types/Message';
 import PatientEditModal from './PatientEditModal';
 import PhysicianEditModal from './PhysicianEditModal';
 import PathologistEditModal from './PathologistEditModal';
 import HierarchyEditModal from './HierarchyEditModal';
 import TechnicianEditModal from './TechnicianEditModal';
-import SpecimenSelectorModal from './SpecimenSelectorModal';
 import { ListTree } from 'lucide-react';
 
 const MessageGenerator: React.FC = () => {
@@ -28,8 +27,6 @@ const MessageGenerator: React.FC = () => {
   const [pathologistInfo, setPathologistInfo] = useState<Pathologist | null>(null);
   const [isTechnicianModalOpen, setIsTechnicianModalOpen] = useState<boolean>(false);
   const [technicianInfo, setTechnicianInfo] = useState<Technician | null>(null);
-  const [isSpecimenSelectorModalOpen, setIsSpecimenSelectorModalOpen] = useState<boolean>(false);
-  const [selectedSpecimen, setSelectedSpecimen] = useState<Specimen | null>(null);
 
   const hosts = [
     { id: 'LIS', name: 'LIS' },
@@ -65,16 +62,10 @@ const MessageGenerator: React.FC = () => {
     if (selectedHost) {
       setMessageTypes(hostMessageTypes[selectedHost as keyof typeof hostMessageTypes] || []);
       setSelectedType('');
-      setSelectedSpecimen(null);
     } else {
       setMessageTypes([]);
-      setSelectedSpecimen(null);
     }
   }, [selectedHost]);
-
-  useEffect(() => {
-    setSelectedSpecimen(null);
-  }, [selectedType]);
 
   const fetchMessageData = async (sampleIdValue: string) => {
     if (!sampleIdValue) {
@@ -192,10 +183,6 @@ const MessageGenerator: React.FC = () => {
     }
   };
 
-  const handleSpecimenSelect = (specimen: Specimen) => {
-    setSelectedSpecimen(specimen);
-  };
-
   const togglePatientModal = () => {
     setIsPatientModalOpen(!isPatientModalOpen);
   };
@@ -209,7 +196,6 @@ const MessageGenerator: React.FC = () => {
   };
 
   const toggleHierarchyModal = () => {
-    console.log("Toggle hierarchy modal:", !isHierarchyModalOpen);
     setIsHierarchyModalOpen(!isHierarchyModalOpen);
   };
 
@@ -217,19 +203,9 @@ const MessageGenerator: React.FC = () => {
     setIsTechnicianModalOpen(!isTechnicianModalOpen);
   };
 
-  const toggleSpecimenSelectorModal = () => {
-    console.log("Toggle specimen selector modal:", !isSpecimenSelectorModalOpen);
-    setIsSpecimenSelectorModalOpen(!isSpecimenSelectorModalOpen);
-  };
-
   const generateMessage = async () => {
     if (!sampleId || !selectedType) {
       setGeneratedMessage('Por favor, completa todos los campos.');
-      return;
-    }
-
-    if (selectedHost === 'LIS' && selectedType === 'DELETE_SPECIMEN' && !selectedSpecimen) {
-      setGeneratedMessage('Por favor, selecciona un specimen para eliminar.');
       return;
     }
 
@@ -241,13 +217,7 @@ const MessageGenerator: React.FC = () => {
       }
 
       let formattedMessage = '';
-      
-      if (selectedHost === 'LIS' && selectedType === 'DELETE_SPECIMEN' && selectedSpecimen) {
-        formattedMessage = await convertSpecimenMessage(message, selectedType, selectedSpecimen);
-      } else {
-        formattedMessage = await convertMessage(message, selectedType);
-      }
-      
+      formattedMessage = await convertMessage(message, selectedType);
       setGeneratedMessage(formattedMessage);
     } catch (err) {
       console.error('Error generating message:', err);
@@ -283,32 +253,6 @@ const MessageGenerator: React.FC = () => {
     }
   };
 
-  const convertSpecimenMessage = async (message: Message, messageType: string, specimen: Specimen) => {
-    try {
-      const response = await fetch('http://localhost:8085/api/messages/convert-specimen', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ 
-          message: message,
-          messageType: messageType,
-          specimen: specimen
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error(`Error: ${response.status}`);
-      }
-
-      const data = await response.text();
-      return data;
-    } catch (err) {
-      console.error('Error converting specimen message:', err);
-      throw err;
-    }
-  };
-
   const copyToClipboard = () => {
     if (generatedMessage) {
       navigator.clipboard.writeText(generatedMessage)
@@ -321,8 +265,6 @@ const MessageGenerator: React.FC = () => {
         });
     }
   };
-
-  const showSpecimenSelector = selectedHost === 'LIS' && selectedType === 'DELETE_SPECIMEN';
 
   return (
     <div className="max-w-4xl mx-auto my-8 p-8 bg-white rounded-xl shadow-lg">
@@ -430,54 +372,32 @@ const MessageGenerator: React.FC = () => {
         <label htmlFor="messageType" className="block text-sm font-medium text-gray-700 mb-2">
           Tipo de Mensaje
         </label>
-        <div className="flex space-x-2">
-          <select
-            id="messageType"
-            value={selectedType}
-            onChange={handleTypeChange}
-            disabled={!selectedHost}
-            className={`flex-grow px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white transition-all ${!selectedHost ? 'cursor-not-allowed bg-gray-100' : ''}`}
-          >
-            <option value="">Selecciona un tipo</option>
-            {messageTypes.map((type) => (
-              <option key={type.id} value={type.id}>
-                {type.name}
-              </option>
-            ))}
-          </select>
-          
-          {showSpecimenSelector && (
-            <button
-              onClick={toggleSpecimenSelectorModal}
-              disabled={!message}
-              className={`px-4 py-2 rounded-lg flex items-center space-x-1 ${
-                !message ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : 'bg-amber-500 text-white hover:bg-amber-600'
-              }`}
-            >
-              <span>Seleccionar Specimen</span>
-              {selectedSpecimen && <span className="ml-1 font-bold">✓</span>}
-            </button>
-          )}
-        </div>
+        <select
+          id="messageType"
+          value={selectedType}
+          onChange={handleTypeChange}
+          disabled={!selectedHost}
+          className={`w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white transition-all ${!selectedHost ? 'cursor-not-allowed bg-gray-100' : ''}`}
+        >
+          <option value="">Selecciona un tipo</option>
+          {messageTypes.map((type) => (
+            <option key={type.id} value={type.id}>
+              {type.name}
+            </option>
+          ))}
+        </select>
         {!selectedHost && (
           <p className="mt-2 text-sm text-amber-600">
             Primero selecciona un host
           </p>
         )}
-        {showSpecimenSelector && selectedSpecimen && (
-          <div className="mt-2 p-2 bg-amber-50 border border-amber-200 rounded-lg">
-            <p className="text-sm text-amber-800">
-              Specimen seleccionado: <span className="font-semibold">{selectedSpecimen.id}</span>
-            </p>
-          </div>
-        )}
       </div>
       
       <button
         onClick={generateMessage}
-        disabled={isGeneratingMessage || !selectedHost || !selectedType || isFetchingData || (showSpecimenSelector && !selectedSpecimen)}
+        disabled={isGeneratingMessage || !selectedHost || !selectedType || isFetchingData}
         className={`w-full py-3 px-6 rounded-lg text-lg font-medium transition-colors ${
-          isGeneratingMessage || !selectedHost || !selectedType || isFetchingData || (showSpecimenSelector && !selectedSpecimen)
+          isGeneratingMessage || !selectedHost || !selectedType || isFetchingData
             ? 'bg-gray-400 text-white cursor-not-allowed' 
             : 'bg-indigo-600 text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500'
         }`}
@@ -543,16 +463,8 @@ const MessageGenerator: React.FC = () => {
         technicianInfo={technicianInfo}
         onSave={handleTechnicianInfoSave}
       />
-      
-      <SpecimenSelectorModal
-        isOpen={isSpecimenSelectorModalOpen}
-        onClose={toggleSpecimenSelectorModal}
-        message={message}
-        onSelectSpecimen={handleSpecimenSelect}
-      />
     </div>
   );
 };
 
 export default MessageGenerator;
-

@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Message } from '../types/Message';
 import { ListTree, ChevronDown, ChevronRight, Plus, Edit, Trash2 } from 'lucide-react';
@@ -19,39 +20,11 @@ const HierarchyEditModal: React.FC<HierarchyEditModalProps> = ({ isOpen, onClose
   const [editingBlock, setEditingBlock] = useState<any>(null);
   const [editingSlide, setEditingSlide] = useState<any>(null);
 
-  if (!isOpen) return null;
-  
-  console.log("HierarchyEditModal - Message received:", message);
-  
+  if (!isOpen || !message) return null;
+
   // Get the first order
-  const order = message?.patient?.orders?.orderList?.[0];
-  if (!order) {
-    return (
-      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-        <div className="bg-white rounded-lg p-6 w-11/12 max-w-3xl max-h-[90vh] overflow-auto">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-bold">Order Hierarchy</h2>
-            <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-          </div>
-          <div className="text-center py-8 text-gray-500">
-            No order data available
-          </div>
-          <div className="flex justify-end">
-            <button
-              onClick={onClose}
-              className="px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300 transition-colors"
-            >
-              Close
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  const order = message.patient?.orders?.orderList?.[0];
+  if (!order) return null;
 
   const toggleSpecimen = (specimenIndex: number) => {
     setExpandedSpecimens({
@@ -77,13 +50,16 @@ const HierarchyEditModal: React.FC<HierarchyEditModalProps> = ({ isOpen, onClose
   };
 
   const getNextSequence = (currentSequence: string) => {
+    // If the sequence is a number, increment it
     if (/^\d+$/.test(currentSequence)) {
       return String(parseInt(currentSequence) + 1);
     }
+    // If the sequence is a letter, get the next letter
     else if (/^[A-Za-z]$/.test(currentSequence)) {
       const code = currentSequence.charCodeAt(0);
       return String.fromCharCode(code + 1);
     }
+    // Otherwise return the same value with a suffix
     return `${currentSequence}-new`;
   };
 
@@ -125,6 +101,7 @@ const HierarchyEditModal: React.FC<HierarchyEditModalProps> = ({ isOpen, onClose
     newBlock.slides.slideList.push(newSlide);
     newSpecimen.blocks.blockList.push(newBlock);
     order.specimens.specimenList.push(newSpecimen);
+    // Force a re-render
     setExpandedSpecimens({ ...expandedSpecimens });
   };
 
@@ -155,6 +132,7 @@ const HierarchyEditModal: React.FC<HierarchyEditModalProps> = ({ isOpen, onClose
     };
     newBlock.slides.slideList.push(newSlide);
     specimen.blocks.blockList.push(newBlock);
+    // Force a re-render
     setExpandedBlocks({ ...expandedBlocks });
   };
 
@@ -175,6 +153,7 @@ const HierarchyEditModal: React.FC<HierarchyEditModalProps> = ({ isOpen, onClose
     };
     
     block.slides.slideList.push(newSlide);
+    // Force a re-render
     setExpandedSlides({ ...expandedSlides });
   };
 
@@ -182,6 +161,7 @@ const HierarchyEditModal: React.FC<HierarchyEditModalProps> = ({ isOpen, onClose
     if (!order.specimens?.specimenList) return;
     
     order.specimens.specimenList.splice(specimenIndex, 1);
+    // Force a re-render
     setExpandedSpecimens({ ...expandedSpecimens });
   };
 
@@ -190,6 +170,7 @@ const HierarchyEditModal: React.FC<HierarchyEditModalProps> = ({ isOpen, onClose
     if (!specimen || !specimen.blocks?.blockList) return;
     
     specimen.blocks.blockList.splice(blockIndex, 1);
+    // Force a re-render
     setExpandedBlocks({ ...expandedBlocks });
   };
 
@@ -199,6 +180,7 @@ const HierarchyEditModal: React.FC<HierarchyEditModalProps> = ({ isOpen, onClose
     if (!block || !block.slides?.slideList) return;
     
     block.slides.slideList.splice(slideIndex, 1);
+    // Force a re-render
     setExpandedSlides({ ...expandedSlides });
   };
 
@@ -312,6 +294,7 @@ const HierarchyEditModal: React.FC<HierarchyEditModalProps> = ({ isOpen, onClose
                             </div>
                           ))}
                           
+                          {/* Add new slide button */}
                           {block.slides?.slideList?.length > 0 && (
                             <div className="ml-6 mt-2">
                               <button
@@ -328,6 +311,7 @@ const HierarchyEditModal: React.FC<HierarchyEditModalProps> = ({ isOpen, onClose
                     </div>
                   ))}
                   
+                  {/* Add new block button */}
                   {specimen.blocks?.blockList?.length > 0 && (
                     <div className="ml-6 mt-3">
                       <button
@@ -344,6 +328,7 @@ const HierarchyEditModal: React.FC<HierarchyEditModalProps> = ({ isOpen, onClose
             </div>
           ))}
           
+          {/* Add new specimen button */}
           {order.specimens?.specimenList?.length > 0 && (
             <div className="ml-6 mt-4">
               <button
@@ -366,6 +351,7 @@ const HierarchyEditModal: React.FC<HierarchyEditModalProps> = ({ isOpen, onClose
           </button>
         </div>
 
+        {/* Edit Modals */}
         {editingSpecimen && (
           <SpecimenEditModal 
             specimen={editingSpecimen.specimen}
@@ -374,6 +360,7 @@ const HierarchyEditModal: React.FC<HierarchyEditModalProps> = ({ isOpen, onClose
               if (order.specimens?.specimenList) {
                 order.specimens.specimenList[editingSpecimen.index] = updatedSpecimen;
                 setEditingSpecimen(null);
+                // Force a re-render
                 setExpandedSpecimens({ ...expandedSpecimens });
               }
             }}
@@ -389,6 +376,7 @@ const HierarchyEditModal: React.FC<HierarchyEditModalProps> = ({ isOpen, onClose
               if (specimen && specimen.blocks?.blockList) {
                 specimen.blocks.blockList[editingBlock.blockIndex] = updatedBlock;
                 setEditingBlock(null);
+                // Force a re-render
                 setExpandedBlocks({ ...expandedBlocks });
               }
             }}
@@ -405,6 +393,7 @@ const HierarchyEditModal: React.FC<HierarchyEditModalProps> = ({ isOpen, onClose
               if (block && block.slides?.slideList) {
                 block.slides.slideList[editingSlide.slideIndex] = updatedSlide;
                 setEditingSlide(null);
+                // Force a re-render
                 setExpandedSlides({ ...expandedSlides });
               }
             }}
