@@ -11,12 +11,6 @@ public class ORC extends org.example.domain.hl7.common.ORC {
     @HL7Position(position = 1)
     private String messageCode;
 
-    @HL7Position(position = 2)
-    private String sampleId;
-
-    @HL7Position(position = 4)
-    private String specimenId;
-
     @HL7Position(position = 12)
     private String orderStatus;
 
@@ -33,10 +27,11 @@ public class ORC extends org.example.domain.hl7.common.ORC {
 
     public static ORC FromMessage(Specimen specimen, String sampleId) {
         ORC orc = (ORC) FromMessage(specimen, sampleId, new ORC());
-
-        orc.setMessageCode("CA");
         orc.setActionCode("CA");
-        orc.setOrderStatus("DELETE");
+
+        orc.messageCode = "CA";
+        orc.setSpecimenId(specimen.getId());
+        orc.orderStatus = "DELETE";
 
         return orc;
     }
@@ -45,8 +40,8 @@ public class ORC extends org.example.domain.hl7.common.ORC {
     public String toString() {
         String value = "ORC|" +
                 nullSafe(messageCode) + "|" +         // 1
-                nullSafe(sampleId) + "||" +           // 2
-                nullSafe(specimenId) + "^SPECIMEN|" + // 4
+                nullSafe(getSampleID()) + "||" +           // 2
+                nullSafe(getSpecimenId()) + "^SPECIMEN|" + // 4
                 "CA||||||||||||||||||||" +            // 5
                 nullSafe(orderStatus) + "|";          // 21
 

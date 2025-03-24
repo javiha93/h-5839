@@ -41,12 +41,19 @@ public class MessageService {
             case "DELETE_CASE":
                 DELETECASE deletecase = DELETECASE.FromMessage(message);
                 return deletecase.toString();
-            case "DELETE_SPECIMEN":
-                DELETESPECIMEN deletespecimen = DELETESPECIMEN.FromMessage(message, new Specimen());
-                return deletespecimen.toString();
             case "CASE_UPDATE":
                 CASEUPDATE caseupdate = CASEUPDATE.FromMessage(message, "PENDING");
                 return  caseupdate.toString();
+            default:
+                throw new IllegalArgumentException("Tipo de mensaje no soportado: " + messageType);
+        }
+    }
+
+    public String convertMessage(Message message, String messageType, Specimen specimen) {
+        switch (messageType) {
+            case "DELETE_SPECIMEN":
+                DELETESPECIMEN deletespecimen = DELETESPECIMEN.FromMessage(message, specimen);
+                return deletespecimen.toString();
             default:
                 throw new IllegalArgumentException("Tipo de mensaje no soportado: " + messageType);
         }

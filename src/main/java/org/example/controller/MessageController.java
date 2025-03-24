@@ -2,6 +2,7 @@
 package org.example.controller;
 
 import org.example.domain.message.Message;
+import org.example.domain.message.entity.Specimen;
 import org.example.service.MessageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -24,6 +25,12 @@ public class MessageController {
         String sampleId = (request != null && request.getSampleId() != null) ? request.getSampleId() : "";
         Message message = messageService.generateMessage(sampleId);
         return ResponseEntity.ok(message);
+    }
+
+    @PostMapping("/convert-specimen")
+    public ResponseEntity<String> generateMessageOneSpecimen(@RequestBody SpecimenRequest request) {
+        String convertedMessage = messageService.convertMessage(request.getMessage(), request.getMessageType(), request.getSpecimen());
+        return ResponseEntity.ok(convertedMessage);
     }
 
     @PostMapping("/convert")
@@ -62,6 +69,37 @@ public class MessageController {
 
         public void setMessageType(String messageType) {
             this.messageType = messageType;
+        }
+    }
+
+    public static class SpecimenRequest {
+        private Message message;
+        private String messageType;
+
+        private Specimen specimen;
+
+        public Message getMessage() {
+            return message;
+        }
+
+        public void setMessage(Message message) {
+            this.message = message;
+        }
+
+        public String getMessageType() {
+            return messageType;
+        }
+
+        public void setMessageType(String messageType) {
+            this.messageType = messageType;
+        }
+
+        public Specimen getSpecimen() {
+            return specimen;
+        }
+
+        public void setSpecimen(Specimen specimen) {
+            this.specimen = specimen;
         }
     }
 }

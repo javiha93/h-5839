@@ -25,7 +25,7 @@ public class DELETESPECIMEN extends HL7Segment {
     public static DELETESPECIMEN FromMessage(Message message, Specimen specimen) {
         DELETESPECIMEN deleteSpecimen = new DELETESPECIMEN();
 
-        deleteSpecimen.msh = (MSH) MSH.FromMessageHeader(message.getHeader(), "OUL^R21");
+        deleteSpecimen.msh = MSH.FromMessageHeader(message.getHeader(), "OUL^R21");
         deleteSpecimen.pid = PID.FromPatient(message.getPatient());
         deleteSpecimen.orc = ORC.FromMessage(specimen, message.getOrder().getSampleId());
         deleteSpecimen.obr = OBR.FromMessage(specimen, message);
