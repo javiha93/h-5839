@@ -2,6 +2,7 @@ package org.example.domain.hl7.VTG.VTGToNPLH.SLIDEUPDATE;
 
 import org.example.domain.message.Message;
 import org.example.domain.message.entity.Block;
+import org.example.domain.message.entity.Slide;
 
 public class ORC extends org.example.domain.hl7.common.ORC {
 
@@ -15,11 +16,11 @@ public class ORC extends org.example.domain.hl7.common.ORC {
         return orc;
     }
 
-    public static ORC FromMessage(Block block, Message message, String blockStatus) {
-        ORC orc = (ORC) org.example.domain.hl7.common.ORC.FromMessage(block, message, new ORC());
+    public static ORC FromMessage(Slide slide, Message message, String slideStatus) {
+        ORC orc = (ORC) org.example.domain.hl7.common.ORC.FromMessage(slide, message, new ORC());
         orc.setMessageCode("SC");
         orc.setActionCode("IP");
-        orc.setBlockStatus(blockStatus);
+        orc.setSlideStatus(slideStatus);
 
         return orc;
     }
@@ -28,9 +29,9 @@ public class ORC extends org.example.domain.hl7.common.ORC {
     public String toString() {
             String value = "ORC|" +
                     nullSafe(getMessageCode()) + "||" +        // 1
-                    nullSafe(getBlockId()) + "||" +      // 3
+                    nullSafe(getSlideId()) + "||" +      // 3
                     nullSafe(getActionCode()) + "||||||||||||||||||||" + // 5
-                    nullSafe(getBlockStatus()) + "|";         // 21
+                    nullSafe(getSlideStatus()) + "|";         // 21
 
             return cleanSegment(value);
     }

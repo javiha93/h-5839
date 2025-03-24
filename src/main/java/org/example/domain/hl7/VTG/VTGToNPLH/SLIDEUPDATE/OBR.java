@@ -19,7 +19,7 @@ public class OBR extends org.example.domain.hl7.common.OBR {
     @Override
     public String toString() {
         String value = "OBR|||" +
-                nullSafe(getBlockID()) + "|" +
+                nullSafe(getSlideID()) + "|" +
                 "SLIDE^StatusUpdate|||" +
                 nullSafe(getCollectDateTime()) + "||||||||||||" +
                 nullSafe(getSlideID()) + "^" + nullSafe(getSequence()) + "^" + nullSafe(getExtSlideID()) + "|" +

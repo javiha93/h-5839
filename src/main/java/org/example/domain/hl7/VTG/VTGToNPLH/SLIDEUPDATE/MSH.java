@@ -28,4 +28,9 @@ public class MSH extends org.example.domain.hl7.common.MSH {
         msh.setMessageEvent(messageTypeParts[1]);
         return msh;
     }
+
+    @Override
+    public String toString() {
+        return super.toString();
+    }
 }

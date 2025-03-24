@@ -17,7 +17,7 @@ public class Addition extends HL7Segment {
     public static Addition FromMessage(Message message) {
         Addition addition = new Addition();
 
-        addition.msh = MSH.FromMessageHeader(message.getHeader());
+        addition.msh = MSH.FromMessageHeader(message.getHeader(), "OUL^R21");
         addition.pid = PID.FromPatient(message.getPatient());
 
         int segmentNumber = 0;
@@ -38,5 +38,18 @@ public class Addition extends HL7Segment {
         }
 
         return addition;
+    }
+
+    @Override
+    public String toString() {
+        String addition = nullSafe(msh) + "\n" +
+                nullSafe(pid) + "\n";
+
+        String oSegmentsString = "";
+        for (OSegment oSegment : oSegments) {
+            oSegmentsString = oSegmentsString + nullSafe(oSegment.orc.toString()) + "\n" +
+                    nullSafe(oSegment.obr.toString()) + "\n";
+        }
+        return cleanMessage(addition + oSegmentsString);
     }
 }

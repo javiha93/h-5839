@@ -8,6 +8,9 @@ import org.example.domain.hl7.LIS.LISToNPLH.DELETECASE.DELETECASE;
 import org.example.domain.hl7.LIS.LISToNPLH.DELETESLIDE.DELETESLIDE;
 import org.example.domain.hl7.LIS.LISToNPLH.DELETESPECIMEN.DELETESPECIMEN;
 import org.example.domain.hl7.LIS.LISToNPLH.OML21.dto.OML21;
+import org.example.domain.hl7.VTG.VTGToNPLH.ADDITION.Addition;
+import org.example.domain.hl7.VTG.VTGToNPLH.OEWF.OEWF;
+import org.example.domain.hl7.VTG.VTGToNPLH.SLIDEUPDATE.SlideUpdate;
 import org.example.domain.message.Message;
 import org.example.domain.message.entity.Slide;
 import org.example.domain.message.entity.Specimen;
@@ -41,6 +44,12 @@ public class MessageService {
             case "DELETE_CASE":
                 DELETECASE deletecase = DELETECASE.FromMessage(message);
                 return deletecase.toString();
+            case "OEWF":
+                OEWF oewf = OEWF.FromMessage(message);
+                return oewf.toString();
+            case "ADDITION":
+                Addition addition = Addition.FromMessage(message);
+                return addition.toString();
             default:
                 throw new IllegalArgumentException("Tipo de mensaje no soportado: " + messageType);
         }
@@ -61,6 +70,16 @@ public class MessageService {
             case "DELETE_SLIDE":
                 DELETESLIDE deleteSlide = DELETESLIDE.FromMessage(message, slide);
                 return deleteSlide.toString();
+            default:
+                throw new IllegalArgumentException("Tipo de mensaje no soportado: " + messageType);
+        }
+    }
+
+    public String convertMessage(Message message, String messageType, Slide slide, String status) {
+        switch (messageType) {
+            case "SLIDE_UPDATE":
+                SlideUpdate slideUpdate = SlideUpdate.FromMessage(message, slide, status);
+                return slideUpdate.toString();
             default:
                 throw new IllegalArgumentException("Tipo de mensaje no soportado: " + messageType);
         }

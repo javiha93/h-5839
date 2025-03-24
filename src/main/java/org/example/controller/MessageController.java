@@ -46,6 +46,12 @@ public class MessageController {
         return ResponseEntity.ok(convertedMessage);
     }
 
+    @PostMapping("/convert-status-slide")
+    public ResponseEntity<String> convertMessageStatusSlide(@RequestBody StatusSlideRequest request) {
+        String convertedMessage = messageService.convertMessage(request.getMessage(), request.getMessageType(), request.getSlide(), request.getStatus());
+        return ResponseEntity.ok(convertedMessage);
+    }
+
     @PostMapping("/convert")
     public ResponseEntity<String> convertMessage(@RequestBody ConvertRequest request) {
         String convertedMessage = messageService.convertMessage(request.getMessage(), request.getMessageType());
@@ -119,7 +125,6 @@ public class MessageController {
     public static class SlideRequest {
         private Message message;
         private String messageType;
-
         private Slide slide;
 
         public Message getMessage() {
@@ -178,5 +183,44 @@ public class MessageController {
 
         private String status;
 
+    }
+
+    public static class StatusSlideRequest {
+        private Message message;
+        private String messageType;
+        private Slide slide;
+        private String status;
+
+        public Message getMessage() {
+            return message;
+        }
+
+        public void setMessage(Message message) {
+            this.message = message;
+        }
+
+        public String getMessageType() {
+            return messageType;
+        }
+
+        public void setMessageType(String messageType) {
+            this.messageType = messageType;
+        }
+
+        public Slide getSlide() {
+            return slide;
+        }
+
+        public void setSlide(Slide slide) {
+            this.slide = slide;
+        }
+
+        public String getStatus() {
+            return status;
+        }
+
+        public void setStatus(String status) {
+            this.status = status;
+        }
     }
 }

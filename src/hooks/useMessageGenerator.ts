@@ -254,7 +254,8 @@ export const useMessageGenerator = () => {
       return;
     }
 
-    if (selectedHost === 'LIS' && selectedType === 'DELETE_SLIDE' && !selectedSlide) {
+    if ((selectedHost === 'LIS' && selectedType === 'DELETE_SLIDE' && !selectedSlide) ||
+    (selectedHost === 'VTG' && selectedType === 'SLIDE_UPDATE' && !selectedSlide)) {
       setGeneratedMessage('Por favor, selecciona un slide para eliminar.');
       return;
     }
@@ -274,6 +275,8 @@ export const useMessageGenerator = () => {
         formattedMessage = await convertSlideMessage(message, selectedType, selectedSlide);
       } else if (selectedHost === 'LIS' && selectedType === 'CASE_UPDATE') {
         formattedMessage = await convertStatusMessage(message, selectedType, selectedStatus);
+      } else if (selectedHost === 'VTG' && selectedType === 'SLIDE_UPDATE' && selectedSlide) {
+        formattedMessage = await convertStatusSlideMessage(message, selectedType, selectedSlide, selectedStatus)
       } else {
         formattedMessage = await convertMessage(message, selectedType);
       }
@@ -365,6 +368,33 @@ export const useMessageGenerator = () => {
     }
   };
 
+  const convertStatusSlideMessage = async (message: Message, messageType: string, slide: Slide, status: string) => {
+      try {
+        const response = await fetch('http://localhost:8085/api/messages/convert-status-slide', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            message: message,
+            messageType: messageType,
+            slide: slide,
+            status: status
+          }),
+        });
+
+        if (!response.ok) {
+          throw new Error(`Error: ${response.status}`);
+        }
+
+        const data = await response.text();
+        return data;
+      } catch (err) {
+        console.error('Error converting slide message:', err);
+        throw err;
+      }
+    };
+
   const convertStatusMessage = async (message: Message, messageType: string, status: string) => {
     try {
       const response = await fetch('http://localhost:8085/api/messages/convert-status', {
@@ -405,8 +435,8 @@ export const useMessageGenerator = () => {
   };
 
   const showSpecimenSelector = selectedHost === 'LIS' && selectedType === 'DELETE_SPECIMEN';
-  const showSlideSelector = selectedHost === 'LIS' && selectedType === 'DELETE_SLIDE';
-  const showStatusSelector = selectedHost === 'LIS' && selectedType === 'CASE_UPDATE';
+  const showSlideSelector = (selectedHost === 'LIS' && selectedType === 'DELETE_SLIDE') || (selectedHost === 'VTG' && selectedType === 'SLIDE_UPDATE');
+  const showStatusSelector = (selectedHost === 'LIS' && selectedType === 'CASE_UPDATE') || (selectedHost === 'VTG' && selectedType === 'SLIDE_UPDATE');
 
   const generateButtonDisabled = isGeneratingMessage || 
                                 !selectedHost || 

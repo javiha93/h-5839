@@ -1,12 +1,8 @@
 package org.example.domain.hl7.VTG.VTGToNPLH.SLIDEUPDATE;
 
 import org.example.domain.hl7.HL7Segment;
-import org.example.domain.hl7.VTG.VTGToNPLH.BLOCKUPDATE.MSH;
-import org.example.domain.hl7.VTG.VTGToNPLH.BLOCKUPDATE.OBR;
-import org.example.domain.hl7.VTG.VTGToNPLH.BLOCKUPDATE.ORC;
-import org.example.domain.hl7.VTG.VTGToNPLH.BLOCKUPDATE.PID;
-import org.example.domain.hl7.VTG.VTGToNPLH.BLOCKUPDATE.SAC;
 import org.example.domain.message.Message;
+import org.example.domain.message.entity.Slide;
 
 
 public class SlideUpdate extends HL7Segment {
@@ -16,14 +12,14 @@ public class SlideUpdate extends HL7Segment {
     ORC orc;
     OBR obr;
 
-    public static SlideUpdate FromMessage(Message message, String blockStatus) {
+    public static SlideUpdate FromMessage(Message message, Slide slide, String slideStatus) {
         SlideUpdate slideUpdate = new SlideUpdate();
 
         slideUpdate.msh = MSH.FromMessageHeader(message.getHeader());
         slideUpdate.pid = PID.FromPatient(message.getPatient());
         slideUpdate.sac = SAC.FromOrder(message.getOrder());
-        slideUpdate.orc = ORC.FromMessage(message.getBlock(), message, blockStatus);
-        slideUpdate.obr = OBR.FromMessage(message.getBlock(), message);
+        slideUpdate.orc = ORC.FromMessage(slide, message, slideStatus);
+        slideUpdate.obr = OBR.FromMessage(slide, message);
 
         return slideUpdate;
     }
