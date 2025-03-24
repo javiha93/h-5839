@@ -209,6 +209,7 @@ const MessageGenerator: React.FC = () => {
   };
 
   const toggleHierarchyModal = () => {
+    console.log("Toggle hierarchy modal:", !isHierarchyModalOpen);
     setIsHierarchyModalOpen(!isHierarchyModalOpen);
   };
 
@@ -217,6 +218,7 @@ const MessageGenerator: React.FC = () => {
   };
 
   const toggleSpecimenSelectorModal = () => {
+    console.log("Toggle specimen selector modal:", !isSpecimenSelectorModalOpen);
     setIsSpecimenSelectorModalOpen(!isSpecimenSelectorModalOpen);
   };
 
@@ -553,3 +555,4 @@ const MessageGenerator: React.FC = () => {
 };
 
 export default MessageGenerator;
+
