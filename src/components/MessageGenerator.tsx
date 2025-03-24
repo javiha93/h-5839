@@ -15,6 +15,7 @@ const MessageGenerator: React.FC = () => {
   const [sampleId, setSampleId] = useState<string>('');
   const [selectedHost, setSelectedHost] = useState<string>('');
   const [selectedType, setSelectedType] = useState<string>('');
+  const [selectedStatus, setSelectedStatus] = useState<string>('IN_PROGRESS');
   const [generatedMessage, setGeneratedMessage] = useState<string>('');
   const [messageCopied, setMessageCopied] = useState<boolean>(false);
   const [isPatientModalOpen, setIsPatientModalOpen] = useState<boolean>(false);
@@ -38,6 +39,14 @@ const MessageGenerator: React.FC = () => {
     { id: 'LIS', name: 'LIS' },
     { id: 'VTG', name: 'VTG' },
     { id: 'VANTAGE_WS', name: 'VANTAGE WS' }
+  ];
+
+  const statusOptions = [
+    { id: 'IN_PROGRESS', name: 'IN_PROGRESS' },
+    { id: 'SIGN_OUT', name: 'SIGN_OUT' },
+    { id: 'ADDEND', name: 'ADDEND' },
+    { id: 'AMEND', name: 'AMEND' },
+    { id: 'CANCEL', name: 'CANCEL' }
   ];
 
   const [messageTypes, setMessageTypes] = useState<MessageType[]>([]);
@@ -149,6 +158,10 @@ const MessageGenerator: React.FC = () => {
 
   const handleTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setSelectedType(e.target.value);
+  };
+
+  const handleStatusChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setSelectedStatus(e.target.value);
   };
 
   const handlePatientInfoSave = (updatedInfo: Patient) => {
@@ -266,6 +279,8 @@ const MessageGenerator: React.FC = () => {
         formattedMessage = await convertSpecimenMessage(message, selectedType, selectedSpecimen);
       } else if (selectedHost === 'LIS' && selectedType === 'DELETE_SLIDE' && selectedSlide) {
         formattedMessage = await convertSlideMessage(message, selectedType, selectedSlide);
+      } else if (selectedHost === 'LIS' && selectedType === 'CASE_UPDATE') {
+        formattedMessage = await convertStatusMessage(message, selectedType, selectedStatus);
       } else {
         formattedMessage = await convertMessage(message, selectedType);
       }
@@ -357,6 +372,32 @@ const MessageGenerator: React.FC = () => {
     }
   };
 
+  const convertStatusMessage = async (message: Message, messageType: string, status: string) => {
+    try {
+      const response = await fetch('http://localhost:8085/api/messages/convert-status', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          message: message,
+          messageType: messageType,
+          status: status
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Error: ${response.status}`);
+      }
+
+      const data = await response.text();
+      return data;
+    } catch (err) {
+      console.error('Error converting status message:', err);
+      throw err;
+    }
+  };
+
   const copyToClipboard = () => {
     if (generatedMessage) {
       navigator.clipboard.writeText(generatedMessage)
@@ -372,6 +413,7 @@ const MessageGenerator: React.FC = () => {
 
   const showSpecimenSelector = selectedHost === 'LIS' && selectedType === 'DELETE_SPECIMEN';
   const showSlideSelector = selectedHost === 'LIS' && selectedType === 'DELETE_SLIDE';
+  const showStatusSelector = selectedHost === 'LIS' && selectedType === 'CASE_UPDATE';
 
   return (
     <div className="max-w-4xl mx-auto my-8 p-8 bg-white rounded-xl shadow-lg">
@@ -495,6 +537,21 @@ const MessageGenerator: React.FC = () => {
             ))}
           </select>
 
+          {showStatusSelector && (
+            <select
+              id="statusSelector"
+              value={selectedStatus}
+              onChange={handleStatusChange}
+              className="w-1/3 px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white transition-all"
+            >
+              {statusOptions.map((status) => (
+                <option key={status.id} value={status.id}>
+                  {status.name}
+                </option>
+              ))}
+            </select>
+          )}
+
           {showSpecimenSelector && (
             <button
               onClick={toggleSpecimenSelectorModal}
@@ -537,6 +594,13 @@ const MessageGenerator: React.FC = () => {
           <div className="mt-2 p-2 bg-blue-50 border border-blue-200 rounded-lg">
             <p className="text-sm text-blue-800">
               Slide selected: <span className="font-semibold">{selectedSlide.id}</span>
+            </p>
+          </div>
+        )}
+        {showStatusSelector && (
+          <div className="mt-2 p-2 bg-green-50 border border-green-200 rounded-lg">
+            <p className="text-sm text-green-800">
+              Status selected: <span className="font-semibold">{selectedStatus}</span>
             </p>
           </div>
         )}
