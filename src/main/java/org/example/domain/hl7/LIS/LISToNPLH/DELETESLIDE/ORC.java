@@ -32,6 +32,13 @@ public class ORC extends org.example.domain.hl7.common.ORC {
 
     @Override
     public String toString() {
-        return toStringSlideUpdate();
+        String value = "ORC|" +
+                nullSafe(getMessageCode()) + "|" +        // 1
+                nullSafe(getSampleID()) + "||" +          // 2
+                nullSafe(getSlideId()) + "^SLIDE|" +      // 4
+                nullSafe(getActionCode()) + "||||||||||||||||||||" +           // 5
+                nullSafe(getOrderStatus()) + "|";         // 21
+
+        return cleanSegment(value);
     }
 }

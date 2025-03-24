@@ -41,9 +41,6 @@ public class MessageService {
             case "DELETE_CASE":
                 DELETECASE deletecase = DELETECASE.FromMessage(message);
                 return deletecase.toString();
-            case "CASE_UPDATE":
-                CASEUPDATE caseupdate = CASEUPDATE.FromMessage(message, "PENDING");
-                return  caseupdate.toString();
             default:
                 throw new IllegalArgumentException("Tipo de mensaje no soportado: " + messageType);
         }
@@ -58,15 +55,24 @@ public class MessageService {
                 throw new IllegalArgumentException("Tipo de mensaje no soportado: " + messageType);
         }
     }
-    
-    public String generateOML21Message(Message message) {
-        OML21 oml21 = OML21.FromMessage(message);
-        return oml21.toString();
+
+    public String convertMessage(Message message, String messageType, Slide slide) {
+        switch (messageType) {
+            case "DELETE_SLIDE":
+                DELETESLIDE deleteSlide = DELETESLIDE.FromMessage(message, slide);
+                return deleteSlide.toString();
+            default:
+                throw new IllegalArgumentException("Tipo de mensaje no soportado: " + messageType);
+        }
     }
-    
-    public String generateOEWFMessage(Message message) {
-        // Use the VTG OEWF format
-        //OEWF oewf = OEWF.FromMessage(message);
-        return "";
+
+    public String convertMessage(Message message, String messageType, String status) {
+        switch (messageType) {
+            case "CASE_UPDATE":
+                CASEUPDATE caseupdate = CASEUPDATE.FromMessage(message, status);
+                return caseupdate.toString();
+            default:
+                throw new IllegalArgumentException("Tipo de mensaje no soportado: " + messageType);
+        }
     }
 }

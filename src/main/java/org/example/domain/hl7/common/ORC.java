@@ -156,14 +156,4 @@ public class ORC extends HL7Segment {
         return cleanSegment(value);
     }
 
-    protected String toStringSpecimenUpdate() {
-        String value = "ORC|" +
-                nullSafe(messageCode) + "|" +         // 1
-                nullSafe(sampleID) + "||" +           // 2
-                nullSafe(specimenId) + "^SPECIMEN|" + // 4
-                nullSafe(actionCode) + "||||||||||||||||||||" +            // 5
-                nullSafe(orderStatus) + "|";          // 21
-
-        return cleanSegment(value);
-    }
 }

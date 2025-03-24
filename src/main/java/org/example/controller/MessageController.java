@@ -2,6 +2,7 @@
 package org.example.controller;
 
 import org.example.domain.message.Message;
+import org.example.domain.message.entity.Slide;
 import org.example.domain.message.entity.Specimen;
 import org.example.service.MessageService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,8 +29,20 @@ public class MessageController {
     }
 
     @PostMapping("/convert-specimen")
-    public ResponseEntity<String> generateMessageOneSpecimen(@RequestBody SpecimenRequest request) {
+    public ResponseEntity<String> convertMessageOneSpecimen(@RequestBody SpecimenRequest request) {
         String convertedMessage = messageService.convertMessage(request.getMessage(), request.getMessageType(), request.getSpecimen());
+        return ResponseEntity.ok(convertedMessage);
+    }
+
+    @PostMapping("/convert-slide")
+    public ResponseEntity<String> convertMessageOneSlide(@RequestBody SlideRequest request) {
+        String convertedMessage = messageService.convertMessage(request.getMessage(), request.getMessageType(), request.getSlide());
+        return ResponseEntity.ok(convertedMessage);
+    }
+
+    @PostMapping("/convert-status")
+    public ResponseEntity<String> convertMessageStatus(@RequestBody StatusRequest request) {
+        String convertedMessage = messageService.convertMessage(request.getMessage(), request.getMessageType(), request.getStatus());
         return ResponseEntity.ok(convertedMessage);
     }
 
@@ -50,7 +63,7 @@ public class MessageController {
             this.sampleId = sampleId;
         }
     }
-    
+
     public static class ConvertRequest {
         private Message message;
         private String messageType;
@@ -101,5 +114,69 @@ public class MessageController {
         public void setSpecimen(Specimen specimen) {
             this.specimen = specimen;
         }
+    }
+
+    public static class SlideRequest {
+        private Message message;
+        private String messageType;
+
+        private Slide slide;
+
+        public Message getMessage() {
+            return message;
+        }
+
+        public void setMessage(Message message) {
+            this.message = message;
+        }
+
+        public String getMessageType() {
+            return messageType;
+        }
+
+        public void setMessageType(String messageType) {
+            this.messageType = messageType;
+        }
+
+        public Slide getSlide() {
+            return slide;
+        }
+
+        public void setSlide(Slide slide) {
+            this.slide = slide;
+        }
+    }
+
+    public static class StatusRequest {
+        private Message message;
+
+        public Message getMessage() {
+            return message;
+        }
+
+        public void setMessage(Message message) {
+            this.message = message;
+        }
+
+        public String getMessageType() {
+            return messageType;
+        }
+
+        public void setMessageType(String messageType) {
+            this.messageType = messageType;
+        }
+
+        public String getStatus() {
+            return status;
+        }
+
+        public void setStatus(String status) {
+            this.status = status;
+        }
+
+        private String messageType;
+
+        private String status;
+
     }
 }
