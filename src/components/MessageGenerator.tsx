@@ -47,6 +47,7 @@ const MessageGenerator: React.FC = () => {
       { id: 'OML21', name: 'OML21' },
       { id: 'ADTA28', name: 'ADTA28' },
       { id: 'ADTA08', name: 'ADTA08' },
+      { id: 'CASE_UPDATE', name: 'CASE_UPDATE' },
       { id: 'DELETE_CASE', name: 'DELETE_CASE' },
       { id: 'DELETE_SPECIMEN', name: 'DELETE_SPECIMEN' },
       { id: 'DELETE_SLIDE', name: 'DELETE_SLIDE' }
