@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from 'react';
 import { MessageType, Patient, Physician, Pathologist, Technician } from '../types/MessageType';
-import { Message, Specimen, Slide } from '../types/Message';
+import { Message, Specimen, Block, Slide } from '../types/Message';
 
 export const useMessageGenerator = () => {
   const [message, setMessage] = useState<Message | null>(null);
@@ -25,6 +25,8 @@ export const useMessageGenerator = () => {
   const [technicianInfo, setTechnicianInfo] = useState<Technician | null>(null);
   const [isSpecimenSelectorModalOpen, setIsSpecimenSelectorModalOpen] = useState<boolean>(false);
   const [selectedSpecimen, setSelectedSpecimen] = useState<Specimen | null>(null);
+  const [isBlockSelectorModalOpen, setIsBlockSelectorModalOpen] = useState<boolean>(false);
+  const [selectedBlock, setSelectedBlock] = useState<Block | null>(null);
   const [isSlideSelectorModalOpen, setIsSlideSelectorModalOpen] = useState<boolean>(false);
   const [selectedSlide, setSelectedSlide] = useState<Slide | null>(null);
 
@@ -209,6 +211,10 @@ export const useMessageGenerator = () => {
     setSelectedSpecimen(specimen);
   };
 
+    const handleBlockSelect = (block: Block) => {
+    setSelectedBlock(block);
+  };
+
   const handleSlideSelect = (slide: Slide) => {
     setSelectedSlide(slide);
   };
@@ -236,6 +242,11 @@ export const useMessageGenerator = () => {
   const toggleSpecimenSelectorModal = () => {
     console.log("Toggling specimen selector modal", { current: isSpecimenSelectorModalOpen });
     setIsSpecimenSelectorModalOpen(!isSpecimenSelectorModalOpen);
+  };
+
+    const toggleBlockSelectorModal = () => {
+    console.log("Toggling block selector modal", { current: isBlockSelectorModalOpen });
+    setIsBlockSelectorModalOpen(!isBlockSelectorModalOpen);
   };
 
   const toggleSlideSelectorModal = () => {
@@ -266,7 +277,7 @@ export const useMessageGenerator = () => {
       if (!message) {
         throw new Error('No hay datos iniciales disponibles.');
       }
-      const formattedMessage = await convertMessage(message, selectedType, selectedSpecimen, selectedSlide, showStatusSelector ? selectedStatus : undefined);
+      const formattedMessage = await convertMessage(message, selectedType, selectedSpecimen, selectedBlock, selectedSlide, showStatusSelector ? selectedStatus : undefined);
 
       setGeneratedMessage(formattedMessage);
     } catch (err) {
@@ -278,7 +289,7 @@ export const useMessageGenerator = () => {
     }
   };
 
-  const convertMessage = async (message: Message, messageType: string, specimen?: Specimen, slide?: Slide, status?: string) => {
+  const convertMessage = async (message: Message, messageType: string, specimen?: Specimen, block?: Block, slide?: Slide, status?: string) => {
     try {
       const response = await fetch('http://localhost:8085/api/messages/convert', {
         method: 'POST',
@@ -289,6 +300,7 @@ export const useMessageGenerator = () => {
           message,
           messageType,
           specimen: specimen || null,
+          block: block || null,
           slide: slide || null,
           status: status || null,
         }),
@@ -318,16 +330,18 @@ export const useMessageGenerator = () => {
     }
   };
 
-  const showSpecimenSelector = selectedHost === 'LIS' && selectedType === 'DELETE_SPECIMEN';
+  const showSpecimenSelector = (selectedHost === 'LIS' && selectedType === 'DELETE_SPECIMEN') || (selectedHost === 'VTG' && selectedType === 'SPECIMEN_UPDATE');
+  const showBlockSelector = (selectedHost === 'VTG' && selectedType === 'BLOCK_UPDATE');
   const showSlideSelector = (selectedHost === 'LIS' && selectedType === 'DELETE_SLIDE') || (selectedHost === 'VTG' && selectedType === 'SLIDE_UPDATE');
-  const showStatusSelector = (selectedHost === 'LIS' && selectedType === 'CASE_UPDATE') || (selectedHost === 'VTG' && selectedType === 'SLIDE_UPDATE');
+  const showStatusSelector = (selectedHost === 'LIS' && selectedType === 'CASE_UPDATE') || (selectedHost === 'VTG' && selectedType === 'SLIDE_UPDATE') || (selectedHost === 'VTG' && selectedType === 'BLOCK_UPDATE') || (selectedHost === 'VTG' && selectedType === 'SPECIMEN_UPDATE');
 
   const generateButtonDisabled = isGeneratingMessage || 
                                 !selectedHost || 
                                 !selectedType || 
                                 isFetchingData || 
                                 (showSpecimenSelector && !selectedSpecimen) ||
-                                (showSlideSelector && !selectedSlide);
+                                (showSlideSelector && !selectedSlide) ||
+                                (showBlockSelector && !selectedBlock);
 
   return {
     message,
@@ -351,12 +365,15 @@ export const useMessageGenerator = () => {
     technicianInfo,
     isSpecimenSelectorModalOpen,
     selectedSpecimen,
+    isBlockSelectorModalOpen,
+    selectedBlock,
     isSlideSelectorModalOpen,
     selectedSlide,
     hosts,
     statusOptions,
     messageTypes,
     showSpecimenSelector,
+    showBlockSelector,
     showSlideSelector,
     showStatusSelector,
     generateButtonDisabled,
@@ -369,6 +386,7 @@ export const useMessageGenerator = () => {
     handlePathologistInfoSave,
     handleTechnicianInfoSave,
     handleSpecimenSelect,
+    handleBlockSelect,
     handleSlideSelect,
     togglePatientModal,
     togglePhysicianModal,
@@ -376,6 +394,7 @@ export const useMessageGenerator = () => {
     toggleHierarchyModal,
     toggleTechnicianModal,
     toggleSpecimenSelectorModal,
+    toggleBlockSelectorModal,
     toggleSlideSelectorModal,
     generateMessage,
     copyToClipboard

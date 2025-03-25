@@ -11,6 +11,7 @@ import org.example.domain.hl7.LIS.LISToNPLH.OML21.dto.OML21;
 import org.example.domain.hl7.VTG.VTGToNPLH.BLOCKUPDATE.BlockUpdate;
 import org.example.domain.hl7.VTG.VTGToNPLH.OEWF.OEWF;
 import org.example.domain.message.Message;
+import org.example.domain.message.entity.Block;
 import org.example.domain.message.entity.Slide;
 import org.example.domain.message.entity.Specimen;
 import org.example.domain.message.entity.supplementalInfo.SpecialInstruction;
@@ -40,8 +41,9 @@ public class Main {
         
         Specimen specimen = message.getAllSpecimens().get(0);
         DELETESPECIMEN deletespecimen = DELETESPECIMEN.FromMessage(message, specimen);
-        
-        BlockUpdate blockUpdate = BlockUpdate.FromMessage(message, "STAINING");
+
+        Block block = message.getAllBlocks().get(0);
+        BlockUpdate blockUpdate = BlockUpdate.FromMessage(message, block,"STAINING");
         // oewf = OEWF.FromMessage(message);
 
         // Convert all to strings

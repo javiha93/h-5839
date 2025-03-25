@@ -40,6 +40,22 @@ public class MessageController {
                 request.getSlide(), 
                 request.getStatus()
             );
+        } else if (request.getBlock() != null && request.getStatus() != null) {
+            // Case for block with status
+            convertedMessage = messageService.convertMessage(
+                    request.getMessage(),
+                    request.getMessageType(),
+                    request.getBlock(),
+                    request.getStatus()
+            );
+        } else if (request.getSpecimen() != null && request.getStatus() != null) {
+            // Case for specimen with status
+            convertedMessage = messageService.convertMessage(
+                    request.getMessage(),
+                    request.getMessageType(),
+                    request.getSpecimen(),
+                    request.getStatus()
+            );
         } else if (request.getSlide() != null) {
             // Case for slide only
             convertedMessage = messageService.convertMessage(

@@ -2,6 +2,7 @@ package org.example.domain.hl7.VTG.VTGToNPLH.BLOCKUPDATE;
 
 import org.example.domain.hl7.HL7Segment;
 import org.example.domain.message.Message;
+import org.example.domain.message.entity.Block;
 
 
 public class BlockUpdate extends HL7Segment {
@@ -11,14 +12,14 @@ public class BlockUpdate extends HL7Segment {
     ORC orc;
     OBR obr;
 
-    public static BlockUpdate FromMessage(Message message, String blockStatus) {
+    public static BlockUpdate FromMessage(Message message, Block block, String blockStatus) {
         BlockUpdate blockUpdate = new BlockUpdate();
 
         blockUpdate.msh = MSH.FromMessageHeader(message.getHeader(), "OUL^R21");
         blockUpdate.pid = PID.FromPatient(message.getPatient());
         blockUpdate.sac = SAC.FromOrder(message.getOrder());
-        blockUpdate.orc = ORC.FromMessage(message.getBlock(), message, blockStatus);
-        blockUpdate.obr = OBR.FromMessage(message.getBlock(), message);
+        blockUpdate.orc = ORC.FromMessage(block, message, blockStatus);
+        blockUpdate.obr = OBR.FromMessage(block, message);
 
         return blockUpdate;
     }

@@ -83,9 +83,9 @@ const HierarchyEditModal: React.FC<HierarchyEditModalProps> = ({ isOpen, onClose
     const lastBlock = lastSpecimen.blocks.blockList[lastSpecimen.blocks.blockList.length - 1];
     const newBlock = {
         ...JSON.parse(JSON.stringify(lastBlock)),
-        id: newId + ";1;1",
+        id: newId + ";1",
         sequence: 1,
-        externalId: newId + ";1;1",
+        externalId: newId + ";1",
         slides: {
             slideList: []
         }
@@ -94,9 +94,9 @@ const HierarchyEditModal: React.FC<HierarchyEditModalProps> = ({ isOpen, onClose
     const lastSlide = lastBlock.slides.slideList[lastBlock.slides.slideList.length - 1];
     const newSlide = {
         ...JSON.parse(JSON.stringify(lastSlide)),
-        id: newId + ";1",
+        id: newId + ";1;1",
         sequence: 1,
-        externalId: newId + ";1"
+        externalId: newId + ";1;1"
     };
     newBlock.slides.slideList.push(newSlide);
     newSpecimen.blocks.blockList.push(newBlock);

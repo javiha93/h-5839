@@ -134,6 +134,10 @@ public class Order extends Reflection implements Cloneable {
         }
     }
 
+    public Specimen getFirstSpecimen() {
+        return specimens.getSpecimenList().get(0);
+    }
+
     public void setSpecimen(Specimen specimen) {
         SpecimensList specimenList = new SpecimensList();
         List<Specimen> specimens = new ArrayList<>(List.of(specimen));

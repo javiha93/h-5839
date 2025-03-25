@@ -14,12 +14,15 @@ interface MessageOptionsProps {
   handleTypeChange: (e: React.ChangeEvent<HTMLSelectElement>) => void;
   handleStatusChange: (e: React.ChangeEvent<HTMLSelectElement>) => void;
   toggleSpecimenSelectorModal: () => void;
+  toggleBlockSelectorModal: () => void;
   toggleSlideSelectorModal: () => void;
   showSpecimenSelector: boolean;
+  showBlockSelector: boolean;
   showSlideSelector: boolean;
   showStatusSelector: boolean;
   message: any;
   selectedSpecimen: Specimen | null;
+  selectedBlock: Block | null;
   selectedSlide: Slide | null;
 }
 
@@ -34,12 +37,15 @@ const MessageOptions: React.FC<MessageOptionsProps> = ({
   handleTypeChange,
   handleStatusChange,
   toggleSpecimenSelectorModal,
+  toggleBlockSelectorModal,
   toggleSlideSelectorModal,
   showSpecimenSelector,
+  showBlockSelector,
   showSlideSelector,
   showStatusSelector,
   message,
   selectedSpecimen,
+  selectedBlock,
   selectedSlide
 }) => {
   return (
@@ -110,7 +116,18 @@ const MessageOptions: React.FC<MessageOptionsProps> = ({
               {selectedSpecimen && <span className="ml-1 font-bold">✓</span>}
             </button>
           )}
-
+          {showBlockSelector && (
+            <button
+              onClick={toggleBlockSelectorModal}
+              disabled={!message}
+              className={`px-4 py-2 rounded-lg flex items-center space-x-1 ${
+                 !message ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : 'bg-blue-500 text-white hover:bg-blue-600'
+              }`}
+            >
+             <span>Select Block</span>
+             {selectedBlock && <span className="ml-1 font-bold">✓</span>}
+           </button>
+          )}
           {showSlideSelector && (
             <button
               onClick={toggleSlideSelectorModal}
@@ -135,6 +152,13 @@ const MessageOptions: React.FC<MessageOptionsProps> = ({
               Specimen selected: <span className="font-semibold">{selectedSpecimen.id}</span>
             </p>
           </div>
+        )}
+        {showBlockSelector && selectedBlock && (
+          <div className="mt-2 p-2 bg-amber-50 border border-amber-200 rounded-lg">
+           <p className="text-sm text-amber-800">
+            Block selected: <span className="font-semibold">{selectedBlock.id}</span>
+          </p>
+         </div>
         )}
         {showSlideSelector && selectedSlide && (
           <div className="mt-2 p-2 bg-blue-50 border border-blue-200 rounded-lg">

@@ -2,24 +2,25 @@ package org.example.domain.hl7.VTG.VTGToNPLH.SPECIMENUPDATE;
 
 import org.example.domain.message.Message;
 import org.example.domain.message.entity.Block;
+import org.example.domain.message.entity.Specimen;
 
 public class ORC extends org.example.domain.hl7.common.ORC {
 
-    public static ORC Default(String sampleID, String blockStatus) {
+    public static ORC Default(String sampleID, String specimenStatus) {
         ORC orc = (ORC) org.example.domain.hl7.common.ORC.Default(sampleID);
 
         orc.setMessageCode("SC");
         orc.setActionCode("IP");
-        orc.setBlockStatus(blockStatus);
+        orc.setSpecimenStatus(specimenStatus);
 
         return orc;
     }
 
-    public static ORC FromMessage(Block block, Message message, String blockStatus) {
-        ORC orc = (ORC) org.example.domain.hl7.common.ORC.FromMessage(block, message, new ORC());
+    public static ORC FromMessage(Specimen specimen, String sampleId, String specimenStatus) {
+        ORC orc = (ORC) org.example.domain.hl7.common.ORC.FromMessage(specimen, sampleId, new ORC());
         orc.setMessageCode("SC");
         orc.setActionCode("IP");
-        orc.setBlockStatus(blockStatus);
+        orc.setSpecimenStatus(specimenStatus);
 
         return orc;
     }
@@ -28,9 +29,9 @@ public class ORC extends org.example.domain.hl7.common.ORC {
     public String toString() {
             String value = "ORC|" +
                     nullSafe(getMessageCode()) + "||" +        // 1
-                    nullSafe(getBlockId()) + "||" +      // 3
+                    nullSafe(getSpecimenId()) + "||" +      // 3
                     nullSafe(getActionCode()) + "||||||||||||||||||||" + // 5
-                    nullSafe(getBlockStatus()) + "|";         // 21
+                    nullSafe(getSpecimenStatus()) + "|";         // 21
 
             return cleanSegment(value);
     }

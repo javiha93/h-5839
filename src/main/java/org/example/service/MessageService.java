@@ -9,9 +9,12 @@ import org.example.domain.hl7.LIS.LISToNPLH.DELETESLIDE.DELETESLIDE;
 import org.example.domain.hl7.LIS.LISToNPLH.DELETESPECIMEN.DELETESPECIMEN;
 import org.example.domain.hl7.LIS.LISToNPLH.OML21.dto.OML21;
 import org.example.domain.hl7.VTG.VTGToNPLH.ADDITION.Addition;
+import org.example.domain.hl7.VTG.VTGToNPLH.BLOCKUPDATE.BlockUpdate;
 import org.example.domain.hl7.VTG.VTGToNPLH.OEWF.OEWF;
 import org.example.domain.hl7.VTG.VTGToNPLH.SLIDEUPDATE.SlideUpdate;
+import org.example.domain.hl7.VTG.VTGToNPLH.SPECIMENUPDATE.SpecimenUpdate;
 import org.example.domain.message.Message;
+import org.example.domain.message.entity.Block;
 import org.example.domain.message.entity.Slide;
 import org.example.domain.message.entity.Specimen;
 import org.springframework.stereotype.Service;
@@ -79,6 +82,26 @@ public class MessageService {
         switch (messageType) {
             case "SLIDE_UPDATE":
                 SlideUpdate slideUpdate = SlideUpdate.FromMessage(message, slide, status);
+                return slideUpdate.toString();
+            default:
+                throw new IllegalArgumentException("Tipo de mensaje no soportado: " + messageType);
+        }
+    }
+
+    public String convertMessage(Message message, String messageType, Block block, String status) {
+        switch (messageType) {
+            case "BLOCK_UPDATE":
+                BlockUpdate blockUpdate = BlockUpdate.FromMessage(message, block, status);
+                return blockUpdate.toString();
+            default:
+                throw new IllegalArgumentException("Tipo de mensaje no soportado: " + messageType);
+        }
+    }
+
+    public String convertMessage(Message message, String messageType, Specimen specimen, String status) {
+        switch (messageType) {
+            case "SPECIMEN_UPDATE":
+                SpecimenUpdate slideUpdate = SpecimenUpdate.FromMessage(message, specimen, status);
                 return slideUpdate.toString();
             default:
                 throw new IllegalArgumentException("Tipo de mensaje no soportado: " + messageType);

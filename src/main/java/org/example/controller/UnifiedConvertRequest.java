@@ -2,6 +2,7 @@
 package org.example.controller;
 
 import org.example.domain.message.Message;
+import org.example.domain.message.entity.Block;
 import org.example.domain.message.entity.Slide;
 import org.example.domain.message.entity.Specimen;
 
@@ -12,6 +13,7 @@ public class UnifiedConvertRequest {
     private Message message;
     private String messageType;
     private Specimen specimen;
+    private Block block;
     private Slide slide;
     private String status;
 
@@ -37,6 +39,14 @@ public class UnifiedConvertRequest {
 
     public void setSpecimen(Specimen specimen) {
         this.specimen = specimen;
+    }
+
+    public Block getBlock() {
+        return block;
+    }
+
+    public void setBlock(Block block) {
+        this.block = block;
     }
 
     public Slide getSlide() {

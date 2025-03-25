@@ -6,12 +6,12 @@ import org.example.domain.message.entity.Slide;
 
 public class ORC extends org.example.domain.hl7.common.ORC {
 
-    public static ORC Default(String sampleID, String blockStatus) {
+    public static ORC Default(String sampleID, String slideStatus) {
         ORC orc = (ORC) org.example.domain.hl7.common.ORC.Default(sampleID);
 
         orc.setMessageCode("SC");
         orc.setActionCode("IP");
-        orc.setBlockStatus(blockStatus);
+        orc.setSlideStatus(slideStatus);
 
         return orc;
     }
