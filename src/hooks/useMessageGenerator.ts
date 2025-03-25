@@ -266,20 +266,7 @@ export const useMessageGenerator = () => {
       if (!message) {
         throw new Error('No hay datos iniciales disponibles.');
       }
-
-      let formattedMessage = '';
-
-      if (selectedHost === 'LIS' && selectedType === 'DELETE_SPECIMEN' && selectedSpecimen) {
-        formattedMessage = await convertSpecimenMessage(message, selectedType, selectedSpecimen);
-      } else if (selectedHost === 'LIS' && selectedType === 'DELETE_SLIDE' && selectedSlide) {
-        formattedMessage = await convertSlideMessage(message, selectedType, selectedSlide);
-      } else if (selectedHost === 'LIS' && selectedType === 'CASE_UPDATE') {
-        formattedMessage = await convertStatusMessage(message, selectedType, selectedStatus);
-      } else if (selectedHost === 'VTG' && selectedType === 'SLIDE_UPDATE' && selectedSlide) {
-        formattedMessage = await convertStatusSlideMessage(message, selectedType, selectedSlide, selectedStatus)
-      } else {
-        formattedMessage = await convertMessage(message, selectedType);
-      }
+      const formattedMessage = await convertMessage(message, selectedType, selectedSpecimen, selectedSlide, showStatusSelector ? selectedStatus : undefined);
 
       setGeneratedMessage(formattedMessage);
     } catch (err) {
@@ -291,7 +278,7 @@ export const useMessageGenerator = () => {
     }
   };
 
-  const convertMessage = async (message: Message, messageType: string) => {
+  const convertMessage = async (message: Message, messageType: string, specimen?: Specimen, slide?: Slide, status?: string) => {
     try {
       const response = await fetch('http://localhost:8085/api/messages/convert', {
         method: 'POST',
@@ -299,8 +286,11 @@ export const useMessageGenerator = () => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          message: message,
-          messageType: messageType
+          message,
+          messageType,
+          specimen: specimen || null,
+          slide: slide || null,
+          status: status || null,
         }),
       });
 
@@ -308,115 +298,9 @@ export const useMessageGenerator = () => {
         throw new Error(`Error: ${response.status}`);
       }
 
-      const data = await response.text();
-      return data;
+      return await response.text();
     } catch (err) {
       console.error('Error converting message:', err);
-      throw err;
-    }
-  };
-
-  const convertSpecimenMessage = async (message: Message, messageType: string, specimen: Specimen) => {
-    try {
-      const response = await fetch('http://localhost:8085/api/messages/convert-specimen', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          message: message,
-          messageType: messageType,
-          specimen: specimen
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error(`Error: ${response.status}`);
-      }
-
-      const data = await response.text();
-      return data;
-    } catch (err) {
-      console.error('Error converting specimen message:', err);
-      throw err;
-    }
-  };
-
-  const convertSlideMessage = async (message: Message, messageType: string, slide: Slide) => {
-    try {
-      const response = await fetch('http://localhost:8085/api/messages/convert-slide', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          message: message,
-          messageType: messageType,
-          slide: slide
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error(`Error: ${response.status}`);
-      }
-
-      const data = await response.text();
-      return data;
-    } catch (err) {
-      console.error('Error converting slide message:', err);
-      throw err;
-    }
-  };
-
-  const convertStatusSlideMessage = async (message: Message, messageType: string, slide: Slide, status: string) => {
-      try {
-        const response = await fetch('http://localhost:8085/api/messages/convert-status-slide', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            message: message,
-            messageType: messageType,
-            slide: slide,
-            status: status
-          }),
-        });
-
-        if (!response.ok) {
-          throw new Error(`Error: ${response.status}`);
-        }
-
-        const data = await response.text();
-        return data;
-      } catch (err) {
-        console.error('Error converting slide message:', err);
-        throw err;
-      }
-    };
-
-  const convertStatusMessage = async (message: Message, messageType: string, status: string) => {
-    try {
-      const response = await fetch('http://localhost:8085/api/messages/convert-status', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          message: message,
-          messageType: messageType,
-          status: status
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error(`Error: ${response.status}`);
-      }
-
-      const data = await response.text();
-      return data;
-    } catch (err) {
-      console.error('Error converting status message:', err);
       throw err;
     }
   };
