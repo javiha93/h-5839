@@ -13,6 +13,7 @@ import HierarchyEditModal from './HierarchyEditModal';
 import SpecimenSelectorModal from './messageGenerator/SpecimenSelectorModal';
 import BlockSelectorModal from './messageGenerator/BlockSelectorModal';
 import SlideSelectorModal from './messageGenerator/SlideSelectorModal';
+import EntitySelectorModal from './messageGenerator/EntitySelectorModal';
 
 const MessageGenerator: React.FC = () => {
   const {
@@ -41,12 +42,15 @@ const MessageGenerator: React.FC = () => {
     selectedBlock,
     isSlideSelectorModalOpen,
     selectedSlide,
+    isEntitySelectorModalOpen,
+    selectedEntity,
     hosts,
     statusOptions,
     messageTypes,
     showSpecimenSelector,
     showBlockSelector,
     showSlideSelector,
+    showEntitySelector,
     showStatusSelector,
     generateButtonDisabled,
     handleSampleIdChange,
@@ -60,6 +64,7 @@ const MessageGenerator: React.FC = () => {
     handleSpecimenSelect,
     handleBlockSelect,
     handleSlideSelect,
+    handleEntitySelect,
     togglePatientModal,
     togglePhysicianModal,
     togglePathologistModal,
@@ -68,6 +73,7 @@ const MessageGenerator: React.FC = () => {
     toggleSpecimenSelectorModal,
     toggleBlockSelectorModal,
     toggleSlideSelectorModal,
+    toggleEntitySelectorModal,
     generateMessage,
     copyToClipboard
   } = useMessageGenerator();
@@ -100,14 +106,17 @@ const MessageGenerator: React.FC = () => {
         toggleSpecimenSelectorModal={toggleSpecimenSelectorModal}
         toggleBlockSelectorModal={toggleBlockSelectorModal}
         toggleSlideSelectorModal={toggleSlideSelectorModal}
+        toggleEntitySelectorModal={toggleEntitySelectorModal}
         showSpecimenSelector={showSpecimenSelector}
         showBlockSelector={showBlockSelector}
         showSlideSelector={showSlideSelector}
+        showEntitySelector={showEntitySelector}
         showStatusSelector={showStatusSelector}
         message={message}
         selectedSpecimen={selectedSpecimen}
         selectedSlide={selectedSlide}
         selectedBlock={selectedBlock}
+        selectedEntity={selectedEntity}
       />
 
       <GenerateButton
@@ -168,17 +177,26 @@ const MessageGenerator: React.FC = () => {
         message={message}
         onSelectSpecimen={handleSpecimenSelect}
       />
+      
       <BlockSelectorModal
         isOpen={isBlockSelectorModalOpen}
         onClose={toggleBlockSelectorModal}
         message={message}
         onSelectBlock={handleBlockSelect}
-       />
+      />
+      
       <SlideSelectorModal
         isOpen={isSlideSelectorModalOpen}
         onClose={toggleSlideSelectorModal}
         message={message}
         onSelectSlide={handleSlideSelect}
+      />
+
+      <EntitySelectorModal
+        isOpen={isEntitySelectorModalOpen}
+        onClose={toggleEntitySelectorModal}
+        message={message}
+        onSelectEntity={handleEntitySelect}
       />
     </div>
   );

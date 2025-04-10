@@ -29,6 +29,8 @@ export const useMessageGenerator = () => {
   const [selectedBlock, setSelectedBlock] = useState<Block | null>(null);
   const [isSlideSelectorModalOpen, setIsSlideSelectorModalOpen] = useState<boolean>(false);
   const [selectedSlide, setSelectedSlide] = useState<Slide | null>(null);
+  const [isEntitySelectorModalOpen, setIsEntitySelectorModalOpen] = useState<boolean>(false);
+  const [selectedEntity, setSelectedEntity] = useState<{ type: string; id: string } | null>(null);
 
   const hosts = [
     { id: 'LIS', name: 'LIS' },
@@ -76,11 +78,13 @@ export const useMessageGenerator = () => {
       setSelectedSpecimen(null);
       setSelectedBlock(null);
       setSelectedSlide(null);
+      setSelectedEntity(null);
     } else {
       setMessageTypes([]);
       setSelectedSpecimen(null);
       setSelectedBlock(null);
       setSelectedSlide(null);
+      setSelectedEntity(null);
     }
   }, [selectedHost]);
 
@@ -88,6 +92,7 @@ export const useMessageGenerator = () => {
     setSelectedSpecimen(null);
     setSelectedBlock(null);
     setSelectedSlide(null);
+    setSelectedEntity(null);
   }, [selectedType]);
 
   const fetchMessageData = async (sampleIdValue: string) => {
@@ -100,7 +105,7 @@ export const useMessageGenerator = () => {
     setError(null);
 
     try {
-      const response = await fetch('http://localhost:8085/api/messages/generate', {
+      const response = await fetch('http://localhost:8080/api/messages/generate', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -214,12 +219,33 @@ export const useMessageGenerator = () => {
     setSelectedSpecimen(specimen);
   };
 
-    const handleBlockSelect = (block: Block) => {
+  const handleBlockSelect = (block: Block) => {
     setSelectedBlock(block);
   };
 
   const handleSlideSelect = (slide: Slide) => {
     setSelectedSlide(slide);
+  };
+
+  const handleEntitySelect = (entityType: string, entity: Specimen | Block | Slide) => {
+    if (entityType === 'Specimen') {
+      setSelectedSpecimen(entity as Specimen);
+      setSelectedBlock(null);
+      setSelectedSlide(null);
+    } else if (entityType === 'Block') {
+      setSelectedSpecimen(null);
+      setSelectedBlock(entity as Block);
+      setSelectedSlide(null);
+    } else if (entityType === 'Slide') {
+      setSelectedSpecimen(null);
+      setSelectedBlock(null);
+      setSelectedSlide(entity as Slide);
+    }
+
+    setSelectedEntity({
+      type: entityType,
+      id: (entity as any).id
+    });
   };
 
   const togglePatientModal = () => {
@@ -243,18 +269,19 @@ export const useMessageGenerator = () => {
   };
 
   const toggleSpecimenSelectorModal = () => {
-    console.log("Toggling specimen selector modal", { current: isSpecimenSelectorModalOpen });
     setIsSpecimenSelectorModalOpen(!isSpecimenSelectorModalOpen);
   };
 
-    const toggleBlockSelectorModal = () => {
-    console.log("Toggling block selector modal", { current: isBlockSelectorModalOpen });
+  const toggleBlockSelectorModal = () => {
     setIsBlockSelectorModalOpen(!isBlockSelectorModalOpen);
   };
 
   const toggleSlideSelectorModal = () => {
-    console.log("Toggling slide selector modal", { current: isSlideSelectorModalOpen });
     setIsSlideSelectorModalOpen(!isSlideSelectorModalOpen);
+  };
+
+  const toggleEntitySelectorModal = () => {
+    setIsEntitySelectorModalOpen(!isEntitySelectorModalOpen);
   };
 
   const generateMessage = async () => {
@@ -269,9 +296,8 @@ export const useMessageGenerator = () => {
     }
 
     if ((selectedHost === 'LIS' && selectedType === 'DELETE_SLIDE' && !selectedSlide) ||
-    (selectedHost === 'VANTAGE_WS' && selectedType === 'ProcessVANTAGEEvent' && !selectedSlide) ||
-    (selectedHost === 'VTG' && selectedType === 'SLIDE_UPDATE' && !selectedSlide)) {
-      setGeneratedMessage('Por favor, selecciona un slide para eliminar.');
+        (selectedHost === 'VANTAGE_WS' && selectedType === 'ProcessVANTAGEEvent' && !selectedEntity)) {
+      setGeneratedMessage('Por favor, selecciona una entidad para procesar.');
       return;
     }
 
@@ -281,8 +307,42 @@ export const useMessageGenerator = () => {
       if (!message) {
         throw new Error('No hay datos iniciales disponibles.');
       }
-      const formattedMessage = await convertMessage(message, selectedType, selectedSpecimen, selectedBlock, selectedSlide, showStatusSelector ? selectedStatus : undefined);
 
+      let requestBody: any = {
+        message,
+        messageType: selectedType,
+        status: showStatusSelector ? selectedStatus : null
+      };
+
+      // Add the selected entity based on entity type
+      if (selectedEntity) {
+        if (selectedEntity.type === 'Specimen') {
+          requestBody.specimen = selectedSpecimen;
+        } else if (selectedEntity.type === 'Block') {
+          requestBody.block = selectedBlock;
+        } else if (selectedEntity.type === 'Slide') {
+          requestBody.slide = selectedSlide;
+        }
+      } else {
+        // For backward compatibility with existing code
+        if (selectedSpecimen) requestBody.specimen = selectedSpecimen;
+        if (selectedBlock) requestBody.block = selectedBlock;
+        if (selectedSlide) requestBody.slide = selectedSlide;
+      }
+
+      const response = await fetch('http://localhost:8080/api/messages/convert', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestBody),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Error: ${response.status}`);
+      }
+
+      const formattedMessage = await response.text();
       setGeneratedMessage(formattedMessage);
     } catch (err) {
       console.error('Error generating message:', err);
@@ -290,34 +350,6 @@ export const useMessageGenerator = () => {
       setGeneratedMessage('');
     } finally {
       setIsGeneratingMessage(false);
-    }
-  };
-
-  const convertMessage = async (message: Message, messageType: string, specimen?: Specimen, block?: Block, slide?: Slide, status?: string) => {
-    try {
-      const response = await fetch('http://localhost:8085/api/messages/convert', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          message,
-          messageType,
-          specimen: specimen || null,
-          block: block || null,
-          slide: slide || null,
-          status: status || null,
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error(`Error: ${response.status}`);
-      }
-
-      return await response.text();
-    } catch (err) {
-      console.error('Error converting message:', err);
-      throw err;
     }
   };
 
@@ -336,8 +368,13 @@ export const useMessageGenerator = () => {
 
   const showSpecimenSelector = (selectedHost === 'LIS' && selectedType === 'DELETE_SPECIMEN') || (selectedHost === 'VTG' && selectedType === 'SPECIMEN_UPDATE');
   const showBlockSelector = (selectedHost === 'VTG' && selectedType === 'BLOCK_UPDATE');
-  const showSlideSelector = (selectedHost === 'LIS' && selectedType === 'DELETE_SLIDE') || (selectedHost === 'VANTAGE_WS' && selectedType === 'ProcessVANTAGEEvent') || (selectedHost === 'VTG' && selectedType === 'SLIDE_UPDATE');
-  const showStatusSelector = (selectedHost === 'LIS' && selectedType === 'CASE_UPDATE') || (selectedHost === 'VANTAGE_WS' && selectedType === 'ProcessVANTAGEEvent') || (selectedHost === 'VTG' && selectedType === 'SLIDE_UPDATE') || (selectedHost === 'VTG' && selectedType === 'BLOCK_UPDATE') || (selectedHost === 'VTG' && selectedType === 'SPECIMEN_UPDATE');
+  const showSlideSelector = (selectedHost === 'LIS' && selectedType === 'DELETE_SLIDE') || (selectedHost === 'VTG' && selectedType === 'SLIDE_UPDATE');
+  const showEntitySelector = (selectedHost === 'VANTAGE_WS' && selectedType === 'ProcessVANTAGEEvent');
+  const showStatusSelector = (selectedHost === 'LIS' && selectedType === 'CASE_UPDATE') || 
+                            (selectedHost === 'VANTAGE_WS' && selectedType === 'ProcessVANTAGEEvent') || 
+                            (selectedHost === 'VTG' && selectedType === 'SLIDE_UPDATE') || 
+                            (selectedHost === 'VTG' && selectedType === 'BLOCK_UPDATE') || 
+                            (selectedHost === 'VTG' && selectedType === 'SPECIMEN_UPDATE');
 
   const generateButtonDisabled = isGeneratingMessage || 
                                 !selectedHost || 
@@ -345,7 +382,8 @@ export const useMessageGenerator = () => {
                                 isFetchingData || 
                                 (showSpecimenSelector && !selectedSpecimen) ||
                                 (showSlideSelector && !selectedSlide) ||
-                                (showBlockSelector && !selectedBlock);
+                                (showBlockSelector && !selectedBlock) ||
+                                (showEntitySelector && !selectedEntity);
 
   return {
     message,
@@ -373,12 +411,15 @@ export const useMessageGenerator = () => {
     selectedBlock,
     isSlideSelectorModalOpen,
     selectedSlide,
+    isEntitySelectorModalOpen,
+    selectedEntity,
     hosts,
     statusOptions,
     messageTypes,
     showSpecimenSelector,
     showBlockSelector,
     showSlideSelector,
+    showEntitySelector,
     showStatusSelector,
     generateButtonDisabled,
     handleSampleIdChange,
@@ -392,6 +433,7 @@ export const useMessageGenerator = () => {
     handleSpecimenSelect,
     handleBlockSelect,
     handleSlideSelect,
+    handleEntitySelect,
     togglePatientModal,
     togglePhysicianModal,
     togglePathologistModal,
@@ -400,6 +442,7 @@ export const useMessageGenerator = () => {
     toggleSpecimenSelectorModal,
     toggleBlockSelectorModal,
     toggleSlideSelectorModal,
+    toggleEntitySelectorModal,
     generateMessage,
     copyToClipboard
   };

@@ -1,3 +1,4 @@
+
 package org.example.domain.ws.VTGWS;
 
 import org.example.domain.hl7.HL7Segment;
@@ -13,10 +14,10 @@ public class WSSegment {
     }
 
     protected String addIndentation(int indentationLevel) {
-        String identation = "";
-        for (int i = 0; i < indentationLevel; i ++) {
-            identation += "     ";
+        StringBuilder indentation = new StringBuilder();
+        for (int i = 0; i < indentationLevel; i++) {
+            indentation.append("     ");
         }
-        return identation;
+        return indentation.toString();
     }
 }

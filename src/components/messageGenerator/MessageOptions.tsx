@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { MessageType } from '../../types/MessageType';
-import { Specimen, Slide } from '../../types/Message';
+import { Specimen, Slide, Block } from '../../types/Message';
 
 interface MessageOptionsProps {
   selectedHost: string;
@@ -16,14 +16,17 @@ interface MessageOptionsProps {
   toggleSpecimenSelectorModal: () => void;
   toggleBlockSelectorModal: () => void;
   toggleSlideSelectorModal: () => void;
+  toggleEntitySelectorModal?: () => void;
   showSpecimenSelector: boolean;
   showBlockSelector: boolean;
   showSlideSelector: boolean;
+  showEntitySelector?: boolean;
   showStatusSelector: boolean;
   message: any;
   selectedSpecimen: Specimen | null;
   selectedBlock: Block | null;
   selectedSlide: Slide | null;
+  selectedEntity?: { type: string; id: string } | null;
 }
 
 const MessageOptions: React.FC<MessageOptionsProps> = ({
@@ -39,14 +42,17 @@ const MessageOptions: React.FC<MessageOptionsProps> = ({
   toggleSpecimenSelectorModal,
   toggleBlockSelectorModal,
   toggleSlideSelectorModal,
+  toggleEntitySelectorModal,
   showSpecimenSelector,
   showBlockSelector,
   showSlideSelector,
+  showEntitySelector,
   showStatusSelector,
   message,
   selectedSpecimen,
   selectedBlock,
-  selectedSlide
+  selectedSlide,
+  selectedEntity
 }) => {
   return (
     <>
@@ -116,6 +122,7 @@ const MessageOptions: React.FC<MessageOptionsProps> = ({
               {selectedSpecimen && <span className="ml-1 font-bold">✓</span>}
             </button>
           )}
+          
           {showBlockSelector && (
             <button
               onClick={toggleBlockSelectorModal}
@@ -128,7 +135,8 @@ const MessageOptions: React.FC<MessageOptionsProps> = ({
              {selectedBlock && <span className="ml-1 font-bold">✓</span>}
            </button>
           )}
-          {showSlideSelector && (
+          
+          {showSlideSelector && !showEntitySelector && (
             <button
               onClick={toggleSlideSelectorModal}
               disabled={!message}
@@ -138,6 +146,19 @@ const MessageOptions: React.FC<MessageOptionsProps> = ({
             >
               <span>Select Slide</span>
               {selectedSlide && <span className="ml-1 font-bold">✓</span>}
+            </button>
+          )}
+
+          {showEntitySelector && (
+            <button
+              onClick={toggleEntitySelectorModal}
+              disabled={!message}
+              className={`px-4 py-2 rounded-lg flex items-center space-x-1 ${
+                !message ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : 'bg-green-500 text-white hover:bg-green-600'
+              }`}
+            >
+              <span>Select Entity</span>
+              {selectedEntity && <span className="ml-1 font-bold">✓</span>}
             </button>
           )}
         </div>
@@ -154,16 +175,23 @@ const MessageOptions: React.FC<MessageOptionsProps> = ({
           </div>
         )}
         {showBlockSelector && selectedBlock && (
-          <div className="mt-2 p-2 bg-amber-50 border border-amber-200 rounded-lg">
+           <div className="mt-2 p-2 bg-amber-50 border border-amber-200 rounded-lg">
            <p className="text-sm text-amber-800">
             Block selected: <span className="font-semibold">{selectedBlock.id}</span>
           </p>
          </div>
         )}
-        {showSlideSelector && selectedSlide && (
+        {showSlideSelector && selectedSlide && !showEntitySelector && (
           <div className="mt-2 p-2 bg-blue-50 border border-blue-200 rounded-lg">
             <p className="text-sm text-blue-800">
               Slide selected: <span className="font-semibold">{selectedSlide.id}</span>
+            </p>
+          </div>
+        )}
+        {showEntitySelector && selectedEntity && (
+          <div className="mt-2 p-2 bg-green-50 border border-green-200 rounded-lg">
+            <p className="text-sm text-green-800">
+              {selectedEntity.type} selected: <span className="font-semibold">{selectedEntity.id}</span>
             </p>
           </div>
         )}
