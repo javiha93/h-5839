@@ -16,7 +16,7 @@ public class StainProtocol extends Reflection implements Cloneable {
         StainProtocol stainProtocol = new StainProtocol();
 
         stainProtocol.setNumber("1123");
-        stainProtocol.setNumber("H. Pylori1");
+        stainProtocol.setName("H. Pylori1");
         stainProtocol.setIdentifier("STAIN");
 
         return stainProtocol;

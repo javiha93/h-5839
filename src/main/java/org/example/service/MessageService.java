@@ -17,6 +17,7 @@ import org.example.domain.message.Message;
 import org.example.domain.message.entity.Block;
 import org.example.domain.message.entity.Slide;
 import org.example.domain.message.entity.Specimen;
+import org.example.domain.ws.VTGWS.VTGWSToNPLH.ProcessVTGEvent;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -83,6 +84,9 @@ public class MessageService {
             case "SLIDE_UPDATE":
                 SlideUpdate slideUpdate = SlideUpdate.FromMessage(message, slide, status);
                 return slideUpdate.toString();
+            case "ProcessVANTAGEEvent" :
+                ProcessVTGEvent processVTGEvent = ProcessVTGEvent.FromMessage(message, status, slide);
+                return processVTGEvent.toString();
             default:
                 throw new IllegalArgumentException("Tipo de mensaje no soportado: " + messageType);
         }

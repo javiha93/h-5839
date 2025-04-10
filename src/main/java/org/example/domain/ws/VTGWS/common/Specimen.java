@@ -2,11 +2,13 @@ package org.example.domain.ws.VTGWS.common;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.example.domain.message.Message;
+import org.example.domain.ws.VTGWS.WSSegment;
+
+import java.util.stream.Stream;
 
 @Data
 @NoArgsConstructor
-public class Specimen {
+public class Specimen extends WSSegment {
 
     private String barcode;
     private String fixativeTime;
@@ -39,6 +41,58 @@ public class Specimen {
         specimen.facilityName = entitySpecimen.getFacilityName();
         specimen.observationDateTime = entitySpecimen.getCollectDateTime();
 
+        return specimen;
+    }
+
+    private boolean isEmpty() {
+        return Stream.of(
+                        barcode,
+                        fixativeTime,
+                        fixativeType,
+                        sequence,
+                        surgicalProcedureDescription,
+                        surgicalProcedureName,
+                        techConsultId,
+                        tissueDescription,
+                        tissueDimensionHeight,
+                        tissueDimensionLength,
+                        tissueDimensionWeight,
+                        tissueDimensionWidth,
+                        tissueName,
+                        facilityCode,
+                        facilityName,
+                        observationDateTime
+                )
+                .allMatch(value -> value == null || value.trim().isEmpty());
+    }
+
+    public String toString(int indentationLevel) {
+        String specimen = addIndentation(indentationLevel) + "<Specimen>\n";
+
+        if (!this.isEmpty()) {
+            indentationLevel ++;
+
+            specimen += addIndentation(indentationLevel) + "<Barcode>" +  nullSafe(barcode) + "</Barcode>\n"
+                    + addIndentation(indentationLevel) + "<FixativeTime>" +  nullSafe(fixativeTime) + "</FixativeTime>\n"
+                    + addIndentation(indentationLevel) + "<FixativeType>" +  nullSafe(fixativeType) + "</FixativeType>\n"
+                    + addIndentation(indentationLevel) + "<Sequence>" +  nullSafe(sequence) + "</Sequence>\n"
+                    + addIndentation(indentationLevel) + "<SurgicalProcedureDescription>" +  nullSafe(surgicalProcedureDescription) + "</SurgicalProcedureDescription>\n"
+                    + addIndentation(indentationLevel) + "<SurgicalProcedureName>" +  nullSafe(surgicalProcedureName) + "</SurgicalProcedureName>\n"
+                    + addIndentation(indentationLevel) + "<TechConsultId>" +  nullSafe(techConsultId) + "</TechConsultId>\n"
+                    + addIndentation(indentationLevel) + "<TissueDescription>" +  nullSafe(tissueDescription) + "</TissueDescription>\n"
+                    + addIndentation(indentationLevel) + "<TissueDimensionHeight>" +  nullSafe(tissueDimensionHeight) + "</TissueDimensionHeight>\n"
+                    + addIndentation(indentationLevel) + "<TissueDimensionLength>" +  nullSafe(tissueDimensionLength) + "</TissueDimensionLength>\n"
+                    + addIndentation(indentationLevel) + "<TissueDimensionWeight>" +  nullSafe(tissueDimensionWeight) + "</TissueDimensionWeight>\n"
+                    + addIndentation(indentationLevel) + "<TissueDimensionWidth>" + nullSafe(tissueDimensionWidth) + "</TissueDimensionWidth>\n"
+                    + addIndentation(indentationLevel) + "<TissueName>" + nullSafe(tissueName) + "</TissueName>\n"
+                    + addIndentation(indentationLevel) + "<FacilityCode>" + nullSafe(facilityCode) + "</FacilityCode>\n"
+                    + addIndentation(indentationLevel) + "<FacilityName>" + nullSafe(facilityName) + "</FacilityName>\n"
+                    + addIndentation(indentationLevel) + "<ObservationDateTime>" + nullSafe(observationDateTime) + "</ObservationDateTime>\n";
+
+            indentationLevel --;
+        }
+
+        specimen += addIndentation(indentationLevel) + "</Specimen>";
         return specimen;
     }
 }

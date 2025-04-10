@@ -64,7 +64,7 @@ export const useMessageGenerator = () => {
       { id: 'SLIDE_UPDATE', name: 'SLIDE_UPDATE' }
     ],
     VANTAGE_WS: [
-      { id: 'CREATE_CASE', name: 'CREATE_CASE' },
+      { id: 'ProcessVANTAGEEvent', name: 'ProcessVANTAGEEvent' },
       { id: 'UPDATE_CASE', name: 'UPDATE_CASE' }
     ]
   };
@@ -74,16 +74,19 @@ export const useMessageGenerator = () => {
       setMessageTypes(hostMessageTypes[selectedHost as keyof typeof hostMessageTypes] || []);
       setSelectedType('');
       setSelectedSpecimen(null);
+      setSelectedBlock(null);
       setSelectedSlide(null);
     } else {
       setMessageTypes([]);
       setSelectedSpecimen(null);
+      setSelectedBlock(null);
       setSelectedSlide(null);
     }
   }, [selectedHost]);
 
   useEffect(() => {
     setSelectedSpecimen(null);
+    setSelectedBlock(null);
     setSelectedSlide(null);
   }, [selectedType]);
 
@@ -266,6 +269,7 @@ export const useMessageGenerator = () => {
     }
 
     if ((selectedHost === 'LIS' && selectedType === 'DELETE_SLIDE' && !selectedSlide) ||
+    (selectedHost === 'VANTAGE_WS' && selectedType === 'ProcessVANTAGEEvent' && !selectedSlide) ||
     (selectedHost === 'VTG' && selectedType === 'SLIDE_UPDATE' && !selectedSlide)) {
       setGeneratedMessage('Por favor, selecciona un slide para eliminar.');
       return;
@@ -332,8 +336,8 @@ export const useMessageGenerator = () => {
 
   const showSpecimenSelector = (selectedHost === 'LIS' && selectedType === 'DELETE_SPECIMEN') || (selectedHost === 'VTG' && selectedType === 'SPECIMEN_UPDATE');
   const showBlockSelector = (selectedHost === 'VTG' && selectedType === 'BLOCK_UPDATE');
-  const showSlideSelector = (selectedHost === 'LIS' && selectedType === 'DELETE_SLIDE') || (selectedHost === 'VTG' && selectedType === 'SLIDE_UPDATE');
-  const showStatusSelector = (selectedHost === 'LIS' && selectedType === 'CASE_UPDATE') || (selectedHost === 'VTG' && selectedType === 'SLIDE_UPDATE') || (selectedHost === 'VTG' && selectedType === 'BLOCK_UPDATE') || (selectedHost === 'VTG' && selectedType === 'SPECIMEN_UPDATE');
+  const showSlideSelector = (selectedHost === 'LIS' && selectedType === 'DELETE_SLIDE') || (selectedHost === 'VANTAGE_WS' && selectedType === 'ProcessVANTAGEEvent') || (selectedHost === 'VTG' && selectedType === 'SLIDE_UPDATE');
+  const showStatusSelector = (selectedHost === 'LIS' && selectedType === 'CASE_UPDATE') || (selectedHost === 'VANTAGE_WS' && selectedType === 'ProcessVANTAGEEvent') || (selectedHost === 'VTG' && selectedType === 'SLIDE_UPDATE') || (selectedHost === 'VTG' && selectedType === 'BLOCK_UPDATE') || (selectedHost === 'VTG' && selectedType === 'SPECIMEN_UPDATE');
 
   const generateButtonDisabled = isGeneratingMessage || 
                                 !selectedHost || 
