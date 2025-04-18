@@ -3,14 +3,16 @@ package org.example.domain.ws.VTGWS;
 
 import org.example.domain.hl7.HL7Segment;
 
+import java.util.function.Supplier;
+
 public class WSSegment {
 
     protected String nullSafe(String value) {
         return value == null ? "" : value;
     }
 
-    protected String nullSafe(WSSegment segment) {
-        return segment == null ? "" : segment.toString();
+    protected <T extends WSSegment> T nullSafe(T segment, Supplier<T> emptyInstanceSupplier) {
+        return segment != null ? segment : emptyInstanceSupplier.get();
     }
 
     protected String addIndentation(int indentationLevel) {

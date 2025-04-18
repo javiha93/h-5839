@@ -17,7 +17,16 @@ import org.example.domain.message.Message;
 import org.example.domain.message.entity.Block;
 import org.example.domain.message.entity.Slide;
 import org.example.domain.message.entity.Specimen;
-import org.example.domain.ws.VTGWS.VTGWSToNPLH.ProcessVTGEvent;
+import org.example.domain.ws.VTGWS.VTGWSToNPLH.ProcessAssignedPathologistUpdate.ProcessAssignedPathologistUpdate;
+import org.example.domain.ws.VTGWS.VTGWSToNPLH.ProcessCancelOrder.ProcessCancelOrder;
+import org.example.domain.ws.VTGWS.VTGWSToNPLH.ProcessCancelOrderRequest.ProcessCancelOrderRequest;
+import org.example.domain.ws.VTGWS.VTGWSToNPLH.ProcessChangeOrder.ProcessChangeOrder;
+import org.example.domain.ws.VTGWS.VTGWSToNPLH.ProcessChangeOrderRequest.ProcessChangeOrderRequest;
+import org.example.domain.ws.VTGWS.VTGWSToNPLH.ProcessNewOrder.ProcessNewOrder;
+import org.example.domain.ws.VTGWS.VTGWSToNPLH.ProcessNewOrderRequest.ProcessNewOrderRequest;
+import org.example.domain.ws.VTGWS.VTGWSToNPLH.ProcessPatientUpdate.ProcessPatientUpdate;
+import org.example.domain.ws.VTGWS.VTGWSToNPLH.ProcessPhysicianUpdate.ProcessPhysicianUpdate;
+import org.example.domain.ws.VTGWS.VTGWSToNPLH.ProcessVTGEvent.ProcessVTGEvent;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -54,6 +63,33 @@ public class MessageService {
             case "ADDITION":
                 Addition addition = Addition.FromMessage(message);
                 return addition.toString();
+            case "ProcessPatientUpdate":
+                ProcessPatientUpdate processPatientUpdate = ProcessPatientUpdate.FromMessage(message);
+                return processPatientUpdate.toString();
+            case "ProcessNewOrderRequest":
+                ProcessNewOrderRequest processNewOrderRequest = ProcessNewOrderRequest.FromMessage(message);
+                return processNewOrderRequest.toString();
+            case "ProcessChangeOrderRequest":
+                ProcessChangeOrderRequest processChangeOrderRequest = ProcessChangeOrderRequest.FromMessage(message);
+                return processChangeOrderRequest.toString();
+            case "ProcessCancelOrderRequest":
+                ProcessCancelOrderRequest processCancelOrderRequest = ProcessCancelOrderRequest.FromMessage(message);
+                return processCancelOrderRequest.toString();
+            case "ProcessNewOrder":
+                ProcessNewOrder processNewOrder = ProcessNewOrder.FromMessage(message);
+                return processNewOrder.toString();
+            case "ProcessChangeOrder":
+                ProcessChangeOrder processChangeOrder = ProcessChangeOrder.FromMessage(message);
+                return processChangeOrder.toString();
+            case "ProcessCancelOrder":
+                ProcessCancelOrder processCancelOrder = ProcessCancelOrder.FromMessage(message);
+                return processCancelOrder.toString();
+            case "ProcessAssignedPathologistUpdate":
+                ProcessAssignedPathologistUpdate processAssignedPathologistUpdate = ProcessAssignedPathologistUpdate.FromMessage(message);
+                return processAssignedPathologistUpdate.toString();
+            case "ProcessPhysicianUpdate":
+                ProcessPhysicianUpdate processPhysicianUpdate = ProcessPhysicianUpdate.FromMessage(message);
+                return processPhysicianUpdate.toString();
             default:
                 throw new IllegalArgumentException("Tipo de mensaje no soportado: " + messageType);
         }
@@ -97,6 +133,9 @@ public class MessageService {
             case "BLOCK_UPDATE":
                 BlockUpdate blockUpdate = BlockUpdate.FromMessage(message, block, status);
                 return blockUpdate.toString();
+            case "ProcessVANTAGEEvent" :
+                ProcessVTGEvent processVTGEvent = ProcessVTGEvent.FromMessage(message, status, block);
+                return processVTGEvent.toString();
             default:
                 throw new IllegalArgumentException("Tipo de mensaje no soportado: " + messageType);
         }
@@ -107,6 +146,9 @@ public class MessageService {
             case "SPECIMEN_UPDATE":
                 SpecimenUpdate slideUpdate = SpecimenUpdate.FromMessage(message, specimen, status);
                 return slideUpdate.toString();
+            case "ProcessVANTAGEEvent" :
+                ProcessVTGEvent processVTGEvent = ProcessVTGEvent.FromMessage(message, status, specimen);
+                return processVTGEvent.toString();
             default:
                 throw new IllegalArgumentException("Tipo de mensaje no soportado: " + messageType);
         }

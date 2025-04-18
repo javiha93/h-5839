@@ -1,4 +1,4 @@
-package org.example.domain.ws.VTGWS.VTGWSToNPLH;
+package org.example.domain.ws.VTGWS.VTGWSToNPLH.ProcessVTGEvent;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -27,7 +27,7 @@ public class EventStatus extends WSSegment {
         eventStatus.eventType = eventType;
         eventStatus.observationDateTime = message.getRegisterTime();
         eventStatus.specimen = Specimen.Default(specimen);
-        eventStatus.technician = Technician.Default(message.getOrder().getTechnician());
+        eventStatus.technician = Technician.FromTechnician(message.getOrder().getTechnician());
 
         return eventStatus;
     }
@@ -41,7 +41,7 @@ public class EventStatus extends WSSegment {
         eventStatus.eventType = eventType;
         eventStatus.observationDateTime = message.getRegisterTime();
         eventStatus.specimen = Specimen.Default(specimen);
-        eventStatus.technician = Technician.Default(message.getOrder().getTechnician());
+        eventStatus.technician = Technician.FromTechnician(message.getOrder().getTechnician());
 
         return eventStatus;
     }
@@ -57,7 +57,7 @@ public class EventStatus extends WSSegment {
         eventStatus.observationDateTime = message.getRegisterTime();
         eventStatus.slide = Slide.Default(slide);
         eventStatus.specimen = Specimen.Default(specimen);
-        eventStatus.technician = Technician.Default(message.getOrder().getTechnician());
+        eventStatus.technician = Technician.FromTechnician(message.getOrder().getTechnician());
 
         return eventStatus;
     }
@@ -67,13 +67,13 @@ public class EventStatus extends WSSegment {
 
         indentationLevel ++;
 
-        eventStatus += block.toString(indentationLevel) + "\n" +
-                addIndentation(indentationLevel) + "<CaseId>" + caseId + "</CaseId>\n" +
-                addIndentation(indentationLevel) + "<EventType>" + eventType + "</EventType>\n" +
-                addIndentation(indentationLevel) + "<ObservationDateTime>" + observationDateTime + "</ObservationDateTime>\n" +
-                slide.toString(indentationLevel) + "\n" +
-                specimen.toString(indentationLevel) + "\n" +
-                technician.toString(indentationLevel) + "\n";
+        eventStatus += nullSafe(block, Block::new).toString(indentationLevel) + "\n" +
+                addIndentation(indentationLevel) + "<CaseId>" + nullSafe(caseId) + "</CaseId>\n" +
+                addIndentation(indentationLevel) + "<EventType>" + nullSafe(eventType) + "</EventType>\n" +
+                addIndentation(indentationLevel) + "<ObservationDateTime>" + nullSafe(observationDateTime) + "</ObservationDateTime>\n" +
+                nullSafe(slide, Slide::new).toString(indentationLevel) + "\n" +
+                nullSafe(specimen, Specimen::new).toString(indentationLevel) + "\n" +
+                nullSafe(technician, Technician::new).toString(indentationLevel) + "\n";
 
         indentationLevel --;
 

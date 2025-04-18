@@ -27,7 +27,7 @@ public class Block extends WSSegment {
         return  block;
     }
 
-    private boolean isEmpty() {
+    public boolean isEmpty() {
         return Stream.of(barcode, sequence, tissueSubTypeDescription, tissueSubTypeName)
                 .allMatch(value -> value == null || value.trim().isEmpty());
     }

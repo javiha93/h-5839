@@ -46,6 +46,16 @@ export const useMessageGenerator = () => {
     { id: 'CANCEL', name: 'CANCEL' }
   ];
 
+  const statusVTGWSOptions = [
+      { id: 'EMBEDDED', name: 'EMBEDDED' },
+      { id: 'MARKED', name: 'MARKED' },
+      { id: 'VERIFIED', name: 'VERIFIED' },
+      { id: 'ASSEMBLED', name: 'ASSEMBLED' },
+      { id: 'ASSIGNED', name: 'ASSIGNED' },
+      { id: 'ADDITION', name: 'ADDITION' },
+      { id: 'CANCELED', name: 'CANCELED' }
+    ];
+
   const [messageTypes, setMessageTypes] = useState<MessageType[]>([]);
 
   const hostMessageTypes = {
@@ -67,7 +77,15 @@ export const useMessageGenerator = () => {
     ],
     VANTAGE_WS: [
       { id: 'ProcessVANTAGEEvent', name: 'ProcessVANTAGEEvent' },
-      { id: 'UPDATE_CASE', name: 'UPDATE_CASE' }
+      { id: 'ProcessNewOrderRequest', name: 'ProcessNewOrderRequest' },
+      { id: 'ProcessChangeOrderRequest', name: 'ProcessChangeOrderRequest' },
+      { id: 'ProcessCancelOrderRequest', name: 'ProcessCancelOrderRequest' },
+      { id: 'ProcessNewOrder', name: 'ProcessNewOrder' },
+      { id: 'ProcessChangeOrder', name: 'ProcessChangeOrder' },
+      { id: 'ProcessCancelOrder', name: 'ProcessCancelOrder' },
+      { id: 'ProcessAssignedPathologistUpdate', name: 'ProcessAssignedPathologistUpdate' },
+      { id: 'ProcessPhysicianUpdate', name: 'ProcessPhysicianUpdate' },
+      { id: 'ProcessPatientUpdate', name: 'ProcessPatientUpdate' }
     ]
   };
 
@@ -105,7 +123,7 @@ export const useMessageGenerator = () => {
     setError(null);
 
     try {
-      const response = await fetch('http://localhost:8080/api/messages/generate', {
+      const response = await fetch('http://localhost:8085/api/messages/generate', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -330,7 +348,7 @@ export const useMessageGenerator = () => {
         if (selectedSlide) requestBody.slide = selectedSlide;
       }
 
-      const response = await fetch('http://localhost:8080/api/messages/convert', {
+      const response = await fetch('http://localhost:8085/api/messages/convert', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -415,6 +433,7 @@ export const useMessageGenerator = () => {
     selectedEntity,
     hosts,
     statusOptions,
+    statusVTGWSOptions,
     messageTypes,
     showSpecimenSelector,
     showBlockSelector,

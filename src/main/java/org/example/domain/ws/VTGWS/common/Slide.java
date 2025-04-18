@@ -26,7 +26,7 @@ public class Slide extends WSSegment {
         return slide;
     }
 
-    private boolean isEmpty() {
+    public boolean isEmpty() {
         return Stream.of(barcode, sequence, slideComments, techConsultId)
                 .allMatch(value -> value == null || value.trim().isEmpty());
     }
@@ -39,8 +39,8 @@ public class Slide extends WSSegment {
 
             specimen += addIndentation(indentationLevel) + "<Barcode>" +  nullSafe(barcode) + "</Barcode>\n"
                     + addIndentation(indentationLevel) + "<Sequence>" +  nullSafe(sequence) + "</Sequence>\n"
-                    + stainProtocol.toString(indentationLevel) + "\n"
-                    + addIndentation(indentationLevel) + "<SlideComments>" +  nullSafe(slideComments) + "</SurgicalProcedureDescription>\n"
+                    + nullSafe(stainProtocol, StainProtocol::new).toString(indentationLevel) + "\n"
+                    + addIndentation(indentationLevel) + "<SlideComments>" +  nullSafe(slideComments) + "</SlideComments>\n"
                     + addIndentation(indentationLevel) + "<TechConsultId>" +  nullSafe(techConsultId) + "</TechConsultId>\n";
 
             indentationLevel --;

@@ -3,7 +3,6 @@ package org.example.domain.ws.VTGWS.common;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.example.domain.message.entity.Specimen;
 import org.example.domain.ws.VTGWS.WSSegment;
 
 import java.util.stream.Stream;
@@ -16,7 +15,7 @@ public class Technician extends WSSegment {
     private String middleName;
     private String userId;
 
-    public static Technician Default(org.example.domain.message.professional.Technician entityTechnician) {
+    public static Technician FromTechnician(org.example.domain.message.professional.Technician entityTechnician) {
         Technician technician = new Technician();
 
         technician.firstName = entityTechnician.getFirstName();
@@ -38,10 +37,10 @@ public class Technician extends WSSegment {
         if (!this.isEmpty()) {
             indentationLevel ++;
 
-            technician += addIndentation(indentationLevel) + "<FirstName>" + firstName + "</FirstName>\n"
-                    + addIndentation(indentationLevel) + "<LastName>" + lastName + "</LastName>\n"
-                    + addIndentation(indentationLevel) + "<MiddleName>" + middleName + "</MiddleName>\n"
-                    + addIndentation(indentationLevel) + "<UserId>" + userId + "</UserId>\n";
+            technician += addIndentation(indentationLevel) + "<FirstName>" + nullSafe(firstName) + "</FirstName>\n"
+                    + addIndentation(indentationLevel) + "<LastName>" + nullSafe(lastName) + "</LastName>\n"
+                    + addIndentation(indentationLevel) + "<MiddleName>" + nullSafe(middleName) + "</MiddleName>\n"
+                    + addIndentation(indentationLevel) + "<UserId>" + nullSafe(userId) + "</UserId>\n";
 
             indentationLevel --;
         }

@@ -46,6 +46,7 @@ const MessageGenerator: React.FC = () => {
     selectedEntity,
     hosts,
     statusOptions,
+    statusVTGWSOptions,
     messageTypes,
     showSpecimenSelector,
     showBlockSelector,
@@ -100,6 +101,7 @@ const MessageGenerator: React.FC = () => {
         messageTypes={messageTypes}
         hosts={hosts}
         statusOptions={statusOptions}
+        statusVTGWSOptions={statusVTGWSOptions}
         handleHostChange={handleHostChange}
         handleTypeChange={handleTypeChange}
         handleStatusChange={handleStatusChange}

@@ -10,6 +10,7 @@ interface MessageOptionsProps {
   messageTypes: MessageType[];
   hosts: { id: string; name: string }[];
   statusOptions: { id: string; name: string }[];
+  statusVTGWSOptions: { id: string; name: string }[];
   handleHostChange: (e: React.ChangeEvent<HTMLSelectElement>) => void;
   handleTypeChange: (e: React.ChangeEvent<HTMLSelectElement>) => void;
   handleStatusChange: (e: React.ChangeEvent<HTMLSelectElement>) => void;
@@ -36,6 +37,7 @@ const MessageOptions: React.FC<MessageOptionsProps> = ({
   messageTypes,
   hosts,
   statusOptions,
+  statusVTGWSOptions,
   handleHostChange,
   handleTypeChange,
   handleStatusChange,
@@ -54,6 +56,8 @@ const MessageOptions: React.FC<MessageOptionsProps> = ({
   selectedSlide,
   selectedEntity
 }) => {
+ const currentStatusOptions = selectedHost === 'VANTAGE_WS' ? statusVTGWSOptions : statusOptions;
+
   return (
     <>
       <div className="mb-6">
@@ -102,7 +106,7 @@ const MessageOptions: React.FC<MessageOptionsProps> = ({
               onChange={handleStatusChange}
               className="w-1/3 px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white transition-all"
             >
-              {statusOptions.map((status) => (
+              {currentStatusOptions.map((status) => (
                 <option key={status.id} value={status.id}>
                   {status.name}
                 </option>

@@ -1,4 +1,4 @@
-package org.example.domain.ws.VTGWS.VTGWSToNPLH;
+package org.example.domain.ws.VTGWS.VTGWSToNPLH.ProcessVTGEvent;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;

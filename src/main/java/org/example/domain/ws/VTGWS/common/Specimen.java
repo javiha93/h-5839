@@ -44,7 +44,7 @@ public class Specimen extends WSSegment {
         return specimen;
     }
 
-    private boolean isEmpty() {
+    public boolean isEmpty() {
         return Stream.of(
                         barcode,
                         fixativeTime,
