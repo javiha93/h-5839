@@ -6,13 +6,17 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="monster-parser" />
+        <module name="npl-message-handler-back" />
       </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="monster-parser" target="15" />
+    </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
       <module name="monster-parser" options="-parameters" />
+      <module name="npl-message-handler-back" options="-parameters" />
     </option>
   </component>
 </project>
